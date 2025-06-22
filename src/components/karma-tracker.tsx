@@ -1,10 +1,17 @@
+
 "use client";
 
-import { activities, type Activity } from '@/lib/activities';
+import { activities, activityCategories, type Activity } from '@/lib/activities';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionTrigger,
+  AccordionItem,
+} from '@/components/ui/accordion';
 
 const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { activities: Activity[], selectedActivities: Record<string, boolean>, onActivityToggle: (name: string) => void }) => (
-    <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
+    <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 pt-4">
         {activities.map((activity) => (
         <button
             key={activity.name}
@@ -27,11 +34,74 @@ const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { ac
 );
 
 export function KarmaTracker({ selectedActivities, onActivityToggle }: { selectedActivities: Record<string, boolean>, onActivityToggle: (activityName: string) => void }) {
+  const goodKarmaCategories = activityCategories.filter(c => c.type === 'Good');
+  const badKarmaCategories = activityCategories.filter(c => c.type === 'Bad');
+
+  const getActivitiesForCategory = (categoryName: string) => {
+    return activities.filter(a => a.category === categoryName);
+  }
+
   return (
-      <ActivityGrid 
-        activities={activities} 
-        selectedActivities={selectedActivities} 
-        onActivityToggle={onActivityToggle} 
-      />
+    <div className="space-y-6">
+        <div>
+            <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">Positive Karma Activities</h3>
+             <Accordion type="multiple" className="w-full space-y-2">
+                {goodKarmaCategories.map(category => {
+                    const categoryActivities = getActivitiesForCategory(category.name);
+                    if (categoryActivities.length === 0) return null;
+                    
+                    const CategoryIcon = category.icon;
+
+                    return (
+                        <AccordionItem value={category.name} key={category.name} className="border rounded-lg px-4 bg-muted/20">
+                            <AccordionTrigger className="text-base font-semibold hover:no-underline py-3">
+                                <div className="flex items-center gap-3">
+                                    <CategoryIcon className="w-5 h-5 text-primary" />
+                                    {category.name}
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                               <ActivityGrid 
+                                    activities={categoryActivities} 
+                                    selectedActivities={selectedActivities} 
+                                    onActivityToggle={onActivityToggle} 
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+                    )
+                })}
+            </Accordion>
+        </div>
+       
+        <div>
+            <h3 className="text-xl font-bold text-red-700 dark:text-red-500 mb-2">Negative Karma Activities</h3>
+             <Accordion type="multiple" className="w-full space-y-2">
+                {badKarmaCategories.map(category => {
+                    const categoryActivities = getActivitiesForCategory(category.name);
+                    if (categoryActivities.length === 0) return null;
+
+                    const CategoryIcon = category.icon;
+
+                    return (
+                        <AccordionItem value={category.name} key={category.name} className="border rounded-lg px-4 bg-muted/20">
+                            <AccordionTrigger className="text-base font-semibold hover:no-underline py-3">
+                                <div className="flex items-center gap-3">
+                                    <CategoryIcon className="w-5 h-5 text-destructive" />
+                                    {category.name}
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                               <ActivityGrid 
+                                    activities={categoryActivities} 
+                                    selectedActivities={selectedActivities} 
+                                    onActivityToggle={onActivityToggle} 
+                                />
+                            </AccordionContent>
+                        </AccordionItem>
+                    )
+                })}
+            </Accordion>
+        </div>
+    </div>
   );
 }
