@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -88,12 +89,31 @@ export default {
           '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-4px) scale(1.05)' },
           '20%, 40%, 60%, 80%': { transform: 'translateX(4px) scale(1.05)' },
         },
+        'fly-to-wallet': {
+          '0%': {
+            top: 'var(--start-top, 50%)',
+            left: 'var(--start-left, 50%)',
+            transform: 'translate(-50%, -50%) scale(1.5)',
+            opacity: '1',
+          },
+          '40%': {
+            transform: 'translate(-50%, -50%) scale(1.75)',
+            opacity: '1',
+          },
+          '100%': {
+            top: 'var(--end-top, 0)',
+            left: 'var(--end-left, 0)',
+            transform: 'translate(-50%, -50%) scale(0)',
+            opacity: '0.5',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pop-in': 'pop-in 0.3s ease-out',
         'shake': 'shake 0.4s ease-in-out',
+        'fly-to-wallet': 'fly-to-wallet 1.5s ease-in-out forwards',
       },
     },
   },

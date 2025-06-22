@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -5,10 +6,27 @@ import { usePathname } from 'next/navigation';
 import { LayoutGrid, ClipboardList, Sparkles, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useWallet } from '@/hooks/use-wallet';
+import { useEffect, useRef } from 'react';
 
 export function Navbar() {
   const pathname = usePathname();
-  const { balance } = useWallet();
+  const { balance, setWalletPosition } = useWallet();
+  const walletRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updatePosition = () => {
+        if (walletRef.current) {
+            const rect = walletRef.current.getBoundingClientRect();
+            setWalletPosition({
+                top: rect.top + rect.height / 2,
+                left: rect.left + rect.width / 2,
+            });
+        }
+    }
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [setWalletPosition]);
 
   const navLinks = [
     { href: '/', label: 'Karma Journal', icon: LayoutGrid },
@@ -43,7 +61,7 @@ export function Navbar() {
         </div>
         
         <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-full bg-amber-400/20 px-3 py-1.5 border border-amber-500/50">
+            <div ref={walletRef} className="flex items-center gap-2 rounded-full bg-amber-400/20 px-3 py-1.5 border border-amber-500/50">
                 <Wallet className="h-5 w-5 text-amber-600" />
                 <span className="font-bold text-amber-800 dark:text-amber-300">
                     ₹{balance.toFixed(2)}

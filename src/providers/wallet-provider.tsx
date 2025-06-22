@@ -1,14 +1,21 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { WalletContext } from '@/hooks/use-wallet';
+import { RewardAnimation } from '@/components/reward-animation';
 
 const WALLET_STORAGE_KEY = 'karma-wallet-balance';
 
 export function WalletProvider({ children }: { children: ReactNode }) {
     const [balance, setBalance] = useState<number>(0);
     const { toast } = useToast();
+
+    // Animation state
+    const [animationConfig, setAnimationConfig] = useState<{ key: number; amount: number } | null>(null);
+    const [walletPosition, setWalletPosition] = useState<{ top: number; left: number } | null>(null);
+
 
     useEffect(() => {
         try {
@@ -34,17 +41,34 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const addFunds = useCallback((amount: number, message: string = "You've earned a reward!") => {
         const newBalance = balance + amount;
         updateBalance(newBalance);
+        
+        if (walletPosition) {
+            setAnimationConfig({ key: Date.now(), amount });
+        }
+
         toast({
             title: "Wallet Updated!",
             description: `${message} ₹${amount} has been added to your wallet.`,
         });
-    }, [balance, toast]);
+    }, [balance, toast, walletPosition]);
 
-    const value = { balance, addFunds };
+    const setWalletPositionCallback = useCallback((position: {top: number; left: number}) => {
+        setWalletPosition(position);
+    }, []);
+
+    const value = { balance, addFunds, setWalletPosition: setWalletPositionCallback };
 
     return (
         <WalletContext.Provider value={value}>
             {children}
+            {animationConfig && walletPosition && (
+                <RewardAnimation
+                    key={animationConfig.key}
+                    amount={animationConfig.amount}
+                    endPos={walletPosition}
+                    onAnimationEnd={() => setAnimationConfig(null)}
+                />
+            )}
         </WalletContext.Provider>
     );
 }
