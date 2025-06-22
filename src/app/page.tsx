@@ -20,6 +20,7 @@ import {
   Gift,
   Mail,
   Quote,
+  DollarSign,
 } from 'lucide-react';
 import { LandingFooter } from '@/components/landing/landing-footer';
 
@@ -67,8 +68,10 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-20 sm:py-32">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">
-                Build Good Habits.<br />Earn Pocket Money.<br />Grow Every Day.
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex flex-wrap items-center justify-center md:justify-start text-center md:text-left">
+                <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
+                <DollarSign className="w-10 h-10 md:w-12 md:h-12 text-green-500 mx-2" />
+                <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">As You Learn</span>
               </h1>
               <p className="text-lg text-muted-foreground">
                 A gamified journaling and goal-setting app for students to reflect, grow, and get rewarded.
