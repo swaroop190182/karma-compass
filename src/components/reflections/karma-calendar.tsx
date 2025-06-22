@@ -31,10 +31,8 @@ const mockData: DayEntry[] = [
     { date: '2025-06-03', score: -12, loggedActivities: ['Skip Class', 'Oversleep'], reflection: 'Felt really bad today. Need to do better tomorrow.' },
 ];
 
-function CustomDay(props: DayProps) {
-    const { date, displayMonth, modifiers } = props;
+function CustomDay({ date, modifiers, buttonProps }: DayProps) {
     const entry = mockData.find(d => isSameDay(parseISO(d.date), date));
-    const isOutside = date.getMonth() !== displayMonth.getMonth();
 
     const getActivities = (names: string[] | undefined) => {
         if (!names) return [];
@@ -46,7 +44,7 @@ function CustomDay(props: DayProps) {
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
-        if (!entry) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (!entry || modifiers.outside) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
         if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
         if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
@@ -55,12 +53,16 @@ function CustomDay(props: DayProps) {
     };
 
     return (
-        <div className={cn(
-            "flex flex-col h-full p-1.5",
-            getBackgroundColorClass(), 
-            isOutside && "opacity-40",
-            entry && "cursor-pointer hover:bg-accent/80 transition-colors"
-        )}>
+        <button
+            {...buttonProps}
+            type="button"
+            className={cn(
+                "flex flex-col h-full w-full p-1.5 text-left relative",
+                getBackgroundColorClass(), 
+                modifiers.outside && "opacity-40",
+                !modifiers.disabled && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
+                modifiers.disabled && !modifiers.outside && "cursor-default"
+            )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
                 {entry && (
@@ -90,12 +92,14 @@ function CustomDay(props: DayProps) {
                         )}
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center w-full h-full -mt-4">
-                        <span className="text-[10px] text-muted-foreground/80">No entries</span>
-                    </div>
+                    !modifiers.outside && (
+                        <div className="flex items-center justify-center w-full h-full -mt-4">
+                            <span className="text-[10px] text-muted-foreground/80">No entries</span>
+                        </div>
+                    )
                 )}
             </div>
-        </div>
+        </button>
     )
 }
 
@@ -105,8 +109,7 @@ export function KarmaCalendar() {
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     
-    const handleDayClick = (day: Date, modifiers: { empty?: boolean, disabled?: boolean }) => {
-        if (modifiers.empty || modifiers.disabled) return;
+    const handleDayClick = (day: Date) => {
         const entry = mockData.find(d => isSameDay(parseISO(d.date), day));
         if (entry) {
             setSelectedDayData(entry);
@@ -140,10 +143,9 @@ export function KarmaCalendar() {
                             head_row: 'flex',
                             head_cell: 'w-[calc(100%/7)] pb-2 text-sm font-semibold text-muted-foreground text-center',
                             row: 'flex w-full',
-                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80 has-[[aria-selected]]:bg-accent',
+                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80',
                             day_today: 'ring-2 ring-primary ring-offset-2',
                             day_outside: 'text-muted-foreground/50',
-                            day_selected: '',
                         }}
                         components={{
                             IconLeft: () => <ChevronLeft className="h-5 w-5" />,
@@ -151,9 +153,7 @@ export function KarmaCalendar() {
                             Day: CustomDay
                         }}
                         modifiers={{
-                            saturdays: { dayOfWeek: [6] },
-                            sundays: { dayOfWeek: [0] },
-                            empty: (date) => !mockData.some(d => isSameDay(parseISO(d.date), date))
+                           disabled: (date) => !mockData.some(d => isSameDay(parseISO(d.date), date))
                         }}
                     />
                 </CardContent>
