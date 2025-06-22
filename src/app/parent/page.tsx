@@ -11,6 +11,9 @@ import {
   Camera,
   PlusCircle,
   Trash2,
+  CreditCard,
+  Landmark,
+  Banknote
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,11 +23,19 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const students = [
     { id: '1', name: 'Rohan', avatar: 'https://placehold.co/40x40.png' },
     { id: '2', name: 'Priya', avatar: 'https://placehold.co/40x40.png' }
 ];
+
+const transactions = [
+    { id: 't1', date: '2023-06-15', amount: 1000, method: 'Credit Card', status: 'Success' },
+    { id: 't2', date: '2023-06-08', amount: 500, method: 'UPI', status: 'Success' },
+    { id: 't3', date: '2023-05-20', amount: 2000, method: 'Net Banking', status: 'Success' },
+]
 
 export default function ParentDashboardPage() {
   return (
@@ -166,11 +177,126 @@ export default function ParentDashboardPage() {
 
             </TabsContent>
 
-            {/* Placeholder for other tabs */}
-            <TabsContent value="wallet">
+            <TabsContent value="wallet" className="space-y-8">
                 <Card>
-                    <CardHeader><CardTitle>Wallet & Billing</CardTitle></CardHeader>
-                    <CardContent><p>Wallet management features will be here.</p></CardContent>
+                    <CardHeader>
+                        <CardTitle>Parent Wallet</CardTitle>
+                        <CardDescription>Manage your central wallet to fund your students' rewards.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        <div className="space-y-6">
+                            <div className="p-6 rounded-lg bg-primary/10 border-primary/20 border">
+                                <Label className="text-sm font-medium text-primary-foreground/80">Current Balance</Label>
+                                <p className="text-4xl font-bold text-primary-foreground">₹5,000.00</p>
+                            </div>
+                             <div className="space-y-4">
+                                <Label htmlFor="amount" className="font-semibold">Load Money to Wallet</Label>
+                                <Input id="amount" type="number" placeholder="Enter amount in ₹" />
+                                <Select defaultValue="upi">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Payment Method" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="upi"><Banknote className="mr-2"/> UPI</SelectItem>
+                                        <SelectItem value="card"><CreditCard className="mr-2"/> Credit/Debit Card</SelectItem>
+                                        <SelectItem value="netbanking"><Landmark className="mr-2"/> Net Banking</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button className="w-full" size="lg">Add Funds</Button>
+                                <p className="text-xs text-muted-foreground text-center">All transactions are secure and require OTP/PIN verification.</p>
+                            </div>
+                        </div>
+                        <div className="space-y-6">
+                           <h4 className="font-semibold text-foreground">Managed Payment Methods</h4>
+                           <div className="space-y-3">
+                               <div className="flex items-center justify-between p-3 border rounded-lg">
+                                   <div className="flex items-center gap-3">
+                                       <CreditCard className="w-6 h-6 text-muted-foreground"/>
+                                       <div>
+                                           <p className="font-medium">HDFC Bank Credit Card</p>
+                                           <p className="text-sm text-muted-foreground">**** **** **** 1234</p>
+                                       </div>
+                                   </div>
+                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4"/></Button>
+                               </div>
+                               <div className="flex items-center justify-between p-3 border rounded-lg">
+                                   <div className="flex items-center gap-3">
+                                       <Banknote className="w-6 h-6 text-muted-foreground"/>
+                                       <div>
+                                           <p className="font-medium">UPI</p>
+                                           <p className="text-sm text-muted-foreground">parent@ybl</p>
+                                       </div>
+                                   </div>
+                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4"/></Button>
+                               </div>
+                           </div>
+                           <Button variant="secondary" className="w-full"><PlusCircle className="mr-2"/> Add New Payment Method</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Student Spending Limits</CardTitle>
+                        <CardDescription>Set weekly or monthly spending caps for each student from your main wallet.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {students.map(student => (
+                            <div key={student.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/50 rounded-lg">
+                                <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                                    <Avatar>
+                                        <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="child avatar"/>
+                                        <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <p className="font-semibold">{student.name}'s Limit</p>
+                                </div>
+                                <div className="flex items-center gap-2 w-full sm:w-auto">
+                                    <Input type="number" placeholder="e.g., 500" className="w-full sm:w-32" />
+                                     <Select defaultValue="weekly">
+                                        <SelectTrigger className="w-full sm:w-32">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="weekly">per Week</SelectItem>
+                                            <SelectItem value="monthly">per Month</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        ))}
+                         <div className="flex justify-end pt-2">
+                             <Button>Save Limits</Button>
+                         </div>
+                    </CardContent>
+                </Card>
+
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Transaction History</CardTitle>
+                        <CardDescription>A log of all money added to your parent wallet.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Payment Method</TableHead>
+                                    <TableHead className="text-right">Status</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {transactions.map(tx => (
+                                    <TableRow key={tx.id}>
+                                        <TableCell>{tx.date}</TableCell>
+                                        <TableCell>₹{tx.amount.toFixed(2)}</TableCell>
+                                        <TableCell>{tx.method}</TableCell>
+                                        <TableCell className="text-right font-medium text-green-600">{tx.status}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
                 </Card>
             </TabsContent>
             <TabsContent value="rules">
