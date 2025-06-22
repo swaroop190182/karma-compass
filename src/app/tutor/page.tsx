@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useTransition, useRef, useEffect } from 'react';
@@ -23,9 +24,7 @@ export default function TutorPage() {
     const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
     const [selectedGrade, setSelectedGrade] = useState<Grade | null>(null);
     const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-
     const [isConfigured, setIsConfigured] = useState(false);
-
     const [messages, setMessages] = useState<Message[]>([]);
     const [currentInput, setCurrentInput] = useState('');
     const [isLumaTyping, startLumaResponseTransition] = useTransition();
@@ -33,8 +32,7 @@ export default function TutorPage() {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     const availableGrades = useMemo(() => {
-        if (selectedBoard) return grades;
-        return [];
+        return selectedBoard ? grades : [];
     }, [selectedBoard]);
 
     const availableSubjects = useMemo(() => {
@@ -45,7 +43,6 @@ export default function TutorPage() {
     }, [selectedBoard, selectedGrade]);
     
     useEffect(() => {
-        // Reset subsequent fields when a parent field changes
         setSelectedGrade(null);
         setSelectedSubject(null);
     }, [selectedBoard]);
@@ -63,8 +60,7 @@ export default function TutorPage() {
         }
     }, [messages]);
 
-
-    function handleStartChatting() {
+    const handleStartChatting = () => {
         if (selectedBoard && selectedGrade && selectedSubject) {
             setMessages([
                 { role: 'model', content: `Hello! I'm Luma, your personal AI tutor. I'm ready to help you with ${selectedSubject.name}. What would you like to learn about today?` }
@@ -77,9 +73,9 @@ export default function TutorPage() {
                 variant: 'destructive',
             });
         }
-    }
+    };
     
-    async function handleSendMessage() {
+    const handleSendMessage = async () => {
         if (!currentInput.trim() || !selectedBoard || !selectedGrade || !selectedSubject) return;
 
         const newUserMessage: Message = { role: 'user', content: currentInput };
@@ -113,12 +109,12 @@ export default function TutorPage() {
                 });
             }
         });
-    }
+    };
     
-    function handleSubjectSelection(subjectName: string) {
+    const handleSubjectSelection = (subjectName: string) => {
         const subject = availableSubjects.find(s => s.name === subjectName);
         setSelectedSubject(subject || null);
-    }
+    };
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col h-[calc(100vh-80px)]">
@@ -157,7 +153,7 @@ export default function TutorPage() {
                         <div className="space-y-2">
                             <label className="font-medium flex items-center gap-2"><BookOpen className="w-4 h-4" /> Subject</label>
                             <Select onValueChange={handleSubjectSelection} value={selectedSubject?.name ?? ''} disabled={!selectedGrade}>
-                                <SelectTrigger><SelectValue placeholder="Select your subject..." /></SelectValue>
+                                <SelectTrigger><SelectValue placeholder="Select your subject..." /></SelectTrigger>
                                 <SelectContent>
                                     {availableSubjects.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}
                                 </SelectContent>
@@ -165,7 +161,7 @@ export default function TutorPage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={handleStartChatting} className="w-full" size="lg">
+                        <Button onClick={handleStartChatting} className="w-full" size="lg" disabled={!selectedBoard || !selectedGrade || !selectedSubject}>
                             <Sparkles className="mr-2" /> Start Chatting with Luma
                         </Button>
                     </CardFooter>
