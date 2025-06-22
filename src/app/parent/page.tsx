@@ -13,7 +13,12 @@ import {
   Trash2,
   CreditCard,
   Landmark,
-  Banknote
+  Banknote,
+  BookOpen,
+  Target,
+  Puzzle,
+  TrendingUp,
+  Sparkles
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -299,12 +304,127 @@ export default function ParentDashboardPage() {
                     </CardContent>
                 </Card>
             </TabsContent>
-            <TabsContent value="rules">
+            
+            <TabsContent value="rules" className="space-y-8">
                 <Card>
-                    <CardHeader><CardTitle>Earning Rules</CardTitle></CardHeader>
-                    <CardContent><p>Earning rule settings will be here.</p></CardContent>
+                    <CardHeader>
+                        <CardTitle>Core Earning Rules</CardTitle>
+                        <CardDescription>
+                            Set the base rewards for key activities. Toggle a rule off to disable earnings for that activity.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div className="flex items-center gap-4">
+                                <BookOpen className="w-6 h-6 text-primary" />
+                                <div>
+                                    <Label htmlFor="journal-reward" className="font-semibold">Daily Journaling Reward</Label>
+                                    <p className="text-sm text-muted-foreground">Reward for writing a journal entry each day.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input id="journal-reward" type="number" placeholder="e.g., 10" className="w-24" />
+                                <Switch id="journal-switch" defaultChecked />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div className="flex items-center gap-4">
+                                <Target className="w-6 h-6 text-primary" />
+                                <div>
+                                    <Label htmlFor="task-reward" className="font-semibold">Per-Task Completion Reward</Label>
+                                    <p className="text-sm text-muted-foreground">Reward for each task marked 'Done' in the planner.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input id="task-reward" type="number" placeholder="e.g., 5" className="w-24" />
+                                <Switch id="task-switch" defaultChecked />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div className="flex items-center gap-4">
+                                <Puzzle className="w-6 h-6 text-primary" />
+                                <div>
+                                    <Label htmlFor="puzzle-reward" className="font-semibold">Puzzle & Quest Reward</Label>
+                                    <p className="text-sm text-muted-foreground">Reward for solving daily or weekly puzzles.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input id="puzzle-reward" type="number" placeholder="e.g., 20" className="w-24" />
+                                <Switch id="puzzle-switch" defaultChecked />
+                            </div>
+                        </div>
+                    </CardContent>
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Karma Points Conversion</CardTitle>
+                        <CardDescription>Optionally, convert daily Karma Score into wallet money.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div>
+                                <Label htmlFor="karma-conversion-switch" className="font-semibold cursor-pointer">Enable Karma Score to Wallet Conversion</Label>
+                                <p className="text-sm text-muted-foreground">Automatically convert positive karma points into money at the end of the day.</p>
+                            </div>
+                            <Switch id="karma-conversion-switch" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="karma-points">Karma Points</Label>
+                                <Input id="karma-points" type="number" placeholder="e.g., 100" />
+                            </div>
+                            <div className="text-center font-bold text-2xl self-center pb-2">=</div>
+                            <div className="space-y-2">
+                                <Label htmlFor="karma-rupees">Wallet Amount (₹)</Label>
+                                <Input id="karma-rupees" type="number" placeholder="e.g., 10" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Bonuses & Streaks</CardTitle>
+                        <CardDescription>Reward consistency and major achievements with extra bonuses.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div className="flex items-center gap-4">
+                                <TrendingUp className="w-6 h-6 text-green-500" />
+                                <div>
+                                    <Label htmlFor="streak-bonus" className="font-semibold">7-Day Journaling Streak Bonus</Label>
+                                    <p className="text-sm text-muted-foreground">Extra reward for journaling every day for a week.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input id="streak-bonus" type="number" placeholder="e.g., 50" className="w-24" />
+                                <Switch id="streak-switch" defaultChecked />
+                            </div>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-lg border">
+                            <div className="flex items-center gap-4">
+                                <Sparkles className="w-6 h-6 text-yellow-500" />
+                                <div>
+                                    <Label htmlFor="achievement-bonus" className="font-semibold">Major Achievement Bonus</Label>
+                                    <p className="text-sm text-muted-foreground">Set a custom bonus for things like "Topping a Test".</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Input id="achievement-bonus" type="number" placeholder="e.g., 100" className="w-24" />
+                                <Button variant="outline">Set Trigger</Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="flex justify-end">
+                    <Button size="lg">Save Earning Rules</Button>
+                </div>
             </TabsContent>
+            
             <TabsContent value="progress">
                 <Card>
                     <CardHeader><CardTitle>Student Progress</CardTitle></CardHeader>
@@ -328,5 +448,3 @@ export default function ParentDashboardPage() {
     </div>
   );
 }
-
-    
