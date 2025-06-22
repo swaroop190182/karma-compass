@@ -52,3 +52,11 @@ export interface WeeklyChallenge {
         answer: string;
     }[];
 }
+
+export interface WordSearchPuzzle {
+    id: string;
+    title: string;
+    grid: string[][];
+    words: string[];
+    reward: number;
+}

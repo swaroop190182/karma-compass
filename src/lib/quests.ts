@@ -1,5 +1,5 @@
 
-import type { DailyPuzzle, WeeklyChallenge } from './types';
+import type { DailyPuzzle, WeeklyChallenge, WordSearchPuzzle } from './types';
 
 export const dailyPuzzles: DailyPuzzle[] = [
     {
@@ -65,4 +65,29 @@ export const weeklyChallenge: WeeklyChallenge = {
             answer: 'Isaac Newton'
         }
     ]
-}
+};
+
+export const wordSearchPuzzles: WordSearchPuzzle[] = [
+    {
+        id: 'ws_scientists_1',
+        title: 'Find the Scientists',
+        reward: 50,
+        words: ['NEWTON', 'CURIE', 'DARWIN', 'TESLA', 'EINSTEIN', 'GALILEO', 'HAWKING'],
+        grid: [
+            ['E', 'N', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'G'],
+            ['L', 'I', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'D', 'A'],
+            ['W', 'E', 'N', 'X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'A', 'L'],
+            ['G', 'W', 'H', 'S', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'I'],
+            ['Q', 'T', 'R', 'S', 'T', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'W', 'L'],
+            ['A', 'O', 'B', 'C', 'D', 'E', 'E', 'F', 'G', 'H', 'I', 'J', 'I', 'E'],
+            ['K', 'N', 'L', 'M', 'N', 'O', 'P', 'I', 'S', 'A', 'L', 'S', 'N', 'O'],
+            ['H', 'A', 'W', 'K', 'I', 'N', 'G', 'N', 'Q', 'R', 'T', 'E', 'V', 'P'],
+            ['U', 'V', 'W', 'X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+            ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'A'],
+            ['V', 'W', 'X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'L'],
+            ['I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'S'],
+            ['V', 'W', 'X', 'Y', 'Z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'E'],
+            ['C', 'U', 'R', 'I', 'E', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'T']
+        ],
+    }
+];

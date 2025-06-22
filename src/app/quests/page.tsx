@@ -3,12 +3,14 @@
 
 import { useState, useEffect } from 'react';
 import { Brain, Calendar, Award } from 'lucide-react';
-import { dailyPuzzles, weeklyChallenge } from '@/lib/quests';
+import { dailyPuzzles, weeklyChallenge, wordSearchPuzzles } from '@/lib/quests';
 import { DailyPuzzleCard } from '@/components/quests/daily-puzzle-card';
 import { WeeklyChallengeCard } from '@/components/quests/weekly-challenge-card';
+import { WordSearchCard } from '@/components/quests/word-search-card';
 
 const SOLVED_DAILY_PUZZLES_KEY = 'solved-daily-puzzles';
 const SOLVED_WEEKLY_CHALLENGE_KEY = 'solved-weekly-challenge';
+const SOLVED_WORD_SEARCH_KEY = 'solved-word-search';
 const LAST_VISIT_DATE_KEY = 'quests-last-visit';
 const LAST_WEEK_KEY = 'quests-last-week';
 
@@ -24,14 +26,15 @@ const getWeekNumber = (d: Date) => {
 export default function QuestsPage() {
     const [solvedDailyPuzzles, setSolvedDailyPuzzles] = useState<Set<string>>(new Set());
     const [isWeeklyChallengeSolved, setIsWeeklyChallengeSolved] = useState(false);
+    const [solvedWordSearches, setSolvedWordSearches] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const today = new Date();
         const todayString = today.toDateString();
         const lastVisit = localStorage.getItem(LAST_VISIT_DATE_KEY);
 
+        // --- Daily Puzzles ---
         if (lastVisit !== todayString) {
-            // It's a new day, reset daily puzzles
             localStorage.removeItem(SOLVED_DAILY_PUZZLES_KEY);
             setSolvedDailyPuzzles(new Set());
             localStorage.setItem(LAST_VISIT_DATE_KEY, todayString);
@@ -42,11 +45,11 @@ export default function QuestsPage() {
             }
         }
         
+        // --- Weekly Challenge ---
         const currentWeek = getWeekNumber(today);
         const lastSolvedWeek = parseInt(localStorage.getItem(LAST_WEEK_KEY) || '0', 10);
         
         if (currentWeek !== lastSolvedWeek) {
-             // It's a new week, reset weekly challenge
              localStorage.removeItem(SOLVED_WEEKLY_CHALLENGE_KEY);
              setIsWeeklyChallengeSolved(false);
         } else {
@@ -55,6 +58,14 @@ export default function QuestsPage() {
                  setIsWeeklyChallengeSolved(true);
              }
         }
+
+        // --- Word Search ---
+        // Word search puzzles don't reset daily/weekly, they are one-time solves.
+        const solvedWS = localStorage.getItem(SOLVED_WORD_SEARCH_KEY);
+        if (solvedWS) {
+            setSolvedWordSearches(new Set(JSON.parse(solvedWS)));
+        }
+
     }, []);
 
     const onDailyPuzzleSolved = (puzzleId: string) => {
@@ -68,6 +79,12 @@ export default function QuestsPage() {
         localStorage.setItem(SOLVED_WEEKLY_CHALLENGE_KEY, weeklyChallenge.id);
         localStorage.setItem(LAST_WEEK_KEY, getWeekNumber(new Date()).toString());
     };
+    
+    const onWordSearchSolved = (puzzleId: string) => {
+        const newSolved = new Set(solvedWordSearches).add(puzzleId);
+        setSolvedWordSearches(newSolved);
+        localStorage.setItem(SOLVED_WORD_SEARCH_KEY, JSON.stringify(Array.from(newSolved)));
+    };
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -79,6 +96,20 @@ export default function QuestsPage() {
             </header>
             
             <div className="space-y-12">
+                 <section>
+                    <h2 className="text-2xl font-semibold flex items-center gap-3 mb-4">
+                        <Brain className="text-purple-500" /> Word Search Puzzles
+                    </h2>
+                     {wordSearchPuzzles.map(puzzle => (
+                        <WordSearchCard
+                            key={puzzle.id}
+                            puzzle={puzzle}
+                            isSolved={solvedWordSearches.has(puzzle.id)}
+                            onSolved={() => onWordSearchSolved(puzzle.id)}
+                        />
+                    ))}
+                </section>
+                
                 <section>
                     <h2 className="text-2xl font-semibold flex items-center gap-3 mb-4">
                         <Award className="text-yellow-500" /> Weekly Challenge
