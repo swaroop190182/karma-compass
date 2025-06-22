@@ -33,7 +33,7 @@ export function Navbar() {
     { href: '/planner', label: 'Daily Planner', icon: ClipboardList },
     { href: '/reflections', label: 'Reflections', icon: Sparkles },
     { href: '/quests', label: 'Quests', icon: Brain },
-    { href: '/tutor', label: 'AI Tutor', icon: GraduationCap },
+    { href: '/tutor', label: 'Luma', icon: GraduationCap },
   ];
 
   return (
@@ -43,7 +43,7 @@ export function Navbar() {
             <Link href="/" className="flex items-center gap-2">
                 <span className="text-xl font-bold bg-gradient-to-r from-primary to-yellow-400 text-transparent bg-clip-text">Karma Compass</span>
             </Link>
-            <div className="hidden md:flex items-center gap-1 sm:gap-2">
+            <div className="hidden md:flex items-center gap-2 sm:gap-4">
                 {navLinks.map(link => (
                     <Link
                     key={link.href}
