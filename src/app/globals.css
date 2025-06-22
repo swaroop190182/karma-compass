@@ -6,22 +6,22 @@
   :root {
     --background: 206 33% 95%; /* Light Gray */
     --foreground: 210 10% 23%;
-    --card: 0 0% 100%;
+    --card: 0 0% 100% / 0.8;
     --card-foreground: 210 10% 23%;
-    --popover: 0 0% 100%;
+    --popover: 0 0% 100% / 0.95;
     --popover-foreground: 210 10% 23%;
     --primary: 197 68% 69%; /* Soft Blue */
     --primary-foreground: 197 95% 20%;
-    --secondary: 210 20% 90%;
+    --secondary: 210 20% 90% / 0.8;
     --secondary-foreground: 210 10% 23%;
-    --muted: 210 20% 90%;
+    --muted: 210 20% 90% / 0.8;
     --muted-foreground: 210 10% 45%;
     --accent: 48 100% 67%; /* Warm Yellow */
     --accent-foreground: 48 95% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
+    --border: 210 20% 88% / 0.5;
+    --input: 210 20% 88% / 0.5;
     --ring: 197 68% 69%;
     --chart-1: 197 70% 55%;
     --chart-2: 197 60% 65%;
@@ -33,22 +33,22 @@
   .dark {
     --background: 210 10% 10%;
     --foreground: 210 10% 85%;
-    --card: 210 10% 12%;
+    --card: 210 10% 12% / 0.8;
     --card-foreground: 210 10% 85%;
-    --popover: 210 10% 8%;
+    --popover: 210 10% 8% / 0.95;
     --popover-foreground: 210 10% 85%;
     --primary: 197 60% 60%;
     --primary-foreground: 197 95% 15%;
-    --secondary: 210 15% 18%;
+    --secondary: 210 15% 18% / 0.8;
     --secondary-foreground: 210 10% 85%;
-    --muted: 210 15% 18%;
+    --muted: 210 15% 18% / 0.8;
     --muted-foreground: 210 10% 60%;
     --accent: 48 90% 60%;
     --accent-foreground: 48 95% 10%;
     --destructive: 0 70% 40%;
     --destructive-foreground: 0 0% 98%;
-    --border: 210 10% 20%;
-    --input: 210 10% 20%;
+    --border: 210 10% 20% / 0.5;
+    --input: 210 10% 20% / 0.5;
     --ring: 197 68% 69%;
     --chart-1: 197 70% 45%;
     --chart-2: 197 60% 55%;
@@ -63,6 +63,11 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-image: url('https://i.postimg.cc/hP47ygGW/Chat-GPT-Image-Jun-22-2025-09-30-25-PM.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-color: hsl(var(--background)); /* Fallback color */
   }
 }
