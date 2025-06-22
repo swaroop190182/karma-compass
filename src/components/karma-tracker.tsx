@@ -2,30 +2,48 @@
 
 import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
-import { Sparkles, ThumbsUp, ThumbsDown, LoaderCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { Sparkles, LoaderCircle, Calendar as CalendarIcon } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
-import { activities, activityCategories, type Activity } from '@/lib/activities';
+import { activities, type Activity } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Helper to group activities by category
-const groupActivitiesByCategory = (activityList: Activity[]) => {
-  return activityList.reduce((acc, activity) => {
-    const category = activity.category;
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(activity);
-    return acc;
-  }, {} as Record<string, Activity[]>);
-};
+const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { activities: Activity[], selectedActivities: Record<string, boolean>, onActivityToggle: (name: string) => void }) => (
+    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
+        {activities.map((activity) => (
+        <TooltipProvider key={activity.name} delayDuration={100}>
+            <Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                onClick={() => onActivityToggle(activity.name)}
+                className={cn(
+                    'flex flex-col items-center justify-center p-2 gap-1 rounded-lg border-2 transition-all aspect-square shadow-sm',
+                    'hover:shadow-md hover:scale-[1.03]',
+                    selectedActivities[activity.name]
+                    ? activity.type === 'Good'
+                        ? 'bg-chart-2/20 border-chart-2 shadow-md scale-105'
+                        : 'bg-destructive/20 border-destructive shadow-md scale-105'
+                    : 'bg-card border-input hover:border-accent'
+                )}
+                >
+                <activity.icon className="w-7 h-7" />
+                <span className="text-center text-[10px] font-semibold leading-tight">{activity.name}</span>
+                </button>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>Karma Score: {activity.score > 0 ? `+${activity.score}` : activity.score}</p>
+            </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+        ))}
+    </div>
+);
 
 export function KarmaTracker() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -89,55 +107,6 @@ export function KarmaTracker() {
     });
   };
 
-  const goodKarmaGrouped = groupActivitiesByCategory(activities.filter(a => a.type === 'Good'));
-  const badKarmaGrouped = groupActivitiesByCategory(activities.filter(a => a.type === 'Bad'));
-  
-  const goodCategories = activityCategories.filter(c => c.type === 'Good' && goodKarmaGrouped[c.name]);
-  const badCategories = activityCategories.filter(c => c.type === 'Bad' && badKarmaGrouped[c.name]);
-
-  const ActivityGrid = ({ groupedActivities, categories, type }: { groupedActivities: Record<string, Activity[]>, categories: typeof activityCategories, type: 'Good' | 'Bad' }) => (
-    <div className="space-y-8">
-      {categories.map((category) => (
-        groupedActivities[category.name] && groupedActivities[category.name].length > 0 && (
-          <div key={category.name}>
-            <div className="flex items-center gap-3 mb-4 pb-2 border-b">
-              <category.icon className="w-7 h-7" />
-              <h3 className="text-xl font-headline font-bold">{category.name}</h3>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {groupedActivities[category.name].map((activity) => (
-                <TooltipProvider key={activity.name} delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleActivityToggle(activity.name)}
-                        className={cn(
-                          'flex flex-col items-center justify-center p-3 gap-2 rounded-xl border-2 transition-all aspect-square shadow-sm',
-                          'hover:shadow-lg hover:scale-[1.02]',
-                          selectedActivities[activity.name]
-                            ? type === 'Good'
-                              ? 'bg-chart-2/20 border-chart-2 shadow-lg scale-105'
-                              : 'bg-destructive/20 border-destructive shadow-lg scale-105'
-                            : 'bg-card border-input hover:border-accent'
-                        )}
-                      >
-                        <activity.icon className="w-9 h-9 mb-1" />
-                        <span className="text-center text-xs font-semibold leading-tight">{activity.name}</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Karma Score: {activity.score > 0 ? `+${activity.score}` : activity.score}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ))}
-            </div>
-          </div>
-        )
-      ))}
-    </div>
-  );
-
   return (
     <div className="flex flex-col gap-6">
       <Card className="bg-card/80 backdrop-blur-sm shadow-md sticky top-4 z-10">
@@ -162,7 +131,7 @@ export function KarmaTracker() {
                   selected={date}
                   onSelect={setDate}
                   initialFocus
-                  disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
+                  disabled={(d) => d > new Date() || d < new date("2000-01-01")}
                 />
               </PopoverContent>
             </Popover>
@@ -194,31 +163,16 @@ export function KarmaTracker() {
           </div>
         </CardContent>
       </Card>
-
-      <Tabs defaultValue="good-karma" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sticky top-36 z-10">
-          <TabsTrigger value="good-karma" className="gap-2">
-            <ThumbsUp className="text-chart-2"/> Good Karma
-          </TabsTrigger>
-          <TabsTrigger value="bad-karma" className="gap-2">
-            <ThumbsDown className="text-destructive"/> Needs Improvement
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="good-karma">
-            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
-                <CardContent className="p-4 md:p-6">
-                    <ActivityGrid groupedActivities={goodKarmaGrouped} categories={goodCategories} type="Good" />
-                </CardContent>
-            </Card>
-        </TabsContent>
-        <TabsContent value="bad-karma">
-            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
-                <CardContent className="p-4 md:p-6">
-                    <ActivityGrid groupedActivities={badKarmaGrouped} categories={badCategories} type="Bad" />
-                </CardContent>
-            </Card>
-        </TabsContent>
-      </Tabs>
+      
+      <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
+          <CardContent className="p-4 md:p-6">
+              <ActivityGrid 
+                activities={activities} 
+                selectedActivities={selectedActivities} 
+                onActivityToggle={handleActivityToggle} 
+              />
+          </CardContent>
+      </Card>
     </div>
   );
 }

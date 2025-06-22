@@ -1,4 +1,5 @@
 import { KarmaTracker } from '@/components/karma-tracker';
+import { StudentQuotes } from '@/components/student-quotes';
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
           </p>
         </header>
         <KarmaTracker />
+        <StudentQuotes />
       </div>
     </main>
   );
