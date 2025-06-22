@@ -23,6 +23,7 @@ export function Navbar() {
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
+    { href: '/connect', label: 'Connect' },
     { href: '/tutor', label: 'Luma' },
   ];
 

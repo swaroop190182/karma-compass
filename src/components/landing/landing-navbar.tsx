@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
 
@@ -9,7 +10,7 @@ export function LandingNavbar() {
     { href: '/planner', label: 'Goals' },
     { href: '/quests', label: 'Habits' },
     { href: '/tutor', label: 'Luma' },
-    { href: '#', label: 'Impact' },
+    { href: '/connect', label: 'Connect' },
   ];
 
   return (
