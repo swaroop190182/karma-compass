@@ -47,7 +47,7 @@ function CustomDay(props: DayProps) {
         <div className={cn(
             "flex flex-col h-full p-1.5", 
             isOutside && "opacity-40",
-            !modifiers.empty && "cursor-pointer hover:bg-accent/80 transition-colors"
+            modifiers && !modifiers.empty && "cursor-pointer hover:bg-accent/80 transition-colors"
         )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -110,7 +110,7 @@ export function KarmaCalendar() {
     }, {} as Record<string, string>);
     
     const handleDayClick = (day: Date, modifiers: DayModifiers) => {
-        if (modifiers.empty || modifiers.disabled) return;
+        if (modifiers?.empty || modifiers?.disabled) return;
         const entry = mockData.find(d => isSameDay(parseISO(d.date), day));
         if (entry) {
             setSelectedDayData(entry);
