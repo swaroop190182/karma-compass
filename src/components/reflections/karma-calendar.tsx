@@ -79,7 +79,7 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
                      <div className="flex items-end gap-1.5 flex-wrap">
                         {iconsToShow.map((activity, i) => (
                             <Tooltip key={i} delayDuration={100}>
-                                <TooltipTrigger>
+                                <TooltipTrigger asChild>
                                     <activity.icon className="w-4 h-4 text-gray-700 dark:text-gray-300" />
                                 </TooltipTrigger>
                                 <TooltipContent>
