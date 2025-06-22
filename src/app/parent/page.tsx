@@ -111,7 +111,7 @@ export default function ParentDashboardPage() {
   return (
     <div className="min-h-screen bg-muted/20">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="mb-8">
+        <header className="mb-6">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
             Parent Dashboard
           </h1>
@@ -121,7 +121,7 @@ export default function ParentDashboardPage() {
         </header>
 
         <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
                 <TabsTrigger value="profile"><User className="mr-2"/> Profile</TabsTrigger>
                 <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet</TabsTrigger>
                 <TabsTrigger value="rules"><Settings2 className="mr-2"/> Rules</TabsTrigger>
@@ -744,3 +744,5 @@ export default function ParentDashboardPage() {
     </div>
   );
 }
+
+    
