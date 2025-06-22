@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 
 export function LandingNavbar() {
   const navLinks = [
-    { href: '#features', label: 'Features' },
+    { href: '/features', label: 'Features' },
     { href: '/journal', label: 'Record' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/planner', label: 'Goals' },
