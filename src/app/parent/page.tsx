@@ -18,7 +18,12 @@ import {
   Target,
   Puzzle,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  CalendarDays,
+  Smile,
+  CheckCircle2,
+  Lightbulb,
+  FileText
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +35,10 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 const students = [
     { id: '1', name: 'Rohan', avatar: 'https://placehold.co/40x40.png' },
@@ -40,7 +49,45 @@ const transactions = [
     { id: 't1', date: '2023-06-15', amount: 1000, method: 'Credit Card', status: 'Success' },
     { id: 't2', date: '2023-06-08', amount: 500, method: 'UPI', status: 'Success' },
     { id: 't3', date: '2023-05-20', amount: 2000, method: 'Net Banking', status: 'Success' },
+];
+
+const moodData = [
+  { day: 'Mon', moodScore: 4 }, // 5-point scale: 1-Stressed, 2-Sad, 3-Neutral, 4-Happy, 5-Radiant
+  { day: 'Tue', moodScore: 5 },
+  { day: 'Wed', moodScore: 3 },
+  { day: 'Thu', moodScore: 4 },
+  { day: 'Fri', moodScore: 5 },
+  { day: 'Sat', moodScore: 4 },
+  { day: 'Sun', moodScore: 3 },
+];
+
+const moodLabels: { [key: number]: string } = {
+  1: 'Stressed',
+  2: 'Sad',
+  3: 'Neutral',
+  4: 'Happy',
+  5: 'Radiant'
+};
+
+
+const completedActivities = [
+    { name: 'Completed Homework', points: '+5 Karma, ₹2 Earned' },
+    { name: 'Daily Journaling', points: '+10 Karma, ₹10 Earned' },
+    { name: 'Solved Math Puzzle', points: '+15 Karma, ₹3 Earned' },
 ]
+
+const weeklyHabits = [
+    { name: 'Woke up on time', days: [true, true, false, true, true, false, true] },
+    { name: 'Limited screen time', days: [true, false, true, true, false, true, true] },
+    { name: 'Read a book chapter', days: [true, true, true, true, true, true, true] },
+]
+
+const aiSuggestions = [
+    "Rohan has a 5-day journaling streak! Consider giving him a small bonus to celebrate this consistency.",
+    "Priya seems to struggle with 'Task Completion' on weekends. Maybe discuss a lighter schedule for Saturdays and Sundays?",
+    "Consider increasing the reward for 'Test Prep' as exams are approaching to provide extra motivation."
+]
+
 
 export default function ParentDashboardPage() {
   return (
@@ -425,11 +472,161 @@ export default function ParentDashboardPage() {
                 </div>
             </TabsContent>
             
-            <TabsContent value="progress">
+            <TabsContent value="progress" className="space-y-6">
                 <Card>
-                    <CardHeader><CardTitle>Student Progress</CardTitle></CardHeader>
-                    <CardContent><p>Student progress dashboard will be here.</p></CardContent>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div className="space-y-1.5">
+                            <CardTitle>Student Progress Dashboard</CardTitle>
+                            <CardDescription>An overview of your student's activities and well-being.</CardDescription>
+                        </div>
+                         <div className="flex items-center gap-2">
+                             <Select defaultValue='rohan'>
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Select Student" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="rohan">Rohan</SelectItem>
+                                    <SelectItem value="priya">Priya</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select defaultValue='today'>
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Select Period" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="today">Today</SelectItem>
+                                    <SelectItem value="week">This Week</SelectItem>
+                                    <SelectItem value="month">This Month</SelectItem>
+                                </SelectContent>
+                            </Select>
+                         </div>
+                    </CardHeader>
                 </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Today's Karma Score</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-5xl font-bold text-green-500">+25</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                         <CardHeader>
+                            <CardTitle className="text-lg">Today's Earnings</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-5xl font-bold text-primary">₹15</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                         <CardHeader>
+                            <CardTitle className="text-lg">Today's Mood</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center gap-3">
+                            <Smile className="w-12 h-12 text-green-500"/>
+                            <p className="text-2xl font-semibold">Happy</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3"><FileText/>Completed Activities Today</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <ul className="space-y-2">
+                            {completedActivities.map((activity, index) => (
+                                <li key={index} className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded-md">
+                                    <span className="font-medium">{activity.name}</span>
+                                    <span className="text-muted-foreground">{activity.points}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </CardContent>
+                </Card>
+                
+                <Separator />
+                
+                <h2 className="text-2xl font-bold pt-4 flex items-center gap-3"><CalendarDays/> Weekly Report</h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Weekly Engagement</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <Label>Journaling Streak: 5 days</Label>
+                                <Progress value={5/7 * 100} className="h-2 mt-1" />
+                            </div>
+                             <div>
+                                <Label>Task Completion Rate: 80%</Label>
+                                <Progress value={80} className="h-2 mt-1" />
+                            </div>
+                             <div>
+                                <Label>Quests Solved: 3 / 5</Label>
+                                <Progress value={3/5 * 100} className="h-2 mt-1" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Weekly Mood Trend</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <ChartContainer config={{}} className="h-[200px] w-full">
+                                <ResponsiveContainer>
+                                    <LineChart data={moodData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" tick={{fontSize: 12}}/>
+                                        <YAxis dataKey="moodScore" domain={[1, 5]} tickFormatter={(value) => moodLabels[value] || ''} stroke="hsl(var(--muted-foreground))" tick={{fontSize: 10}} width={40} />
+                                        <Tooltip content={<ChartTooltipContent indicator="dot" />} />
+                                        <Line type="monotone" dataKey="moodScore" stroke="hsl(var(--primary))" strokeWidth={2} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </ChartContainer>
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Weekly Habit Tracking</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-3">
+                           {weeklyHabits.map((habit, index) => (
+                               <div key={index}>
+                                   <p className="text-sm font-medium mb-2">{habit.name}</p>
+                                   <div className="flex gap-1.5">
+                                       {habit.days.map((done, dayIndex) => (
+                                           <div key={dayIndex} className={cn("w-full h-8 rounded-md flex items-center justify-center", done ? "bg-green-500/20" : "bg-muted/50")}>
+                                               {done && <CheckCircle2 className="w-4 h-4 text-green-700" />}
+                                           </div>
+                                       ))}
+                                   </div>
+                               </div>
+                           ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-primary/10 border-primary/20">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3"><Lightbulb/> Aura's Suggestions for You</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="space-y-2 list-disc list-inside text-primary-foreground/90">
+                           {aiSuggestions.map((suggestion, index) => (
+                               <li key={index}>{suggestion}</li>
+                           ))}
+                        </ul>
+                    </CardContent>
+                </Card>
+
             </TabsContent>
              <TabsContent value="rewards">
                 <Card>
