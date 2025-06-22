@@ -58,10 +58,10 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
             type="button"
             className={cn(
                 "flex flex-col h-full w-full p-1.5 text-left relative",
-                getBackgroundColorClass(), 
+                getBackgroundColorClass(),
                 modifiers?.outside && "opacity-40",
-                !modifiers?.disabled && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
-                modifiers?.disabled && !modifiers?.outside && "cursor-default"
+                entry && !modifiers?.outside && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
+                !entry && !modifiers?.outside && "cursor-default"
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -151,9 +151,6 @@ export function KarmaCalendar() {
                             IconLeft: () => <ChevronLeft className="h-5 w-5" />,
                             IconRight: () => <ChevronRight className="h-5 w-5" />,
                             Day: CustomDay
-                        }}
-                        modifiers={{
-                           disabled: (date) => !mockData.some(d => isSameDay(parseISO(d.date), date))
                         }}
                     />
                 </CardContent>
