@@ -2,18 +2,31 @@
 
 import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
-import { Sparkles, ThumbsUp, ThumbsDown, LoaderCircle } from 'lucide-react';
+import { Sparkles, ThumbsUp, ThumbsDown, LoaderCircle, Calendar as CalendarIcon } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
-import { goodKarmaActivities, badKarmaActivities, type Activity } from '@/lib/activities';
+import { activities, activityCategories, type Activity } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+// Helper to group activities by category
+const groupActivitiesByCategory = (activityList: Activity[]) => {
+  return activityList.reduce((acc, activity) => {
+    const category = activity.category;
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(activity);
+    return acc;
+  }, {} as Record<string, Activity[]>);
+};
 
 export function KarmaTracker() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -32,7 +45,7 @@ export function KarmaTracker() {
   useEffect(() => {
     const score = Object.keys(selectedActivities).reduce((acc, activityName) => {
       if (selectedActivities[activityName]) {
-        const activity = [...goodKarmaActivities, ...badKarmaActivities].find(a => a.name === activityName);
+        const activity = activities.find(a => a.name === activityName);
         return acc + (activity ? activity.score : 0);
       }
       return acc;
@@ -41,18 +54,19 @@ export function KarmaTracker() {
     setMotivationalQuote('');
   }, [selectedActivities]);
   
-  const handleActivityToggle = (activityName: string, isChecked: boolean) => {
+  const handleActivityToggle = (activityName: string) => {
+    const isSelected = !!selectedActivities[activityName];
     setDailyActivities(prev => ({
       ...prev,
       [selectedDateString]: {
         ...(prev[selectedDateString] || {}),
-        [activityName]: isChecked,
+        [activityName]: !isSelected,
       },
     }));
   };
 
   const handleGetMotivation = async () => {
-    if (Object.values(selectedActivities).every(v => !v)) {
+    if (Object.values(selectedActivities).length === 0 || Object.values(selectedActivities).every(v => !v)) {
         toast({
             title: "No activities selected",
             description: "Please select at least one activity to get a motivational message.",
@@ -76,95 +90,136 @@ export function KarmaTracker() {
     });
   };
 
-  const ActivityList = ({ title, activities, icon: Icon, iconColor }: { title: string; activities: Activity[]; icon: React.ElementType; iconColor: string; }) => (
-    <Card className="flex-1 bg-card/80 backdrop-blur-sm shadow-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-headline">
-          <Icon className={cn("w-6 h-6", iconColor)} />
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[30rem] pr-4">
-          <div className="space-y-4">
-            {activities.map(activity => (
-              <div key={activity.name} className="flex items-start space-x-3">
-                <Checkbox
-                  id={`${selectedDateString}-${activity.name}`}
-                  checked={!!selectedActivities[activity.name]}
-                  onCheckedChange={checked => handleActivityToggle(activity.name, !!checked)}
-                  aria-labelledby={`${selectedDateString}-${activity.name}-label`}
-                  className='mt-1'
-                />
-                <Label htmlFor={`${selectedDateString}-${activity.name}`} id={`${selectedDateString}-${activity.name}-label`} className="cursor-pointer text-sm font-normal leading-snug">
-                  {activity.name}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+  const goodKarmaGrouped = groupActivitiesByCategory(activities.filter(a => a.type === 'Good'));
+  const badKarmaGrouped = groupActivitiesByCategory(activities.filter(a => a.type === 'Bad'));
+  
+  const goodCategories = activityCategories.filter(c => c.type === 'Good' && goodKarmaGrouped[c.name]);
+  const badCategories = activityCategories.filter(c => c.type === 'Bad' && badKarmaGrouped[c.name]);
+
+  const ActivityGrid = ({ groupedActivities, categories }: { groupedActivities: Record<string, Activity[]>, categories: (typeof activityCategories) }) => (
+    <Accordion type="multiple" className="w-full" defaultValue={categories.length > 0 ? [categories[0].name] : []}>
+      {categories.map((category) => (
+        <AccordionItem value={category.name} key={category.name}>
+          <AccordionTrigger>
+            <div className="flex items-center gap-3">
+              <category.icon className="w-6 h-6" />
+              <span className="text-lg font-headline">{category.name}</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pt-4">
+              {groupedActivities[category.name]?.map((activity) => (
+                <TooltipProvider key={activity.name} delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleActivityToggle(activity.name)}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-3 gap-2 rounded-lg border-2 transition-all aspect-square',
+                          'hover:bg-accent/50 hover:border-accent',
+                          selectedActivities[activity.name]
+                            ? 'bg-primary/20 border-primary shadow-lg scale-105'
+                            : 'bg-card border-input'
+                        )}
+                      >
+                        <activity.icon className="w-8 h-8" />
+                        <span className="text-center text-xs font-medium leading-tight">{activity.name}</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Karma Score: {activity.score > 0 ? `+${activity.score}` : activity.score}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-1 space-y-8">
-        <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline">Select a Date</CardTitle>
-            <CardDescription>Pick a day to track your karma.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              className="rounded-md border"
-              disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/80 backdrop-blur-sm shadow-lg sticky top-8">
-            <CardHeader>
-                <CardTitle className="font-headline">Your Daily Score</CardTitle>
-                <CardDescription>
-                    {date ? format(date, "PPP") : "No date selected"}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center py-6">
-                <div
-                    className={cn(
-                        "text-8xl font-bold font-headline transition-colors duration-300",
-                        totalScore > 0 && "text-chart-2",
-                        totalScore < 0 && "text-destructive",
-                    )}
+    <div className="flex flex-col gap-6">
+      <Card className="bg-card/80 backdrop-blur-sm shadow-md sticky top-4 z-10">
+        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex-1 flex items-center gap-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full sm:w-[280px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
                 >
-                    {totalScore > 0 ? `+${totalScore}`: totalScore}
-                </div>
-            </CardContent>
-            <CardFooter className="flex-col gap-4">
-                <Button onClick={handleGetMotivation} disabled={isPending || Object.values(selectedActivities).every(v => !v)} className="w-full">
-                    {isPending ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Get Your Motivation
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
-                {isPending && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
-                {motivationalQuote && (
-                    <Card className="w-full bg-accent/30 border-accent/50 shadow-inner">
-                        <CardContent className="p-4 text-center">
-                            <p className="text-base italic text-accent-foreground">"{motivationalQuote}"</p>
-                        </CardContent>
-                    </Card>
-                )}
-            </CardFooter>
-        </Card>
-      </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
+                />
+              </PopoverContent>
+            </Popover>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">Daily Score</p>
+              <p className={cn(
+                  "text-4xl font-bold font-headline transition-colors duration-300",
+                  totalScore > 0 && "text-chart-2",
+                  totalScore < 0 && "text-destructive",
+                )}>
+                {totalScore > 0 ? `+${totalScore}` : totalScore}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex-1 flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
+            <Button onClick={handleGetMotivation} disabled={isPending || Object.values(selectedActivities).every(v => !v)} className="w-full sm:w-auto">
+                {isPending ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Get Your Motivation
+            </Button>
+            {isPending && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
+            {motivationalQuote && (
+                <Card className="w-full bg-accent/30 border-accent/50 shadow-inner">
+                    <CardContent className="p-2 text-center">
+                        <p className="text-sm italic text-accent-foreground">"{motivationalQuote}"</p>
+                    </CardContent>
+                </Card>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="lg:col-span-2 flex flex-col md:flex-row gap-8">
-        <ActivityList title="Good Karma" activities={goodKarmaActivities} icon={ThumbsUp} iconColor="text-chart-2" />
-        <ActivityList title="Needs Improvement" activities={badKarmaActivities} icon={ThumbsDown} iconColor="text-destructive" />
-      </div>
+      <Tabs defaultValue="good-karma" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sticky top-36 z-10">
+          <TabsTrigger value="good-karma" className="gap-2">
+            <ThumbsUp className="text-chart-2"/> Good Karma
+          </TabsTrigger>
+          <TabsTrigger value="bad-karma" className="gap-2">
+            <ThumbsDown className="text-destructive"/> Needs Improvement
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="good-karma">
+            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
+                <CardContent className="p-4 md:p-6">
+                    <ActivityGrid groupedActivities={goodKarmaGrouped} categories={goodCategories} />
+                </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="bad-karma">
+            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
+                <CardContent className="p-4 md:p-6">
+                    <ActivityGrid groupedActivities={badKarmaGrouped} categories={badCategories} />
+                </CardContent>
+            </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
