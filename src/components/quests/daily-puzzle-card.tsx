@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useWallet } from '@/hooks/use-wallet';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Lightbulb, History, Microscope, Sigma, Globe } from 'lucide-react';
+import { CheckCircle, Lightbulb, History, Microscope, Sigma, BrainCircuit, BookText } from 'lucide-react';
 import type { DailyPuzzle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +23,8 @@ const categoryIcons = {
     'Science': { icon: Microscope, color: 'text-blue-500' },
     'Math': { icon: Sigma, color: 'text-red-500' },
     'History': { icon: History, color: 'text-amber-600' },
-    'General Knowledge': { icon: Globe, color: 'text-green-500' },
+    'Logical Reasoning': { icon: BrainCircuit, color: 'text-purple-500' },
+    'Vocabulary': { icon: BookText, color: 'text-green-500' },
 };
 
 

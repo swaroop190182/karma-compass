@@ -33,7 +33,7 @@ export interface DayEntry {
 
 export interface DailyPuzzle {
     id: string;
-    category: 'Science' | 'Math' | 'History' | 'General Knowledge';
+    category: 'Science' | 'Math' | 'History' | 'Logical Reasoning' | 'Vocabulary';
     question: string;
     options: string[];
     answer: string;
