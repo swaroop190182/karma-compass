@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DayPicker, type DayProps } from 'react-day-picker';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight, BookOpen, ClipboardList } from 'lucide-react';
+import { buttonVariants, Button } from '@/components/ui/button';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { activities, type Activity } from '@/lib/activities';
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
@@ -18,15 +19,16 @@ interface DayEntry {
     date: string;
     score: number;
     loggedActivities: string[];
+    reflection?: string;
 }
 
 const mockData: DayEntry[] = [
-    { date: '2025-06-10', score: 32, loggedActivities: ['Take Notes', 'Organize', 'Hobby', 'Wake Early', 'Hydrate', 'Journal', 'No Screen', 'Gratitude', 'Help Classmate', 'Be Kind' ] },
-    { date: '2025-06-18', score: 25, loggedActivities: ['Take Notes', 'Music', 'Meditate', 'Homework'] },
-    { date: '2025-06-19', score: 29, loggedActivities: ['Take Notes', 'Organize', 'Meditate', 'Homework', 'Read Books'] },
-    { date: '2025-06-20', score: 40, loggedActivities: ['Classes', 'Homework', 'Test Prep', 'Take Notes', 'Participate'] },
-    { date: '2025-06-21', score: 10, loggedActivities: ['Exercise', 'Hydrate'] },
-    { date: '2025-06-03', score: -12, loggedActivities: ['Skip Class', 'Oversleep'] },
+    { date: '2025-06-10', score: 32, loggedActivities: ['Journal', 'Gratitude', 'Meditate', 'Exercise', 'Smile', 'Help Classmate', 'Be Kind' ], reflection: '' },
+    { date: '2025-06-18', score: 25, loggedActivities: ['Take Notes', 'Music', 'Meditate', 'Homework'], reflection: 'Felt productive today, especially during the music session. It helped me focus.' },
+    { date: '2025-06-19', score: 29, loggedActivities: ['Take Notes', 'Organize', 'Meditate', 'Homework', 'Read Books'], reflection: '' },
+    { date: '2025-06-20', score: 40, loggedActivities: ['Classes', 'Homework', 'Test Prep', 'Take Notes', 'Participate'], reflection: 'A very busy but good academic day.' },
+    { date: '2025-06-21', score: 10, loggedActivities: ['Exercise', 'Hydrate'], reflection: '' },
+    { date: '2025-06-03', score: -12, loggedActivities: ['Skip Class', 'Oversleep'], reflection: 'Felt really bad today. Need to do better tomorrow.' },
 ];
 
 function CustomDay(props: DayProps) {
@@ -44,16 +46,12 @@ function CustomDay(props: DayProps) {
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
-        if (entry) {
-            if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
-            if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
-            if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
-            if (entry.score > 0) return 'bg-yellow-100/60 dark:bg-yellow-800/20';
-            return 'bg-red-200/60 dark:bg-red-800/20';
-        }
-        if (modifiers?.saturdays) return 'bg-purple-50/50 dark:bg-purple-900/10';
-        if (modifiers?.sundays) return 'bg-pink-50/50 dark:bg-pink-900/10';
-        return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (!entry) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
+        if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
+        if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
+        if (entry.score > 0) return 'bg-yellow-100/60 dark:bg-yellow-800/20';
+        return 'bg-red-200/60 dark:bg-red-800/20';
     };
 
     return (
@@ -161,36 +159,49 @@ export function KarmaCalendar() {
                 </CardContent>
             </Card>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-lg">
                     {selectedDayData && (
                         <>
                             <DialogHeader>
-                                <DialogTitle>Reflection for {format(parseISO(selectedDayData.date), 'PPP')}</DialogTitle>
-                                <DialogDescription className="pt-2">
-                                    <span className={cn(
-                                        "font-bold text-lg",
-                                        selectedDayData.score > 0 ? "text-green-600" : "text-red-600"
-                                    )}>
-                                        Karma Score: {selectedDayData.score > 0 ? `+${selectedDayData.score}` : selectedDayData.score}
-                                    </span>
+                                <DialogTitle className="text-2xl font-bold">Daily Summary: {format(parseISO(selectedDayData.date), 'MMMM d, yyyy')}</DialogTitle>
+                                <DialogDescription>
+                                    A recap of your activities, goals, and reflections for this day.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-3 py-2">
-                                <h4 className="font-semibold text-foreground">Activities Logged:</h4>
-                                <div className="space-y-2 max-h-60 overflow-y-auto pr-3">
-                                    {selectedDayData.loggedActivities.length > 0 ?
-                                     selectedDayData.loggedActivities.map(name => {
-                                        const activity = activityMap.get(name);
-                                        if (!activity) return null;
-                                        return (
-                                            <div key={name} className={cn("flex items-center gap-2 text-sm p-2 rounded-md", activity.type === 'Good' ? "bg-green-500/10 text-green-800 dark:text-green-300" : "bg-red-500/10 text-red-800 dark:text-red-300")}>
-                                                <activity.icon className="w-4 h-4 flex-shrink-0" />
-                                                <span>{activity.name}</span>
-                                            </div>
-                                        );
-                                    }) : <p className="text-muted-foreground text-sm">No activities were logged this day.</p>}
+                            <Separator />
+                            <div className="space-y-4 py-2">
+                                <div>
+                                    <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                        <BookOpen className="w-5 h-5" />
+                                        Reflection
+                                    </h3>
+                                    <p className="text-muted-foreground mt-2 text-sm">
+                                        {selectedDayData.reflection || "No reflection logged for this day."}
+                                    </p>
+                                </div>
+                                <Separator />
+                                <div>
+                                    <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                        <ClipboardList className="w-5 h-5" />
+                                        Karma Activities (Score: <span className={cn(selectedDayData.score > 0 ? "text-green-600" : "text-red-600")}>{selectedDayData.score > 0 ? `+${selectedDayData.score}` : selectedDayData.score}</span>)
+                                    </h3>
+                                    <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
+                                        {selectedDayData.loggedActivities.map(name => {
+                                            const activity = activityMap.get(name);
+                                            if (!activity) return null;
+                                            return (
+                                                <li key={name} className={cn("text-sm", activity.type === 'Good' ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400")}>
+                                                    {activity.name}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
                                 </div>
                             </div>
+                            <DialogFooter className="sm:justify-between pt-4">
+                                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
+                                <Button>Edit/Add Reflection Text</Button>
+                            </DialogFooter>
                         </>
                     )}
                 </DialogContent>
