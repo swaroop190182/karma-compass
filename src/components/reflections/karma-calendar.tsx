@@ -104,7 +104,7 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
 }
 
 export function KarmaCalendar() {
-    const defaultMonth = new Date('2025-05-28');
+    const defaultMonth = new Date('2025-06-01');
     const [month, setMonth] = useState<Date>(defaultMonth);
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
