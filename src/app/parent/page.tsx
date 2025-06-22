@@ -121,13 +121,13 @@ export default function ParentDashboardPage() {
         </header>
 
         <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-6 mb-6">
-                <TabsTrigger value="profile"><User className="mr-2"/> Profile Setup</TabsTrigger>
-                <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet & Billing</TabsTrigger>
-                <TabsTrigger value="rules"><Settings2 className="mr-2"/> Earning Rules</TabsTrigger>
-                <TabsTrigger value="progress"><LayoutDashboard className="mr-2"/> Student Progress</TabsTrigger>
-                <TabsTrigger value="rewards"><Gift className="mr-2"/> Reward Approvals</TabsTrigger>
-                <TabsTrigger value="notifications"><Bell className="mr-2"/> Notifications</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+                <TabsTrigger value="profile"><User className="mr-2"/> Profile</TabsTrigger>
+                <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet</TabsTrigger>
+                <TabsTrigger value="rules"><Settings2 className="mr-2"/> Rules</TabsTrigger>
+                <TabsTrigger value="progress"><LayoutDashboard className="mr-2"/> Progress</TabsTrigger>
+                <TabsTrigger value="rewards"><Gift className="mr-2"/> Approvals</TabsTrigger>
+                <TabsTrigger value="notifications"><Bell className="mr-2"/> Alerts</TabsTrigger>
             </TabsList>
             
             <TabsContent value="profile" className="space-y-8">
@@ -137,12 +137,12 @@ export default function ParentDashboardPage() {
                         <CardDescription>This information is private and helps personalize your experience.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        <div className="flex items-center gap-6">
-                            <Avatar className="h-20 w-20">
+                        <div className="flex flex-col sm:flex-row items-center gap-6">
+                            <Avatar className="h-20 w-20 flex-shrink-0">
                                 <AvatarImage src="https://placehold.co/80x80.png" alt="Parent Photo" data-ai-hint="person avatar"/>
                                 <AvatarFallback>P</AvatarFallback>
                             </Avatar>
-                            <div className="space-y-2">
+                            <div className="space-y-2 w-full">
                                 <Label htmlFor="picture">Profile Photo (Optional)</Label>
                                 <div className="flex items-center gap-2">
                                    <Input id="picture" type="file" className="max-w-sm"/>
@@ -173,7 +173,7 @@ export default function ParentDashboardPage() {
                     <CardContent>
                         <div className="space-y-4">
                            {students.map(student => (
-                               <div key={student.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                               <div key={student.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 bg-muted rounded-lg gap-4">
                                    <div className="flex items-center gap-4">
                                        <Avatar>
                                            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="child avatar"/>
@@ -181,7 +181,7 @@ export default function ParentDashboardPage() {
                                        </Avatar>
                                        <p className="font-semibold">{student.name}</p>
                                    </div>
-                                   <div className="flex items-center gap-2">
+                                   <div className="flex items-center gap-2 self-end sm:self-center">
                                        <Button variant="outline" size="sm">Manage</Button>
                                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10">
                                            <Trash2 className="h-4 w-4" />
@@ -204,15 +204,15 @@ export default function ParentDashboardPage() {
                     <CardContent className="space-y-6">
                          <div className="space-y-4">
                             <h4 className="font-medium text-foreground">Notification Settings</h4>
-                             <div className="flex items-center justify-between p-3 rounded-lg border">
-                                <div>
+                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border gap-4">
+                                <div className="flex-grow">
                                     <Label htmlFor="email-notifications" className="font-semibold cursor-pointer">Email Notifications</Label>
                                     <p className="text-sm text-muted-foreground">Receive weekly progress reports and important alerts via email.</p>
                                 </div>
                                 <Switch id="email-notifications" defaultChecked />
                             </div>
-                             <div className="flex items-center justify-between p-3 rounded-lg border">
-                                <div>
+                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border gap-4">
+                                <div className="flex-grow">
                                     <Label htmlFor="push-notifications" className="font-semibold cursor-pointer">Push Notifications</Label>
                                     <p className="text-sm text-muted-foreground">Get real-time mobile alerts for reward approvals and milestones.</p>
                                 </div>
@@ -229,8 +229,8 @@ export default function ParentDashboardPage() {
                                 </div>
                                  <div className="space-y-2">
                                     <Label className="font-semibold">Reward Approval</Label>
-                                     <div className="flex items-center justify-between p-3 rounded-lg border h-[5.25rem]">
-                                        <div>
+                                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border min-h-[5.25rem] gap-4">
+                                        <div className="flex-grow">
                                             <Label htmlFor="manual-approval" className="font-normal cursor-pointer">Require manual approval</Label>
                                             <p className="text-sm text-muted-foreground">You must approve rewards before funds are sent.</p>
                                         </div>
@@ -279,7 +279,7 @@ export default function ParentDashboardPage() {
                         <div className="space-y-6">
                            <h4 className="font-semibold text-foreground">Managed Payment Methods</h4>
                            <div className="space-y-3">
-                               <div className="flex items-center justify-between p-3 border rounded-lg">
+                               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 border rounded-lg gap-3">
                                    <div className="flex items-center gap-3">
                                        <CreditCard className="w-6 h-6 text-muted-foreground"/>
                                        <div>
@@ -287,9 +287,9 @@ export default function ParentDashboardPage() {
                                            <p className="text-sm text-muted-foreground">**** **** **** 1234</p>
                                        </div>
                                    </div>
-                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4"/></Button>
+                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 self-end sm:self-center"><Trash2 className="h-4 w-4"/></Button>
                                </div>
-                               <div className="flex items-center justify-between p-3 border rounded-lg">
+                               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 border rounded-lg gap-3">
                                    <div className="flex items-center gap-3">
                                        <Banknote className="w-6 h-6 text-muted-foreground"/>
                                        <div>
@@ -297,7 +297,7 @@ export default function ParentDashboardPage() {
                                            <p className="text-sm text-muted-foreground">parent@ybl</p>
                                        </div>
                                    </div>
-                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4"/></Button>
+                                   <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 self-end sm:self-center"><Trash2 className="h-4 w-4"/></Button>
                                </div>
                            </div>
                            <Button variant="secondary" className="w-full"><PlusCircle className="mr-2"/> Add New Payment Method</Button>
@@ -351,7 +351,7 @@ export default function ParentDashboardPage() {
                                 <TableRow>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Amount</TableHead>
-                                    <TableHead>Payment Method</TableHead>
+                                    <TableHead className="hidden md:table-cell">Method</TableHead>
                                     <TableHead className="text-right">Status</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -360,7 +360,7 @@ export default function ParentDashboardPage() {
                                     <TableRow key={tx.id}>
                                         <TableCell>{tx.date}</TableCell>
                                         <TableCell>₹{tx.amount.toFixed(2)}</TableCell>
-                                        <TableCell>{tx.method}</TableCell>
+                                        <TableCell className="hidden md:table-cell">{tx.method}</TableCell>
                                         <TableCell className="text-right font-medium text-green-600">{tx.status}</TableCell>
                                     </TableRow>
                                 ))}
@@ -378,44 +378,44 @@ export default function ParentDashboardPage() {
                             Set the base rewards for key activities. Toggle a rule off to disable earnings for that activity.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-4">
-                                <BookOpen className="w-6 h-6 text-primary" />
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex items-center gap-4 flex-grow">
+                                <BookOpen className="w-6 h-6 text-primary flex-shrink-0" />
                                 <div>
                                     <Label htmlFor="journal-reward" className="font-semibold">Daily Journaling Reward</Label>
                                     <p className="text-sm text-muted-foreground">Reward for writing a journal entry each day.</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                                 <Input id="journal-reward" type="number" placeholder="e.g., 10" className="w-24" />
                                 <Switch id="journal-switch" defaultChecked />
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-4">
-                                <Target className="w-6 h-6 text-primary" />
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex items-center gap-4 flex-grow">
+                                <Target className="w-6 h-6 text-primary flex-shrink-0" />
                                 <div>
                                     <Label htmlFor="task-reward" className="font-semibold">Per-Task Completion Reward</Label>
                                     <p className="text-sm text-muted-foreground">Reward for each task marked 'Done' in the planner.</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                                 <Input id="task-reward" type="number" placeholder="e.g., 5" className="w-24" />
                                 <Switch id="task-switch" defaultChecked />
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-4">
-                                <Puzzle className="w-6 h-6 text-primary" />
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex items-center gap-4 flex-grow">
+                                <Puzzle className="w-6 h-6 text-primary flex-shrink-0" />
                                 <div>
                                     <Label htmlFor="puzzle-reward" className="font-semibold">Puzzle & Quest Reward</Label>
                                     <p className="text-sm text-muted-foreground">Reward for solving daily or weekly puzzles.</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                                 <Input id="puzzle-reward" type="number" placeholder="e.g., 20" className="w-24" />
                                 <Switch id="puzzle-switch" defaultChecked />
                             </div>
@@ -429,8 +429,8 @@ export default function ParentDashboardPage() {
                         <CardDescription>Optionally, convert daily Karma Score into wallet money.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex-grow">
                                 <Label htmlFor="karma-conversion-switch" className="font-semibold cursor-pointer">Enable Karma Score to Wallet Conversion</Label>
                                 <p className="text-sm text-muted-foreground">Automatically convert positive karma points into money at the end of the day.</p>
                             </div>
@@ -456,28 +456,28 @@ export default function ParentDashboardPage() {
                         <CardDescription>Reward consistency and major achievements with extra bonuses.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex items-center gap-4 flex-grow">
                                 <TrendingUp className="w-6 h-6 text-green-500" />
                                 <div>
                                     <Label htmlFor="streak-bonus" className="font-semibold">7-Day Journaling Streak Bonus</Label>
                                     <p className="text-sm text-muted-foreground">Extra reward for journaling every day for a week.</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                                 <Input id="streak-bonus" type="number" placeholder="e.g., 50" className="w-24" />
                                 <Switch id="streak-switch" defaultChecked />
                             </div>
                         </div>
-                        <div className="flex items-center justify-between p-4 rounded-lg border">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg border gap-4">
+                            <div className="flex items-center gap-4 flex-grow">
                                 <Sparkles className="w-6 h-6 text-yellow-500" />
                                 <div>
                                     <Label htmlFor="achievement-bonus" className="font-semibold">Major Achievement Bonus</Label>
                                     <p className="text-sm text-muted-foreground">Set a custom bonus for things like "Topping a Test".</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 flex-shrink-0">
                                 <Input id="achievement-bonus" type="number" placeholder="e.g., 100" className="w-24" />
                                 <Button variant="outline">Set Trigger</Button>
                             </div>
@@ -492,14 +492,14 @@ export default function ParentDashboardPage() {
             
             <TabsContent value="progress" className="space-y-6">
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div className="space-y-1.5">
+                    <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="space-y-1.5 flex-grow">
                             <CardTitle>Student Progress Dashboard</CardTitle>
                             <CardDescription>An overview of your student's activities and well-being.</CardDescription>
                         </div>
-                         <div className="flex items-center gap-2">
+                         <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
                              <Select defaultValue='rohan'>
-                                <SelectTrigger className="w-[150px]">
+                                <SelectTrigger className="w-full sm:w-[150px]">
                                     <SelectValue placeholder="Select Student" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -508,7 +508,7 @@ export default function ParentDashboardPage() {
                                 </SelectContent>
                             </Select>
                             <Select defaultValue='today'>
-                                <SelectTrigger className="w-[150px]">
+                                <SelectTrigger className="w-full sm:w-[150px]">
                                     <SelectValue placeholder="Select Period" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -700,9 +700,9 @@ export default function ParentDashboardPage() {
                             {notifications.map(notif => {
                                 const Icon = notif.icon;
                                 return (
-                                    <div key={notif.id} className="flex items-center justify-between gap-4 p-3 rounded-lg border">
-                                        <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-primary/10 rounded-full">
+                                    <div key={notif.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 rounded-lg border">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-2 bg-primary/10 rounded-full mt-1 sm:mt-0 flex-shrink-0">
                                                 <Icon className="w-5 h-5 text-primary" />
                                             </div>
                                             <div>
@@ -712,14 +712,16 @@ export default function ParentDashboardPage() {
                                                 <p className="text-xs text-muted-foreground">{notif.date}</p>
                                             </div>
                                         </div>
-                                        {notif.type === 'action_required' ? (
-                                            <Button size="sm">Review Request</Button>
-                                        ) : (
-                                            <Button variant="ghost" size="sm">
-                                                <MessageSquare className="mr-2 h-4 w-4" />
-                                                Reply
-                                            </Button>
-                                        )}
+                                        <div className="self-end sm:self-center flex-shrink-0">
+                                            {notif.type === 'action_required' ? (
+                                                <Button size="sm">Review Request</Button>
+                                            ) : (
+                                                <Button variant="ghost" size="sm">
+                                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                                    Reply
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
                                 )
                             })}
@@ -733,7 +735,7 @@ export default function ParentDashboardPage() {
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <p className="text-sm text-muted-foreground flex-grow">For example: "Get an A on the next Science test for a ₹200 bonus."</p>
-                        <Button>Create Challenge</Button>
+                        <Button className="self-end sm:self-center flex-shrink-0">Create Challenge</Button>
                     </CardContent>
                 </Card>
             </TabsContent>
