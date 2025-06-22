@@ -2,98 +2,205 @@
 "use client";
 
 import {
-  UserCog,
+  User,
   Wallet,
   Settings2,
   LayoutDashboard,
   Gift,
   Bell,
+  Camera,
+  PlusCircle,
+  Trash2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 
-const parentFeatures = [
-  {
-    icon: UserCog,
-    title: 'Profile & Student Management',
-    description: 'Set up your parent profile, add a photo, and link multiple student accounts to manage them all from one place. Adjust notification preferences and other settings.',
-    link: '#',
-    linkText: 'Manage Profile'
-  },
-  {
-    icon: Wallet,
-    title: 'Secure Wallet & Top-Ups',
-    description: 'Load money into your parent wallet using UPI, Cards, or Net Banking. View your balance, track transaction history, and set spending limits for each child.',
-    link: '#',
-    linkText: 'Add Funds'
-  },
-  {
-    icon: Settings2,
-    title: 'Custom Earning Rules',
-    description: 'Decide how your child earns rewards. Set custom amounts for daily journaling, completing academic goals, solving puzzles, and achieving streaks.',
-    link: '#',
-    linkText: 'Set Rules'
-  },
-  {
-    icon: LayoutDashboard,
-    title: 'Progress Monitoring',
-    description: 'Get a clear view of your child\'s progress with daily activity summaries, mood trends, and weekly performance reports powered by AI insights.',
-    link: '#',
-    linkText: 'View Dashboard'
-  },
-  {
-    icon: Gift,
-    title: 'Reward Approval System',
-    description: 'Choose to automatically transfer earned money to your child\'s wallet or enable manual approval. Review their work and send a note of encouragement with each reward.',
-    link: '#',
-    linkText: 'Approve Rewards'
-  },
-  {
-    icon: Bell,
-    title: 'Notifications & Engagement',
-    description: 'Receive alerts for important milestones, reward redemptions, or when your child needs a nudge. Use the chat feature to send messages and set bonus challenges.',
-    link: '#',
-    linkText: 'Adjust Alerts'
-  },
+const students = [
+    { id: '1', name: 'Rohan', avatar: 'https://placehold.co/40x40.png' },
+    { id: '2', name: 'Priya', avatar: 'https://placehold.co/40x40.png' }
 ];
 
 export default function ParentDashboardPage() {
   return (
     <div className="min-h-screen">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="text-center mb-12">
+        <header className="mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
             Parent Dashboard
           </h1>
-          <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">
+          <p className="mt-4 max-w-3xl text-lg text-muted-foreground">
             Welcome, Parent! Here you can manage your child's journey, set rewards, and monitor their growth in a secure and supportive environment.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {parentFeatures.map((feature) => (
-            <Card key={feature.title} className="flex flex-col">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <feature.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+        <Tabs defaultValue="profile" className="w-full">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-6 mb-6">
+                <TabsTrigger value="profile"><User className="mr-2"/> Profile Setup</TabsTrigger>
+                <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet & Billing</TabsTrigger>
+                <TabsTrigger value="rules"><Settings2 className="mr-2"/> Earning Rules</TabsTrigger>
+                <TabsTrigger value="progress"><LayoutDashboard className="mr-2"/> Student Progress</TabsTrigger>
+                <TabsTrigger value="rewards"><Gift className="mr-2"/> Reward Approvals</TabsTrigger>
+                <TabsTrigger value="notifications"><Bell className="mr-2"/> Notifications</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile" className="space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Parent Information</CardTitle>
+                        <CardDescription>This information is private and helps personalize your experience.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex items-center gap-6">
+                            <Avatar className="h-20 w-20">
+                                <AvatarImage src="https://placehold.co/80x80.png" alt="Parent Photo" data-ai-hint="person avatar"/>
+                                <AvatarFallback>P</AvatarFallback>
+                            </Avatar>
+                            <div className="space-y-2">
+                                <Label htmlFor="picture">Profile Photo (Optional)</Label>
+                                <div className="flex items-center gap-2">
+                                   <Input id="picture" type="file" className="max-w-sm"/>
+                                   <Button variant="outline" size="icon"><Camera className="h-4 w-4" /></Button>
+                                </div>
+                                <p className="text-xs text-muted-foreground">Upload a PNG or JPG, max 2MB.</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Full Name</Label>
+                                <Input id="name" placeholder="e.g., Asha Sharma" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email Address</Label>
+                                <Input id="email" type="email" placeholder="e.g., asha.sharma@example.com" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Linked Students</CardTitle>
+                        <CardDescription>Manage the students connected to your account.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                           {students.map(student => (
+                               <div key={student.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                   <div className="flex items-center gap-4">
+                                       <Avatar>
+                                           <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="child avatar"/>
+                                           <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                                       </Avatar>
+                                       <p className="font-semibold">{student.name}</p>
+                                   </div>
+                                   <div className="flex items-center gap-2">
+                                       <Button variant="outline" size="sm">Manage</Button>
+                                       <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10">
+                                           <Trash2 className="h-4 w-4" />
+                                       </Button>
+                                   </div>
+                               </div>
+                           ))}
+                        </div>
+                        <Button variant="secondary" className="mt-6">
+                            <PlusCircle className="mr-2" /> Add Another Student
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Preferences & Limits</CardTitle>
+                        <CardDescription>Customize notifications and set spending controls for your students.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                         <div className="space-y-4">
+                            <h4 className="font-medium text-foreground">Notification Settings</h4>
+                             <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <div>
+                                    <Label htmlFor="email-notifications" className="font-semibold cursor-pointer">Email Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">Receive weekly progress reports and important alerts via email.</p>
+                                </div>
+                                <Switch id="email-notifications" defaultChecked />
+                            </div>
+                             <div className="flex items-center justify-between p-3 rounded-lg border">
+                                <div>
+                                    <Label htmlFor="push-notifications" className="font-semibold cursor-pointer">Push Notifications</Label>
+                                    <p className="text-sm text-muted-foreground">Get real-time mobile alerts for reward approvals and milestones.</p>
+                                </div>
+                                <Switch id="push-notifications" />
+                            </div>
+                         </div>
+                         <Separator />
+                          <div className="space-y-4">
+                            <h4 className="font-medium text-foreground">Financial Controls</h4>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div className="space-y-2">
+                                    <Label htmlFor="weekly-limit">Default Weekly Spending Limit (per student)</Label>
+                                    <Input id="weekly-limit" type="number" placeholder="e.g., 500" />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label className="font-semibold">Reward Approval</Label>
+                                     <div className="flex items-center justify-between p-3 rounded-lg border h-[5.25rem]">
+                                        <div>
+                                            <Label htmlFor="manual-approval" className="font-normal cursor-pointer">Require manual approval</Label>
+                                            <p className="text-sm text-muted-foreground">You must approve rewards before funds are sent.</p>
+                                        </div>
+                                        <Switch id="manual-approval" defaultChecked />
+                                    </div>
+                                </div>
+                             </div>
+                         </div>
+                    </CardContent>
+                </Card>
+                <div className="flex justify-end">
+                    <Button size="lg">Save All Changes</Button>
                 </div>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <CardDescription>{feature.description}</CardDescription>
-              </CardContent>
-              <div className="p-6 pt-0">
-                 <Button asChild variant="outline" className="w-full">
-                    <Link href={feature.link}>{feature.linkText}</Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+
+            </TabsContent>
+
+            {/* Placeholder for other tabs */}
+            <TabsContent value="wallet">
+                <Card>
+                    <CardHeader><CardTitle>Wallet & Billing</CardTitle></CardHeader>
+                    <CardContent><p>Wallet management features will be here.</p></CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="rules">
+                <Card>
+                    <CardHeader><CardTitle>Earning Rules</CardTitle></CardHeader>
+                    <CardContent><p>Earning rule settings will be here.</p></CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="progress">
+                <Card>
+                    <CardHeader><CardTitle>Student Progress</CardTitle></CardHeader>
+                    <CardContent><p>Student progress dashboard will be here.</p></CardContent>
+                </Card>
+            </TabsContent>
+             <TabsContent value="rewards">
+                <Card>
+                    <CardHeader><CardTitle>Reward Approvals</CardTitle></CardHeader>
+                    <CardContent><p>Reward approval queue will be here.</p></CardContent>
+                </Card>
+            </TabsContent>
+             <TabsContent value="notifications">
+                <Card>
+                    <CardHeader><CardTitle>Notifications</CardTitle></CardHeader>
+                    <CardContent><p>Notification settings and history will be here.</p></CardContent>
+                </Card>
+            </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
 }
+
+    
