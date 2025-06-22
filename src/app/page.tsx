@@ -20,7 +20,6 @@ import {
   Gift,
   Mail,
   Quote,
-  DollarSign,
 } from 'lucide-react';
 import { LandingFooter } from '@/components/landing/landing-footer';
 
@@ -70,7 +69,9 @@ export default function LandingPage() {
             <div className="space-y-6">
               <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex flex-wrap items-center justify-center md:justify-start text-center md:text-left">
                 <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
-                <DollarSign className="w-10 h-10 md:w-12 md:h-12 text-green-500 mx-2" />
+                <div className="inline-block animate-coin-spin w-10 h-10 md:w-12 md:h-12 mx-2 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
+                    <span className="text-2xl md:text-3xl font-bold text-yellow-800">$</span>
+                </div>
                 <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">As You Learn</span>
               </h1>
               <p className="text-lg text-muted-foreground">

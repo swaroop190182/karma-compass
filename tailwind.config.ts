@@ -107,6 +107,10 @@ export default {
             opacity: '0.5',
           },
         },
+        'coin-spin': {
+          '0%': { transform: 'rotateY(0deg)' },
+          '100%': { transform: 'rotateY(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -114,6 +118,7 @@ export default {
         'pop-in': 'pop-in 0.3s ease-out',
         'shake': 'shake 0.4s ease-in-out',
         'fly-to-wallet': 'fly-to-wallet 1.5s ease-in-out forwards',
+        'coin-spin': 'coin-spin 2s linear infinite',
       },
     },
   },
