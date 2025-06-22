@@ -17,15 +17,33 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const [walletPosition, setWalletPosition] = useState<{ top: number; left: number } | null>(null);
 
     useEffect(() => {
-        // Set initial position and add resize listener only on the client
-        const getPosition = () => ({ top: 30, left: window.innerWidth - 80 });
-        setWalletPosition(getPosition());
+        // Function to find the wallet element and set its position
+        const updateWalletPosition = () => {
+            const walletElement = document.getElementById('wallet-display');
+            if (walletElement) {
+                const rect = walletElement.getBoundingClientRect();
+                setWalletPosition({
+                    top: rect.top + rect.height / 2,
+                    left: rect.left + rect.width / 2,
+                });
+            }
+        };
+        
+        // A small delay to ensure the wallet component has mounted
+        const timeoutId = setTimeout(updateWalletPosition, 100);
 
-        const handleResize = () => {
-            setWalletPosition(getPosition());
-        }
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        // Update position on resize
+        window.addEventListener('resize', updateWalletPosition);
+        
+        // Also use a MutationObserver in case the component appears/moves later
+        const observer = new MutationObserver(updateWalletPosition);
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+        return () => {
+            clearTimeout(timeoutId);
+            window.removeEventListener('resize', updateWalletPosition);
+            observer.disconnect();
+        };
     }, []);
 
 
