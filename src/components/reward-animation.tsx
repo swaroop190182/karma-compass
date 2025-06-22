@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect } from 'react';
-import { IndianRupee } from 'lucide-react';
 
 interface RewardAnimationProps {
     amount: number;
@@ -33,10 +32,9 @@ export function RewardAnimation({ amount, endPos, onAnimationEnd }: RewardAnimat
     return (
         <div 
             style={style}
-            className="fixed z-[200] flex items-center justify-center h-12 w-24 bg-green-500 rounded-md border-2 border-green-700 text-white font-bold shadow-lg animate-fly-to-wallet"
+            className="fixed z-[200] flex items-center justify-center h-12 w-24 bg-green-500 rounded-md border-2 border-green-700 text-white font-bold shadow-lg animate-fly-to-wallet text-lg"
         >
-            <IndianRupee className="h-5 w-5 mr-1" />
-            {amount}
+            ₹{amount}
         </div>
     );
 }
