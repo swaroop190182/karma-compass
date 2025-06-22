@@ -64,7 +64,7 @@ export default function TutorPage() {
     }, [messages]);
 
 
-    const handleStartChatting = () => {
+    function handleStartChatting() {
         if (selectedBoard && selectedGrade && selectedSubject) {
             setMessages([
                 { role: 'model', content: `Hello! I'm Luma, your personal AI tutor. I'm ready to help you with ${selectedSubject.name}. What would you like to learn about today?` }
@@ -77,9 +77,9 @@ export default function TutorPage() {
                 variant: 'destructive',
             });
         }
-    };
+    }
     
-    const handleSendMessage = async () => {
+    async function handleSendMessage() {
         if (!currentInput.trim() || !selectedBoard || !selectedGrade || !selectedSubject) return;
 
         const newUserMessage: Message = { role: 'user', content: currentInput };
@@ -113,12 +113,12 @@ export default function TutorPage() {
                 });
             }
         });
-    };
+    }
     
-    const handleSubjectSelection = (subjectName: string) => {
+    function handleSubjectSelection(subjectName: string) {
         const subject = availableSubjects.find(s => s.name === subjectName);
         setSelectedSubject(subject || null);
-    };
+    }
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col h-[calc(100vh-80px)]">
