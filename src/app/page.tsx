@@ -61,7 +61,7 @@ const testimonials = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-background text-foreground font-body">
+    <div className="text-foreground font-body">
       <main>
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-20 sm:py-32">

@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 
 export default function ReflectionsPage() {
     return (
-        <div className="bg-background min-h-screen">
+        <div className="min-h-screen">
             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
                 <header className="mb-8">
                     <h1 className="text-3xl sm:text-4xl font-bold text-foreground">

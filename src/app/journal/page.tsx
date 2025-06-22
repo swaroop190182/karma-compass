@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useTransition } from 'react';
@@ -207,7 +208,7 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="bg-background min-h-screen text-foreground font-body">
+    <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="flex flex-wrap justify-between items-center gap-4 mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
