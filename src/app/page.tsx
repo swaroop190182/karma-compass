@@ -30,6 +30,8 @@ const feelings = [
   { name: 'Stressed', icon: Angry, colorClass: 'text-red-500', hoverClass: 'hover:bg-red-500/10 hover:border-red-500/50', selectedClass: 'bg-red-500/20 border-red-600 text-red-600 dark:text-red-400' },
 ];
 
+const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
+
 export default function Home() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [dailyActivities, setDailyActivities] = useState<Record<string, Record<string, boolean>>>({});
@@ -45,8 +47,20 @@ export default function Home() {
   const [intentions, setIntentions] = useState('');
   const [mindDump, setMindDump] = useState('');
   const [showScoreCard, setShowScoreCard] = useState(false);
+  const [rewardedDates, setRewardedDates] = useState<Set<string>>(new Set());
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
+
+  useEffect(() => {
+    try {
+      const storedDates = localStorage.getItem(JOURNAL_REWARD_DATES_KEY);
+      if (storedDates) {
+        setRewardedDates(new Set(JSON.parse(storedDates)));
+      }
+    } catch (error) {
+      console.error("Failed to read rewarded dates from localStorage", error);
+    }
+  }, []);
 
   const selectedActivities = useMemo(() => {
     return dailyActivities[selectedDateString] || {};
@@ -174,8 +188,18 @@ export default function Home() {
       return acc;
     }, 0);
     
-    // Add reward for journaling
-    addFunds(10, "You earned a reward for journaling today!");
+    // Add reward for journaling, but only once per day
+    if (!rewardedDates.has(selectedDateString)) {
+        addFunds(10, "You earned a reward for journaling today!");
+        const newRewardedDates = new Set(rewardedDates);
+        newRewardedDates.add(selectedDateString);
+        setRewardedDates(newRewardedDates);
+        try {
+            localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
+        } catch (error) {
+            console.error("Failed to save rewarded dates to localStorage", error);
+        }
+    }
 
     setTotalScore(score);
     setMotivationalQuote('');
