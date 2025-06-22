@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic
 } from 'lucide-react';
 
-import { motivationalMessage } from '@/ai/flows/motivational-message';
+import { analyzeJournalAndIntentions } from '@/ai/flows/analyze-journal-flow';
 import { activities } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -33,10 +33,14 @@ export default function Home() {
   const [dailyActivities, setDailyActivities] = useState<Record<string, Record<string, boolean>>>({});
   const [totalScore, setTotalScore] = useState(0);
   const [motivationalQuote, setMotivationalQuote] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [isGettingMotivation, startMotivationTransition] = useTransition();
+  const [isAnalyzing, startAnalysisTransition] = useTransition();
   const { toast } = useToast();
   
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
+  const [reflections, setReflections] = useState('');
+  const [intentions, setIntentions] = useState('');
+  const [mindDump, setMindDump] = useState('');
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
 
@@ -77,7 +81,7 @@ export default function Home() {
         return;
     }
     
-    startTransition(async () => {
+    startMotivationTransition(async () => {
       try {
         const result = await motivationalMessage({ karmaScore: totalScore });
         setMotivationalQuote(result.message);
@@ -89,6 +93,60 @@ export default function Home() {
           variant: 'destructive',
         });
       }
+    });
+  };
+
+  const handleAnalyzeJournal = () => {
+    if (!reflections && !intentions) {
+        toast({
+            title: "Journal is empty",
+            description: "Please write in your journal or intentions before analyzing.",
+            variant: "destructive",
+        });
+        return;
+    }
+
+    startAnalysisTransition(async () => {
+        try {
+            const allActivityNames = activities.map(a => a.name);
+            const result = await analyzeJournalAndIntentions({
+                journalText: reflections,
+                intentionsText: intentions,
+                activityList: allActivityNames
+            });
+
+            // Update activities
+            const currentActivities = dailyActivities[selectedDateString] || {};
+            const updatedActivities = { ...currentActivities };
+            result.identifiedActivities.forEach(name => {
+                updatedActivities[name] = true;
+            });
+            setDailyActivities(prev => ({ ...prev, [selectedDateString]: updatedActivities }));
+
+            let toastDescription = "";
+            if (result.identifiedActivities.length > 0) {
+                toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
+            }
+
+            // Store planner tasks
+            if (result.plannerTasks.length > 0) {
+                localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
+                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
+            }
+
+            toast({
+                title: "Analysis Complete",
+                description: toastDescription || "No new activities or tasks found.",
+            });
+
+        } catch (error) {
+            console.error("Failed to analyze journal:", error);
+            toast({
+                title: 'Analysis Error',
+                description: 'Could not analyze your journal entries. Please try again.',
+                variant: 'destructive',
+            });
+        }
     });
   };
 
@@ -161,18 +219,25 @@ export default function Home() {
                 <CardContent className="space-y-6">
                     <div>
                         <label className="text-sm font-medium block mb-2">Reflections & Gratitude</label>
-                        <Textarea placeholder="What went well? What are you grateful for?" rows={3} />
+                        <Textarea placeholder="What went well? What are you grateful for?" rows={3} value={reflections} onChange={(e) => setReflections(e.target.value)}/>
                     </div>
                     <div>
                         <label className="text-sm font-medium block mb-2">Intentions for Tomorrow</label>
-                        <Textarea placeholder="What positive actions will you take tomorrow?" rows={3} />
+                        <Textarea placeholder="What positive actions will you take tomorrow?" rows={3} value={intentions} onChange={(e) => setIntentions(e.target.value)}/>
                     </div>
                     <div>
                         <label className="text-sm font-medium block mb-2">Mind Dump</label>
-                        <Textarea placeholder="Any other thoughts, worries, or ideas? Let them go here." rows={3} />
+                        <Textarea placeholder="Any other thoughts, worries, or ideas? Let them go here." rows={3} value={mindDump} onChange={(e) => setMindDump(e.target.value)}/>
                     </div>
-                    <div className="flex justify-end pt-2">
-                        <Button variant="default">Analyze Journal & Activities</Button>
+                    <div className="flex flex-wrap gap-2 pt-2 justify-between">
+                         <div className="flex gap-2">
+                            <Button variant="outline"><Upload className="mr-2" /> Upload Photo</Button>
+                            <Button variant="outline"><Mic className="mr-2" /> Record Voice</Button>
+                         </div>
+                        <Button onClick={handleAnalyzeJournal} disabled={isAnalyzing}>
+                            {isAnalyzing ? <LoaderCircle className="animate-spin mr-2" /> : <Bot className="mr-2" />}
+                            Analyze Journal & Activities
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -212,11 +277,11 @@ export default function Home() {
                       )}>
                       {totalScore > 0 ? `+${totalScore}` : totalScore}
                     </p>
-                    <Button onClick={handleGetMotivation} disabled={isPending || Object.values(selectedActivities).every(v => !v)} size="lg">
-                        {isPending ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    <Button onClick={handleGetMotivation} disabled={isGettingMotivation || Object.values(selectedActivities).every(v => !v)} size="lg">
+                        {isGettingMotivation ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
                         Get Today's Motivation
                     </Button>
-                    {isPending && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
+                    {isGettingMotivation && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
                     {motivationalQuote && (
                         <Card className="w-full bg-accent/50 border-accent shadow-inner">
                             <CardContent className="p-3">

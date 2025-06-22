@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Target, Moon } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,6 +10,7 @@ import { DailyPlanner } from '@/components/planner/daily-planner';
 import { SmartSuggestions } from '@/components/planner/smart-suggestions';
 import { WeeklyGoals } from '@/components/planner/weekly-goals';
 import { EveningReflection } from '@/components/planner/evening-reflection';
+import { useToast } from '@/hooks/use-toast';
 
 import type { PlannerTask, WeeklyGoal } from '@/lib/types';
 
@@ -20,6 +21,32 @@ export default function PlannerPage() {
         { id: '2', title: 'Complete 5 math practice sets', current: 2, target: 5 },
         { id: '3', title: 'Avoid social media during study time (days)', current: 0, target: 5 },
     ]);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        const newTasksRaw = localStorage.getItem('newPlannerTasks');
+        if (newTasksRaw) {
+            try {
+                const newTasks = JSON.parse(newTasksRaw);
+                if (Array.isArray(newTasks) && newTasks.length > 0) {
+                    const tasksToAdd = newTasks.map((task: Omit<PlannerTask, 'id' | 'status'>) => ({
+                        ...task,
+                        id: crypto.randomUUID(),
+                        status: 'Not Done' as const,
+                    }));
+                    setTasks(prev => [...prev, ...tasksToAdd]);
+                    toast({
+                        title: "Tasks Added",
+                        description: `Added ${tasksToAdd.length} new tasks from your journal intentions.`,
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to parse or add new tasks from localStorage", error);
+            } finally {
+                localStorage.removeItem('newPlannerTasks');
+            }
+        }
+    }, [toast]);
 
     const addTask = (task: Omit<PlannerTask, 'id' | 'status'>) => {
         setTasks(prev => [...prev, { ...task, id: crypto.randomUUID(), status: 'Not Done' }]);
