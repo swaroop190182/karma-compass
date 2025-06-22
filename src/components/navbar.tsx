@@ -6,9 +6,15 @@ import { usePathname } from 'next/navigation';
 import { Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
+import { useState, useEffect } from 'react';
 
 export function Navbar() {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const navLinks = [
     { href: '/journal', label: 'Journal' },
@@ -22,8 +28,9 @@ export function Navbar() {
 
   return (
     <nav className="bg-card border-b sticky top-0 z-50">
-      <div className="container mx-auto flex items-center justify-between p-3">
-        <div className="w-44 flex items-center">
+      <div className="container mx-auto flex items-center p-3">
+        {/* Logo on the left */}
+        <div className="flex-1 flex justify-start">
             <Link href="/" className="flex items-center gap-2">
                 <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
                     <Compass className="h-6 w-6 text-primary" />
@@ -35,14 +42,15 @@ export function Navbar() {
             </Link>
         </div>
 
-        <div className="flex-1 flex items-center justify-center gap-8">
+        {/* Centered Navigation Links */}
+        <div className="hidden sm:flex items-center justify-center gap-2 md:gap-4 lg:gap-6">
             {navLinks.map(link => (
             <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-base font-medium transition-colors",
-                  pathname === link.href
+                  "text-sm md:text-base font-medium transition-colors whitespace-nowrap",
+                  isClient && pathname === link.href
                       ? "text-primary font-semibold"
                       : "text-foreground/70 hover:text-foreground"
                 )}
@@ -52,7 +60,8 @@ export function Navbar() {
             ))}
         </div>
         
-        <div className="w-44 flex justify-end">
+        {/* Wallet on the right */}
+        <div className="flex-1 flex justify-end">
             <WalletDisplay />
         </div>
       </div>
