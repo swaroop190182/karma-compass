@@ -14,8 +14,8 @@ const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { ac
                 'hover:shadow-md hover:scale-[1.03]',
                 selectedActivities[activity.name]
                 ? activity.type === 'Good'
-                    ? 'bg-chart-2/30 border-chart-2 shadow-lg scale-105'
-                    : 'bg-destructive/30 border-destructive shadow-lg scale-105'
+                    ? 'bg-chart-2/30 border-chart-2 shadow-lg scale-105 animate-pop-in'
+                    : 'bg-destructive/30 border-destructive shadow-lg scale-105 animate-shake'
                 : 'bg-card border-input hover:border-primary'
             )}
             >
