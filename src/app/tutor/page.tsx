@@ -118,7 +118,7 @@ export default function TutorPage() {
     const handleSubjectSelection = (subjectName: string) => {
         const subject = availableSubjects.find(s => s.name === subjectName);
         setSelectedSubject(subject || null);
-    }
+    };
 
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col h-[calc(100vh-80px)]">
