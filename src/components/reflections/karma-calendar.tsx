@@ -12,27 +12,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { activities, type Activity } from '@/lib/activities';
+import type { DayEntry } from '@/lib/types';
+import { mockData } from '@/lib/mock-data';
+
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
 
-interface DayEntry {
-    date: string;
-    score: number;
-    loggedActivities: string[];
-    reflection?: string;
-}
-
-const mockData: DayEntry[] = [
-    { date: '2025-06-10', score: 32, loggedActivities: ['Journal', 'Gratitude', 'Meditate', 'Exercise', 'Smile', 'Help Classmate', 'Be Kind' ], reflection: '' },
-    { date: '2025-06-18', score: 25, loggedActivities: ['Take Notes', 'Music', 'Meditate', 'Homework'], reflection: 'Felt productive today, especially during the music session. It helped me focus.' },
-    { date: '2025-06-19', score: 29, loggedActivities: ['Take Notes', 'Organize', 'Meditate', 'Homework', 'Read Books'], reflection: '' },
-    { date: '2025-06-20', score: 40, loggedActivities: ['Classes', 'Homework', 'Test Prep', 'Take Notes', 'Participate'], reflection: 'A very busy but good academic day.' },
-    { date: '2025-06-21', score: 10, loggedActivities: ['Exercise', 'Hydrate'], reflection: '' },
-    { date: '2025-06-03', score: -12, loggedActivities: ['Skip Class', 'Oversleep'], reflection: 'Felt really bad today. Need to do better tomorrow.' },
-];
-
-function CustomDay({ date, modifiers, buttonProps }: DayProps) {
+function CustomDay({ date, displayMonth, ...props }: DayProps) {
     const entry = mockData.find(d => isSameDay(parseISO(d.date), date));
+    const modifiers = props.modifiers || {};
+    const buttonProps = props.buttonProps || {};
 
     const getActivities = (names: string[] | undefined) => {
         if (!names) return [];
@@ -59,9 +48,9 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
             className={cn(
                 "flex flex-col h-full w-full p-1.5 text-left relative",
                 getBackgroundColorClass(),
-                modifiers?.outside && "opacity-40",
-                entry && !modifiers?.outside && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
-                !entry && !modifiers?.outside && "cursor-default"
+                modifiers.outside && "opacity-40",
+                entry && !modifiers.outside && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
+                !entry && !modifiers.outside && "cursor-default"
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -92,7 +81,7 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
                         )}
                     </div>
                 ) : (
-                    !modifiers?.outside && (
+                    !modifiers.outside && (
                         <div className="flex items-center justify-center w-full h-full -mt-4">
                             <span className="text-[10px] text-muted-foreground/80">No entries</span>
                         </div>

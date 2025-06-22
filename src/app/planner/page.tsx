@@ -13,7 +13,8 @@ import { EveningReflection } from '@/components/planner/evening-reflection';
 import { useToast } from '@/hooks/use-toast';
 import { AiCoach } from '@/components/planner/ai-coach';
 
-import type { PlannerTask, WeeklyGoal } from '@/lib/types';
+import type { PlannerTask, WeeklyGoal, DayEntry } from '@/lib/types';
+import { mockData } from '@/lib/mock-data';
 
 export default function PlannerPage() {
     const [tasks, setTasks] = useState<PlannerTask[]>([]);
@@ -23,6 +24,10 @@ export default function PlannerPage() {
         { id: '3', title: 'Avoid social media during study time (days)', current: 0, target: 5 },
     ]);
     const { toast } = useToast();
+
+    // Using mockData to simulate a journal history.
+    // In a real app, this would be fetched from a database.
+    const [journalHistory, setJournalHistory] = useState<DayEntry[]>(mockData);
 
     useEffect(() => {
         const newTasksRaw = localStorage.getItem('newPlannerTasks');
@@ -85,7 +90,7 @@ export default function PlannerPage() {
                 </TabsContent>
 
                 <TabsContent value="coach">
-                    <AiCoach tasks={tasks} />
+                    <AiCoach tasks={tasks} journalHistory={journalHistory} />
                 </TabsContent>
             </Tabs>
         </div>

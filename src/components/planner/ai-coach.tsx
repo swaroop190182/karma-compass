@@ -8,14 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getAuraFeedback, type AuraCoachOutput } from '@/ai/flows/aura-coach-flow';
-import type { PlannerTask } from '@/lib/types';
+import type { PlannerTask, DayEntry } from '@/lib/types';
 import { Separator } from '../ui/separator';
 
 interface AiCoachProps {
     tasks: PlannerTask[];
+    journalHistory: DayEntry[];
 }
 
-export function AiCoach({ tasks }: AiCoachProps) {
+export function AiCoach({ tasks, journalHistory }: AiCoachProps) {
     const [feedback, setFeedback] = useState<AuraCoachOutput | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isAnalyzing, startAnalysisTransition] = useTransition();
@@ -25,7 +26,7 @@ export function AiCoach({ tasks }: AiCoachProps) {
         startAnalysisTransition(async () => {
             setError(null);
             try {
-                const result = await getAuraFeedback({ tasks });
+                const result = await getAuraFeedback({ tasks, journalHistory });
                 setFeedback(result);
             } catch (e) {
                 console.error("Failed to get feedback from Aura:", e);
@@ -72,7 +73,7 @@ export function AiCoach({ tasks }: AiCoachProps) {
                     <div className="space-y-4">
                         <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-primary" />
                         <h3 className="text-xl font-semibold">Aura is thinking...</h3>
-                        <p className="text-muted-foreground">Analyzing your day to provide the best insights.</p>
+                        <p className="text-muted-foreground">Analyzing your journey to provide the best insights.</p>
                     </div>
                 )}
 

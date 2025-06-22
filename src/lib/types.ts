@@ -22,3 +22,10 @@ export interface WeeklyGoal {
     current: number;
     target: number;
 }
+
+export interface DayEntry {
+    date: string;
+    score: number;
+    loggedActivities: string[];
+    reflection?: string;
+}
