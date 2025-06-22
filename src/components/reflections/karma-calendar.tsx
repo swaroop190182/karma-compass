@@ -2,7 +2,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DayPicker, type DayProps, type DayModifiers } from 'react-day-picker';
+import { DayPicker, type DayProps } from 'react-day-picker';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -42,12 +42,26 @@ function CustomDay(props: DayProps) {
     const loggedActs = getActivities(entry?.loggedActivities);
     const iconsToShow = loggedActs.slice(0, 3);
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
+    
+    const getBackgroundColorClass = () => {
+        if (entry) {
+            if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
+            if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
+            if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
+            if (entry.score > 0) return 'bg-yellow-100/60 dark:bg-yellow-800/20';
+            return 'bg-red-200/60 dark:bg-red-800/20';
+        }
+        if (modifiers?.saturdays) return 'bg-purple-50/50 dark:bg-purple-900/10';
+        if (modifiers?.sundays) return 'bg-pink-50/50 dark:bg-pink-900/10';
+        return 'bg-stone-50/50 dark:bg-stone-900/10';
+    };
 
     return (
         <div className={cn(
-            "flex flex-col h-full p-1.5", 
+            "flex flex-col h-full p-1.5",
+            getBackgroundColorClass(), 
             isOutside && "opacity-40",
-            modifiers && !modifiers.empty && "cursor-pointer hover:bg-accent/80 transition-colors"
+            entry && "cursor-pointer hover:bg-accent/80 transition-colors"
         )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -92,25 +106,9 @@ export function KarmaCalendar() {
     const [month, setMonth] = useState<Date>(defaultMonth);
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-    const scoreModifiers = mockData.reduce((acc, entry) => {
-        const key = `score_modifier_${entry.date}`;
-        acc[key] = [parseISO(entry.date)];
-        return acc;
-    }, {} as Record<string, Date[]>);
-
-    const scoreModifierClassNames = mockData.reduce((acc, entry) => {
-        const key = `score_modifier_${entry.date}`;
-        if (entry.score >= 40) acc[key] = 'bg-green-300/60 dark:bg-green-800/40';
-        else if (entry.score >= 30) acc[key] = 'bg-green-200/60 dark:bg-green-800/30';
-        else if (entry.score >= 20) acc[key] = 'bg-yellow-200/60 dark:bg-yellow-800/30';
-        else if (entry.score > 0) acc[key] = 'bg-yellow-100/60 dark:bg-yellow-800/20';
-        else acc[key] = 'bg-red-200/60 dark:bg-red-800/20';
-        return acc;
-    }, {} as Record<string, string>);
     
-    const handleDayClick = (day: Date, modifiers: DayModifiers) => {
-        if (modifiers?.empty || modifiers?.disabled) return;
+    const handleDayClick = (day: Date, modifiers: { empty?: boolean, disabled?: boolean }) => {
+        if (modifiers.empty || modifiers.disabled) return;
         const entry = mockData.find(d => isSameDay(parseISO(d.date), day));
         if (entry) {
             setSelectedDayData(entry);
@@ -155,16 +153,9 @@ export function KarmaCalendar() {
                             Day: CustomDay
                         }}
                         modifiers={{
-                            ...scoreModifiers,
                             saturdays: { dayOfWeek: [6] },
                             sundays: { dayOfWeek: [0] },
                             empty: (date) => !mockData.some(d => isSameDay(parseISO(d.date), date))
-                        }}
-                        modifiersClassNames={{
-                            ...scoreModifierClassNames,
-                            saturdays: 'bg-purple-50/50 dark:bg-purple-900/10',
-                            sundays: 'bg-pink-50/50 dark:bg-pink-900/10',
-                            empty: 'bg-stone-50/50 dark:bg-stone-900/10'
                         }}
                     />
                 </CardContent>
