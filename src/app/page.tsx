@@ -20,6 +20,7 @@ import {
   Gift,
   Mail,
   Quote,
+  ArrowRight,
 } from 'lucide-react';
 import { LandingFooter } from '@/components/landing/landing-footer';
 
@@ -67,13 +68,15 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-20 sm:py-32">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center md:justify-start text-center md:text-left">
-                <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
-                <div className="inline-block animate-coin-spin w-10 h-10 md:w-12 md:h-12 mx-2 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                    <span className="text-2xl md:text-3xl font-bold text-yellow-800">$</span>
-                </div>
-                <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">As You Learn</span>
-              </h1>
+              <div className="flex items-center justify-center md:justify-start text-center md:text-left">
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center">
+                    <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
+                    <div className="inline-block animate-coin-spin w-10 h-10 md:w-12 md:h-12 mx-2 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
+                        <span className="text-2xl md:text-3xl font-bold text-yellow-800">$</span>
+                    </div>
+                    <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">As You Learn</span>
+                  </h1>
+              </div>
               <p className="text-lg text-muted-foreground">
                 A gamified journaling and goal-setting app for students to reflect, grow, and get rewarded.
               </p>
@@ -82,7 +85,7 @@ export default function LandingPage() {
                     <Link href="/journal">📝 Try the Demo</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                    <Link href="#for-parents">👨‍👩‍👧 For Parents</Link>
+                    <Link href="/parent">👨‍👩‍👧 For Parents</Link>
                 </Button>
                  <Button asChild variant="secondary" size="lg">
                     <Link href="#cta">📲 Download the App</Link>
@@ -211,6 +214,13 @@ export default function LandingPage() {
                            <li>Securely preload the student wallet for rewards.</li>
                            <li>Encourage positive behavior and healthy habits.</li>
                         </ul>
+                        <div className="mt-6">
+                            <Button asChild>
+                                <Link href="/parent">
+                                    Go to Parent Dashboard <ArrowRight className="ml-2" />
+                                </Link>
+                            </Button>
+                        </div>
                     </Card>
                 </div>
             </div>
@@ -277,5 +287,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    
