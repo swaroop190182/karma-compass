@@ -7,6 +7,7 @@ import {
   BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic
 } from 'lucide-react';
 
+import { motivationalMessage } from '@/ai/flows/motivational-message';
 import { analyzeJournalAndIntentions } from '@/ai/flows/analyze-journal-flow';
 import { activities } from '@/lib/activities';
 import { cn } from '@/lib/utils';
@@ -100,7 +101,7 @@ export default function Home() {
     if (!reflections && !intentions) {
         toast({
             title: "Journal is empty",
-            description: "Please write in your journal or intentions before analyzing.",
+            description: "Please write in your reflections or intentions before analyzing.",
             variant: "destructive",
         });
         return;
@@ -115,7 +116,7 @@ export default function Home() {
                 activityList: allActivityNames
             });
 
-            // Update activities
+            // Update activities from reflections
             const currentActivities = dailyActivities[selectedDateString] || {};
             const updatedActivities = { ...currentActivities };
             result.identifiedActivities.forEach(name => {
@@ -125,13 +126,13 @@ export default function Home() {
 
             let toastDescription = "";
             if (result.identifiedActivities.length > 0) {
-                toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
+                toastDescription += `Logged ${result.identifiedActivities.length} activities from your reflections. `;
             }
 
-            // Store planner tasks
+            // Store planner tasks from intentions
             if (result.plannerTasks.length > 0) {
                 localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
-                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
+                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner from your intentions.`;
             }
 
             toast({
@@ -217,26 +218,33 @@ export default function Home() {
                      <CardDescription>Reflect on your day, set intentions, and clear your mind. Your entries are private.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div>
-                        <label className="text-sm font-medium block mb-2">Reflections & Gratitude</label>
-                        <Textarea placeholder="What went well? What are you grateful for?" rows={3} value={reflections} onChange={(e) => setReflections(e.target.value)}/>
+                    <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
+                        <label className="text-sm font-medium block">Reflections & Gratitude</label>
+                        <Textarea placeholder="What went well? What are you grateful for? The AI will log your activities from this." rows={3} value={reflections} onChange={(e) => setReflections(e.target.value)}/>
+                         <div className="flex gap-2 pt-2">
+                            <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
+                            <Button variant="outline" size="sm"><Mic className="mr-2" /> Record Voice</Button>
+                         </div>
                     </div>
-                    <div>
-                        <label className="text-sm font-medium block mb-2">Intentions for Tomorrow</label>
-                        <Textarea placeholder="What positive actions will you take tomorrow?" rows={3} value={intentions} onChange={(e) => setIntentions(e.target.value)}/>
+
+                    <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
+                        <label className="text-sm font-medium block">Intentions for Tomorrow</label>
+                        <Textarea placeholder="What positive actions will you take tomorrow? The AI will create planner tasks from this." rows={3} value={intentions} onChange={(e) => setIntentions(e.target.value)}/>
+                        <div className="flex gap-2 pt-2">
+                            <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
+                            <Button variant="outline" size="sm"><Mic className="mr-2" /> Record Voice</Button>
+                         </div>
                     </div>
-                    <div>
-                        <label className="text-sm font-medium block mb-2">Mind Dump</label>
+                    
+                    <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
+                        <label className="text-sm font-medium block">Mind Dump</label>
                         <Textarea placeholder="Any other thoughts, worries, or ideas? Let them go here." rows={3} value={mindDump} onChange={(e) => setMindDump(e.target.value)}/>
                     </div>
-                    <div className="flex flex-wrap gap-2 pt-2 justify-between">
-                         <div className="flex gap-2">
-                            <Button variant="outline"><Upload className="mr-2" /> Upload Photo</Button>
-                            <Button variant="outline"><Mic className="mr-2" /> Record Voice</Button>
-                         </div>
+
+                    <div className="flex justify-end pt-2">
                         <Button onClick={handleAnalyzeJournal} disabled={isAnalyzing}>
                             {isAnalyzing ? <LoaderCircle className="animate-spin mr-2" /> : <Bot className="mr-2" />}
-                            Analyze Journal & Activities
+                            Analyze Journal & Create Plan
                         </Button>
                     </div>
                 </CardContent>
