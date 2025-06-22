@@ -62,9 +62,9 @@ export function Navbar() {
         </div>
         
         <div className="flex items-center gap-4">
-            <div ref={walletRef} className="flex items-center gap-2 rounded-full bg-amber-400/20 px-3 py-1.5 border border-amber-500/50">
-                <Wallet className="h-4 w-4 text-amber-600" />
-                <span className="font-bold text-amber-800 dark:text-amber-300">
+            <div ref={walletRef} className="flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-1 border border-amber-500/50">
+                <Wallet className="h-3.5 w-3.5 text-amber-600" />
+                <span className="font-semibold text-xs text-amber-800 dark:text-amber-300">
                     ₹{balance.toFixed(2)}
                 </span>
             </div>
