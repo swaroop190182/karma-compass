@@ -45,13 +45,17 @@ const features = [
     icon: Calendar,
     title: 'Mood & Reflection Calendar',
   },
+  {
+    icon: Users,
+    title: 'Connect & Compete with Friends',
+  },
 ];
 
 const howItWorksSteps = [
-    { icon: FilePenLine, title: 'Reflect', description: 'Log your mood, daily wins, and habits in your private journal.' },
-    { icon: Star, title: 'Act', description: 'Complete suggested good habits, academic goals, and fun puzzles.' },
-    { icon: Wallet, title: 'Earn', description: 'Unlock real pocket money, preloaded by parents, for your achievements.' },
-    { icon: TrendingUp, title: 'Grow', description: 'See your progress in the wellness & karma dashboard.' },
+    { icon: FilePenLine, title: 'Reflect Daily', description: 'Start each day by journaling your thoughts and setting intentions in a private, secure space.' },
+    { icon: Star, title: 'Take Positive Action', description: 'Complete goals, learn new things, and build healthy habits suggested by your AI coach, Aura.' },
+    { icon: Wallet, title: 'Earn Real Rewards', description: 'Unlock pocket money, pre-loaded by parents, for every achievement and milestone you reach.' },
+    { icon: TrendingUp, title: 'Watch Yourself Grow', description: 'Visualize your journey on a personal dashboard and see your well-being and skills improve over time.' },
 ];
 
 const testimonials = [
@@ -134,17 +138,17 @@ export default function LandingPage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20">
+        <section className="py-20 bg-secondary/50">
             <div className="container mx-auto px-4">
                  <div className="text-center max-w-3xl mx-auto">
-                    <h2 className="text-3xl md:text-4xl font-bold">Four Simple Steps to Growth</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold">How Karma Compass Works</h2>
                     <p className="mt-4 text-lg text-muted-foreground">
-                        Start your journey towards self-improvement with a simple, rewarding process.
+                        A simple, powerful four-step process designed for growth and motivation.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
                     {howItWorksSteps.map((step) => (
-                        <Card key={step.title} className="text-center bg-card shadow-lg p-4 border-t-4 border-primary">
+                        <Card key={step.title} className="bg-card shadow-lg text-center transform transition-transform duration-300 hover:-translate-y-2 border-t-4 border-primary/50 hover:border-primary">
                            <CardHeader>
                                <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                                     <step.icon className="w-8 h-8 text-primary" />
@@ -161,7 +165,7 @@ export default function LandingPage() {
         </section>
         
         {/* Key Features Section */}
-        <section id="features" className="py-20 bg-secondary/50">
+        <section id="features" className="py-20">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold">Everything You Need to Succeed</h2>
@@ -187,7 +191,7 @@ export default function LandingPage() {
         </section>
 
         {/* Designed For Students, Trusted By Parents */}
-        <section id="for-parents" className="py-20">
+        <section id="for-parents" className="py-20 bg-secondary/50">
              <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold">Designed For Students, Trusted By Parents</h2>
