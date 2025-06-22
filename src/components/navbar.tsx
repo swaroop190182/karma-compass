@@ -10,7 +10,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: '/', label: 'Journal' },
+    { href: '/journal', label: 'Journal' },
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
