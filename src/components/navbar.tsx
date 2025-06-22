@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
 
@@ -24,11 +24,11 @@ export function Navbar() {
         <div className="w-44 flex items-center">
             <Link href="/" className="flex items-center gap-2">
                 <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                    <Compass className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex flex-col leading-tight font-bold tracking-wider uppercase text-foreground">
                     <span className="text-base">KARMA</span>
-                    <span className="text-xs">JOURNAL</span>
+                    <span className="text-xs">COMPASS</span>
                 </div>
             </Link>
         </div>

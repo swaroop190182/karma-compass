@@ -85,7 +85,7 @@ export default function FeaturesPage() {
             Everything You Need to Grow
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-            Karma Journal is more than just an app; it's a complete ecosystem for student success and well-being. Discover the features that make it possible.
+            Karma Compass is more than just an app; it's a complete ecosystem for student success and well-being. Discover the features that make it possible.
           </p>
         </header>
 

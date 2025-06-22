@@ -17,7 +17,7 @@ export function LandingFooter() {
             <div className="container mx-auto px-4 py-8">
                 <div className="grid md:grid-cols-3 gap-8 text-center md:text-left">
                     <div>
-                        <h3 className="font-bold text-lg">Karma Journal</h3>
+                        <h3 className="font-bold text-lg">Karma Compass</h3>
                         <p className="text-sm text-muted-foreground mt-2">
                             Build Good Habits. Earn Pocket Money. Grow Every Day.
                         </p>
@@ -49,7 +49,7 @@ export function LandingFooter() {
                 </div>
                 <div className="mt-8 border-t pt-8 flex flex-col md:flex-row justify-between items-center">
                     <p className="text-sm text-muted-foreground">
-                        &copy; {new Date().getFullYear()} Karma Journal. All Rights Reserved.
+                        &copy; {new Date().getFullYear()} Karma Compass. All Rights Reserved.
                     </p>
                     <div className="flex items-center gap-4 mt-4 md:mt-0">
                          <Link href="#" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">

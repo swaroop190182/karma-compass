@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
 export function LandingNavbar() {
   const navLinks = [
@@ -18,9 +18,9 @@ export function LandingNavbar() {
             <div className="mr-4 flex">
                  <Link href="/" className="flex items-center gap-2">
                     <div className="p-2 bg-primary/10 rounded-lg">
-                        <Sparkles className="h-6 w-6 text-primary" />
+                        <Compass className="h-6 w-6 text-primary" />
                     </div>
-                    <span className="font-bold text-lg">Karma Journal</span>
+                    <span className="font-bold text-lg">Karma Compass</span>
                 </Link>
             </div>
             <nav className="flex-1 flex items-center justify-center gap-6 text-sm">

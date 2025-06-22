@@ -50,13 +50,13 @@ const howItWorksSteps = [
     { icon: FilePenLine, title: 'Reflect', description: 'Log your mood, daily wins, and habits in your private journal.' },
     { icon: Star, title: 'Act', description: 'Complete suggested good habits, academic goals, and fun puzzles.' },
     { icon: Wallet, title: 'Earn', description: 'Unlock real pocket money, preloaded by parents, for your achievements.' },
-    { icon: TrendingUp, title: 'Grow', description: 'See your progress on the wellness & karma dashboard and build a growth mindset.' },
+    { icon: TrendingUp, title: 'Grow', description: 'See your progress in the wellness & karma dashboard.' },
 ];
 
 const testimonials = [
     { quote: "This app completely changed how my son approaches his studies. The rewards system is genius!", author: "Asha S., Parent" },
     { quote: "I actually look forward to journaling now. It's fun to see my Karma Score go up and earn money for it.", author: "Rohan, Grade 9 Student" },
-    { quote: "As a teacher, I love tools that promote self-reflection. Karma Journal does this beautifully.", author: "Mr. Verma, Teacher" },
+    { quote: "As a teacher, I love tools that promote self-reflection. Karma Compass does this beautifully.", author: "Mr. Verma, Teacher" },
 ]
 
 export default function LandingPage() {
@@ -67,7 +67,7 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-20 sm:py-32">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex flex-wrap items-center justify-center md:justify-start text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center md:justify-start text-center md:text-left">
                 <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
                 <div className="inline-block animate-coin-spin w-10 h-10 md:w-12 md:h-12 mx-2 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
                     <span className="text-2xl md:text-3xl font-bold text-yellow-800">$</span>
@@ -92,7 +92,7 @@ export default function LandingPage() {
             <div className="relative p-4">
                  <Image
                     src="https://placehold.co/600x400.png"
-                    alt="Karma Journal app screenshot with energetic background of books and stationery"
+                    alt="Karma Compass app screenshot with energetic background of books and stationery"
                     width={600}
                     height={400}
                     className="rounded-lg shadow-2xl"
@@ -102,11 +102,11 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* What Is Student Karma Journal? */}
+        {/* What Is Karma Compass? */}
         <section className="py-20 bg-secondary/50">
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
                 <div className="space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold">What Is Student Karma Journal?</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold">What Is Karma Compass?</h2>
                      <p className="text-lg text-muted-foreground">
                         A smart daily journal for students that:
                     </p>
@@ -120,7 +120,7 @@ export default function LandingPage() {
                 <div>
                      <Image
                         src="https://placehold.co/500x300.png"
-                        alt="Animated screenshot of Karma Journal"
+                        alt="Animated screenshot of Karma Compass"
                         width={500}
                         height={300}
                         className="rounded-lg shadow-xl mx-auto"
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl md:text-4xl font-bold">Everything You Need to Succeed</h2>
                     <p className="mt-4 text-lg text-muted-foreground">
-                        Karma Journal is packed with features designed for student well-being and growth.
+                        Karma Compass is packed with features designed for student well-being and growth.
                     </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
@@ -219,11 +219,11 @@ export default function LandingPage() {
         {/* Screenshots Carousel */}
         <section className="py-20 bg-secondary/50">
              <div className="container mx-auto px-4 text-center">
-                 <h2 className="text-3xl md:text-4xl font-bold mb-8">See Karma Journal in Action</h2>
+                 <h2 className="text-3xl md:text-4xl font-bold mb-8">See Karma Compass in Action</h2>
                  <div className="bg-white p-4 rounded-xl shadow-2xl max-w-4xl mx-auto">
                     <Image
                         src="https://placehold.co/1200x600.png"
-                        alt="Karma Journal app screenshots carousel"
+                        alt="Karma Compass app screenshots carousel"
                         width={1200}
                         height={600}
                         className="rounded-lg"
