@@ -1,8 +1,15 @@
 
+"use client";
+
 import Link from 'next/link';
-import { Compass } from 'lucide-react';
+import { Compass, Menu } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function LandingNavbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
   const navLinks = [
     { href: '/features', label: 'Features' },
     { href: '/journal', label: 'Record' },
@@ -29,7 +36,7 @@ export function LandingNavbar() {
                 </Link>
             </div>
 
-            {/* Centered Navigation Links */}
+            {/* Centered Desktop Navigation Links */}
             <nav className="hidden md:flex items-center justify-center gap-8 text-sm">
                 {navLinks.map((link) => (
                     <Link
@@ -42,9 +49,41 @@ export function LandingNavbar() {
                 ))}
             </nav>
 
-            {/* Empty div on the right */}
+            {/* Right Aligner for Desktop, Mobile Menu for Mobile */}
             <div className="flex-1 flex justify-end">
-                {/* Intentionally blank to center nav links */}
+                <div className="md:hidden">
+                    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <Menu className="h-6 w-6" />
+                                <span className="sr-only">Open menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right">
+                             <Link href="/" className="flex items-center gap-2 mb-8">
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <Compass className="h-6 w-6 text-primary" />
+                                </div>
+                                <div className="flex flex-col leading-tight font-bold tracking-wider uppercase">
+                                    <span className="text-sm">KARMA</span>
+                                    <span className="text-xs">COMPASS</span>
+                                </div>
+                            </Link>
+                            <nav className="grid gap-6 text-lg font-medium">
+                                {navLinks.map((link) => (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        onClick={() => setIsOpen(false)}
+                                        className="text-muted-foreground hover:text-foreground"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </SheetContent>
+                    </Sheet>
+                </div>
             </div>
         </div>
     </header>

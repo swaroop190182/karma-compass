@@ -3,14 +3,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass } from 'lucide-react';
+import { Compass, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function Navbar() {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -61,9 +64,41 @@ export function Navbar() {
             ))}
         </div>
         
-        {/* Wallet on the right */}
+        {/* Wallet and Mobile Menu on the right */}
         <div className="flex-1 flex justify-end">
-            <WalletDisplay />
+            <div className="hidden sm:block">
+                <WalletDisplay />
+            </div>
+            <div className="sm:hidden">
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <Menu className="h-6 w-6" />
+                            <span className="sr-only">Open menu</span>
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-[240px] flex flex-col">
+                        <nav className="grid gap-4 text-base font-medium mt-8 flex-grow">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsOpen(false)}
+                                    className={cn(
+                                        "text-muted-foreground hover:text-foreground", 
+                                        isClient && pathname === link.href && "text-primary font-bold"
+                                    )}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </nav>
+                        <div className="mt-auto">
+                            <WalletDisplay />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
         </div>
       </div>
     </nav>
