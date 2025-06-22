@@ -5,15 +5,21 @@ import {
   Users,
   Search,
   Trophy,
-  UserPlus,
   BarChart2,
-  Medal
+  Medal,
+  MessageSquare,
+  Send,
+  LoaderCircle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
+import { useState, useTransition, useRef, useEffect } from 'react';
+import { moderateChat } from '@/ai/flows/moderate-chat-flow';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const classmates = [
     { id: '1', name: 'Rohan Sharma', avatar: 'https://placehold.co/40x40.png', karma: 119, level: 5, dataAiHint: 'child avatar' },
@@ -28,7 +34,72 @@ const sharedChallenges = [
     { id: 'c3', title: 'Read a Book Together', description: 'Finish reading "The Adventures of Tom Sawyer" this month.', participants: 3, reward: 100 },
 ]
 
+type ChatMessage = {
+  id: string;
+  author: string;
+  avatar: string;
+  message: string;
+  isSelf: boolean;
+};
+
+
 export default function ConnectPage() {
+    const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: 'm1', author: 'Priya Patel', avatar: 'https://placehold.co/40x40.png', message: 'Hey everyone! Who is up for the Kindness Challenge?', isSelf: false },
+    { id: 'm2', author: 'You', avatar: 'https://placehold.co/40x40.png', message: 'I am! Sounds like fun.', isSelf: true },
+    { id: 'm3', author: 'Rohan Sharma', avatar: 'https://placehold.co/40x40.png', message: 'Me too! Let\'s do it.', isSelf: false },
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isSending, startSendingTransition] = useTransition();
+  const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isSending) return;
+    const userMessage = inputMessage.trim();
+    setInputMessage('');
+
+    startSendingTransition(async () => {
+      try {
+        const moderationResult = await moderateChat({ message: userMessage });
+        
+        if (moderationResult.isSafe) {
+          const newMessage: ChatMessage = {
+            id: crypto.randomUUID(),
+            author: 'You',
+            avatar: 'https://placehold.co/40x40.png',
+            message: userMessage,
+            isSelf: true,
+          };
+          setMessages(prev => [...prev, newMessage]);
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Message Blocked by Aura',
+            description: moderationResult.reason || "This message violates community guidelines.",
+          });
+        }
+      } catch (error) {
+        console.error("Error sending or moderating message:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not send message. Please try again.',
+        });
+      }
+    });
+  };
+
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <header className="mb-8">
@@ -39,6 +110,7 @@ export default function ConnectPage() {
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-8">
             <Card>
                 <CardHeader>
@@ -77,7 +149,68 @@ export default function ConnectPage() {
             </Card>
         </div>
 
+        {/* Sidebar Area */}
         <div className="space-y-8">
+            {/* Chat Card */}
+            <Card className="flex flex-col h-[500px] md:h-[600px]">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <MessageSquare /> Classroom Chat
+                    </CardTitle>
+                    <CardDescription>All conversations are moderated by Aura for safety.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden p-0">
+                    <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+                        <div className="space-y-4">
+                            {messages.map(msg => (
+                                <div key={msg.id} className={cn("flex items-start gap-3", msg.isSelf && "justify-end")}>
+                                    {!msg.isSelf && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={msg.avatar} alt={msg.author} data-ai-hint="child avatar" />
+                                            <AvatarFallback>{msg.author.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                    <div className="flex flex-col gap-1 items-start max-w-[80%]">
+                                        {!msg.isSelf && <span className="text-xs text-muted-foreground">{msg.author}</span>}
+                                        <div className={cn(
+                                            "p-3 rounded-lg text-sm",
+                                            msg.isSelf ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-muted rounded-bl-none'
+                                        )}>
+                                            {msg.message}
+                                        </div>
+                                    </div>
+                                     {msg.isSelf && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={msg.avatar} alt={msg.author} data-ai-hint="child avatar" />
+                                            <AvatarFallback>Y</AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </div>
+                            ))}
+                            {isSending && (
+                                <div className="flex items-center justify-center text-muted-foreground text-sm gap-2">
+                                  <LoaderCircle className="w-4 h-4 animate-spin"/> Checking message...
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </CardContent>
+                <CardFooter className="p-4 border-t">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="flex w-full gap-2">
+                        <Input 
+                            placeholder="Type a message..." 
+                            className="flex-grow" 
+                            value={inputMessage}
+                            onChange={(e) => setInputMessage(e.target.value)}
+                            disabled={isSending}
+                        />
+                        <Button type="submit" disabled={!inputMessage.trim() || isSending}>
+                           {isSending ? <LoaderCircle className="animate-spin" /> : <Send />}
+                        </Button>
+                    </form>
+                </CardFooter>
+            </Card>
+
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Trophy/> Shared Challenges</CardTitle>
