@@ -16,6 +16,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     const [animationConfig, setAnimationConfig] = useState<{ key: number; amount: number } | null>(null);
     const [walletPosition, setWalletPosition] = useState<{ top: number; left: number } | null>(null);
 
+    useEffect(() => {
+        // Set initial position and add resize listener only on the client
+        const getPosition = () => ({ top: 30, left: window.innerWidth - 80 });
+        setWalletPosition(getPosition());
+
+        const handleResize = () => {
+            setWalletPosition(getPosition());
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     useEffect(() => {
         try {
@@ -42,21 +54,16 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         const newBalance = balance + amount;
         updateBalance(newBalance);
         
-        if (walletPosition) {
-            setAnimationConfig({ key: Date.now(), amount });
-        }
+        // The animation will trigger as long as a position is set
+        setAnimationConfig({ key: Date.now(), amount });
 
         toast({
             title: "Wallet Updated!",
             description: `${message} ₹${amount} has been added to your wallet.`,
         });
-    }, [balance, toast, walletPosition]);
+    }, [balance, toast]);
 
-    const setWalletPositionCallback = useCallback((position: {top: number; left: number}) => {
-        setWalletPosition(position);
-    }, []);
-
-    const value = { balance, addFunds, setWalletPosition: setWalletPositionCallback };
+    const value = { balance, addFunds };
 
     return (
         <WalletContext.Provider value={value}>
