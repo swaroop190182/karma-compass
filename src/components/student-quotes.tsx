@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -36,11 +37,11 @@ export function StudentQuotes() {
                 <CardContent className="p-6 text-center">
                     {currentQuote ? (
                         <>
-                            <QuoteIcon className="mx-auto h-8 w-8 text-primary-foreground mb-4" />
-                            <blockquote className="text-xl italic font-medium text-primary-foreground">
+                            <QuoteIcon className="mx-auto h-8 w-8 text-primary mb-4" />
+                            <blockquote className="text-xl italic font-medium text-foreground">
                                 "{currentQuote.text}"
                             </blockquote>
-                            <p className="mt-4 text-right text-sm text-primary-foreground/80 font-bold">— {currentQuote.author}</p>
+                            <p className="mt-4 text-right text-sm text-muted-foreground font-bold">— {currentQuote.author}</p>
                         </>
                     ) : (
                         <p>Loading a quote...</p>
