@@ -100,10 +100,11 @@ const pendingApprovals = [
 ];
 
 const notifications = [
-    { id: 'n1', studentName: 'Rohan', message: 'Completed his daily journaling.', date: '2 hours ago', icon: BookOpen },
-    { id: 'n2', studentName: 'Priya', message: 'Reached a 7-day task completion streak!', date: 'Yesterday', icon: TrendingUp },
-    { id: 'n3', studentName: 'Rohan', message: 'Was awarded ₹50 for the weekly challenge.', date: '3 days ago', icon: Award },
-    { id: 'n4', studentName: 'Priya', message: 'Set a new goal: "Read 5 book chapters".', date: '4 days ago', icon: Target },
+    { id: 'n5', studentName: 'Rohan', message: 'is requesting to redeem ₹200 from his wallet.', date: 'Just now', icon: Wallet, type: 'action_required' },
+    { id: 'n1', studentName: 'Rohan', message: 'Completed his daily journaling.', date: '2 hours ago', icon: BookOpen, type: 'info' },
+    { id: 'n2', studentName: 'Priya', message: 'Reached a 7-day task completion streak!', date: 'Yesterday', icon: TrendingUp, type: 'info' },
+    { id: 'n3', studentName: 'Rohan', message: 'Was awarded ₹50 for the weekly challenge.', date: '3 days ago', icon: Award, type: 'info' },
+    { id: 'n4', studentName: 'Priya', message: 'Set a new goal: "Read 5 book chapters".', date: '4 days ago', icon: Target, type: 'info' },
 ];
 
 export default function ParentDashboardPage() {
@@ -699,20 +700,40 @@ export default function ParentDashboardPage() {
                             {notifications.map(notif => {
                                 const Icon = notif.icon;
                                 return (
-                                    <div key={notif.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50">
-                                        <div className="p-2 bg-primary/10 rounded-full mt-1">
-                                            <Icon className="w-5 h-5 text-primary" />
+                                    <div key={notif.id} className="flex items-center justify-between gap-4 p-3 rounded-lg border">
+                                        <div className="flex items-center gap-4">
+                                            <div className="p-2 bg-primary/10 rounded-full">
+                                                <Icon className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-foreground">
+                                                    <span className="font-bold">{notif.studentName}</span> {notif.message}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">{notif.date}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-foreground">
-                                                <span className="font-bold">{notif.studentName}</span> {notif.message}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">{notif.date}</p>
-                                        </div>
+                                        {notif.type === 'action_required' ? (
+                                            <Button size="sm">Review Request</Button>
+                                        ) : (
+                                            <Button variant="ghost" size="sm">
+                                                <MessageSquare className="mr-2 h-4 w-4" />
+                                                Reply
+                                            </Button>
+                                        )}
                                     </div>
                                 )
                             })}
                         </div>
+                    </CardContent>
+                </Card>
+                <Card className="bg-accent/20 border-accent/40">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3"><Gift className="text-accent-foreground" /> Set a Bonus Challenge</CardTitle>
+                        <CardDescription>Motivate your student with a special, one-time reward for a custom goal.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <p className="text-sm text-muted-foreground flex-grow">For example: "Get an A on the next Science test for a ₹200 bonus."</p>
+                        <Button>Create Challenge</Button>
                     </CardContent>
                 </Card>
             </TabsContent>
