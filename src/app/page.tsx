@@ -122,12 +122,12 @@ export default function LandingPage() {
                 </div>
                 <div>
                      <Image
-                        src="https://placehold.co/500x300.png"
-                        alt="Animated screenshot of Karma Compass"
+                        src="https://i.postimg.cc/C5NFsLJ5/SKJ.png"
+                        alt="Karma Compass reflections dashboard screenshot"
                         width={500}
                         height={300}
                         className="rounded-lg shadow-xl mx-auto"
-                        data-ai-hint="app animation"
+                        data-ai-hint="app reflections"
                     />
                 </div>
             </div>
