@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, ClipboardList, Sparkles, Wallet } from 'lucide-react';
+import { LayoutGrid, ClipboardList, Sparkles, Wallet, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useWallet } from '@/hooks/use-wallet';
 import { useEffect, useRef } from 'react';
@@ -32,6 +32,7 @@ export function Navbar() {
     { href: '/', label: 'Karma Journal', icon: LayoutGrid },
     { href: '/planner', label: 'Daily Planner', icon: ClipboardList },
     { href: '/reflections', label: 'Reflections', icon: Sparkles },
+    { href: '/quests', label: 'Quests', icon: Brain },
   ];
 
   return (

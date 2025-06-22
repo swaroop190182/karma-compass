@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 
 export interface Activity {
@@ -28,4 +29,26 @@ export interface DayEntry {
     score: number;
     loggedActivities: string[];
     reflection?: string;
+}
+
+export interface DailyPuzzle {
+    id: string;
+    category: 'Science' | 'Math' | 'History' | 'General Knowledge';
+    question: string;
+    options: string[];
+    answer: string;
+    reward: number;
+}
+
+export interface WeeklyChallenge {
+    id: string;
+    title: string;
+    question: string;
+    reward: number;
+    isMultiPart: boolean;
+    parts?: {
+        question: string;
+        options: string[];
+        answer: string;
+    }[];
 }
