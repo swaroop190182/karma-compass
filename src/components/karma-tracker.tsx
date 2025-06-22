@@ -9,10 +9,9 @@ import { activities, activityCategories, type Activity } from '@/lib/activities'
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -96,34 +95,34 @@ export function KarmaTracker() {
   const goodCategories = activityCategories.filter(c => c.type === 'Good' && goodKarmaGrouped[c.name]);
   const badCategories = activityCategories.filter(c => c.type === 'Bad' && badKarmaGrouped[c.name]);
 
-  const ActivityGrid = ({ groupedActivities, categories }: { groupedActivities: Record<string, Activity[]>, categories: (typeof activityCategories) }) => (
-    <Accordion type="multiple" className="w-full" defaultValue={categories.length > 0 ? [categories[0].name] : []}>
+  const ActivityGrid = ({ groupedActivities, categories, type }: { groupedActivities: Record<string, Activity[]>, categories: typeof activityCategories, type: 'Good' | 'Bad' }) => (
+    <div className="space-y-8">
       {categories.map((category) => (
-        <AccordionItem value={category.name} key={category.name}>
-          <AccordionTrigger>
-            <div className="flex items-center gap-3">
-              <category.icon className="w-6 h-6" />
-              <span className="text-lg font-headline">{category.name}</span>
+        groupedActivities[category.name] && groupedActivities[category.name].length > 0 && (
+          <div key={category.name}>
+            <div className="flex items-center gap-3 mb-4 pb-2 border-b">
+              <category.icon className="w-7 h-7" />
+              <h3 className="text-xl font-headline font-bold">{category.name}</h3>
             </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pt-4">
-              {groupedActivities[category.name]?.map((activity) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {groupedActivities[category.name].map((activity) => (
                 <TooltipProvider key={activity.name} delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => handleActivityToggle(activity.name)}
                         className={cn(
-                          'flex flex-col items-center justify-center p-3 gap-2 rounded-lg border-2 transition-all aspect-square',
-                          'hover:bg-accent/50 hover:border-accent',
+                          'flex flex-col items-center justify-center p-3 gap-2 rounded-xl border-2 transition-all aspect-square shadow-sm',
+                          'hover:shadow-lg hover:scale-[1.02]',
                           selectedActivities[activity.name]
-                            ? 'bg-primary/20 border-primary shadow-lg scale-105'
-                            : 'bg-card border-input'
+                            ? type === 'Good'
+                              ? 'bg-chart-2/20 border-chart-2 shadow-lg scale-105'
+                              : 'bg-destructive/20 border-destructive shadow-lg scale-105'
+                            : 'bg-card border-input hover:border-accent'
                         )}
                       >
-                        <activity.icon className="w-8 h-8" />
-                        <span className="text-center text-xs font-medium leading-tight">{activity.name}</span>
+                        <activity.icon className="w-9 h-9 mb-1" />
+                        <span className="text-center text-xs font-semibold leading-tight">{activity.name}</span>
                       </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -133,10 +132,10 @@ export function KarmaTracker() {
                 </TooltipProvider>
               ))}
             </div>
-          </AccordionContent>
-        </AccordionItem>
+          </div>
+        )
       ))}
-    </Accordion>
+    </div>
   );
 
   return (
@@ -208,14 +207,14 @@ export function KarmaTracker() {
         <TabsContent value="good-karma">
             <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
                 <CardContent className="p-4 md:p-6">
-                    <ActivityGrid groupedActivities={goodKarmaGrouped} categories={goodCategories} />
+                    <ActivityGrid groupedActivities={goodKarmaGrouped} categories={goodCategories} type="Good" />
                 </CardContent>
             </Card>
         </TabsContent>
         <TabsContent value="bad-karma">
             <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
                 <CardContent className="p-4 md:p-6">
-                    <ActivityGrid groupedActivities={badKarmaGrouped} categories={badCategories} />
+                    <ActivityGrid groupedActivities={badKarmaGrouped} categories={badCategories} type="Bad" />
                 </CardContent>
             </Card>
         </TabsContent>
