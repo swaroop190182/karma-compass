@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2
 } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
@@ -13,7 +13,7 @@ import { activities } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { KarmaTracker } from '@/components/karma-tracker';
@@ -42,6 +42,7 @@ export default function Home() {
   const [reflections, setReflections] = useState('');
   const [intentions, setIntentions] = useState('');
   const [mindDump, setMindDump] = useState('');
+  const [showScoreCard, setShowScoreCard] = useState(false);
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
 
@@ -50,16 +51,10 @@ export default function Home() {
   }, [dailyActivities, selectedDateString]);
 
   useEffect(() => {
-    const score = Object.keys(selectedActivities).reduce((acc, activityName) => {
-      if (selectedActivities[activityName]) {
-        const activity = activities.find(a => a.name === activityName);
-        return acc + (activity ? activity.score : 0);
-      }
-      return acc;
-    }, 0);
-    setTotalScore(score);
+    setShowScoreCard(false);
+    setTotalScore(0);
     setMotivationalQuote('');
-  }, [selectedActivities]);
+  }, [date]);
   
   const handleActivityToggle = (activityName: string) => {
     const isSelected = !!selectedActivities[activityName];
@@ -70,10 +65,11 @@ export default function Home() {
         [activityName]: !isSelected,
       },
     }));
+    setShowScoreCard(false);
   };
 
   const handleGetMotivation = async () => {
-    if (Object.values(selectedActivities).length === 0 || Object.values(selectedActivities).every(v => !v)) {
+    if (Object.values(selectedActivities).every(v => !v)) {
         toast({
             title: "No activities selected",
             description: "Please select at least one activity to get a motivational message.",
@@ -134,6 +130,11 @@ export default function Home() {
                 localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
                 toastDescription += `Added ${result.plannerTasks.length} tasks to your planner from your intentions.`;
             }
+            
+            // Hide score card if activities were automatically updated
+            if(result.identifiedActivities.length > 0) {
+                setShowScoreCard(false);
+            }
 
             toast({
                 title: "Analysis Complete",
@@ -149,6 +150,31 @@ export default function Home() {
             });
         }
     });
+  };
+
+  const handleSaveAndCalculate = () => {
+    const activitiesLogged = Object.values(selectedActivities).some(v => v);
+
+    if (!activitiesLogged) {
+      toast({
+        title: "No Activities Logged",
+        description: "Please log at least one activity before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const score = Object.keys(selectedActivities).reduce((acc, activityName) => {
+      if (selectedActivities[activityName]) {
+        const activity = activities.find(a => a.name === activityName);
+        return acc + (activity ? activity.score : 0);
+      }
+      return acc;
+    }, 0);
+
+    setTotalScore(score);
+    setMotivationalQuote('');
+    setShowScoreCard(true);
   };
 
   return (
@@ -214,12 +240,12 @@ export default function Home() {
 
             <Card>
                 <CardHeader>
-                     <CardTitle className="flex items-center gap-3"><FilePenLine /> Daily Journal & Intentions</CardTitle>
+                     <CardTitle className="flex items-center gap-3"><FilePenLine /> Daily Journal &amp; Intentions</CardTitle>
                      <CardDescription>Reflect on your day, set intentions, and clear your mind. Your entries are private.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
-                        <label className="text-sm font-medium block">Reflections & Gratitude</label>
+                        <label className="text-sm font-medium block">Reflections &amp; Gratitude</label>
                         <Textarea placeholder="What went well? What are you grateful for? The AI will log your activities from this." rows={3} value={reflections} onChange={(e) => setReflections(e.target.value)}/>
                          <div className="flex gap-2 pt-2">
                             <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
@@ -244,7 +270,7 @@ export default function Home() {
                     <div className="flex justify-end pt-2">
                         <Button onClick={handleAnalyzeJournal} disabled={isAnalyzing}>
                             {isAnalyzing ? <LoaderCircle className="animate-spin mr-2" /> : <Bot className="mr-2" />}
-                            Analyze Journal & Create Plan
+                            Analyze Journal &amp; Create Plan
                         </Button>
                     </div>
                 </CardContent>
@@ -270,35 +296,43 @@ export default function Home() {
                 <CardContent>
                     <KarmaTracker selectedActivities={selectedActivities} onActivityToggle={handleActivityToggle} />
                 </CardContent>
+                <CardFooter className="justify-end pt-4">
+                  <Button onClick={handleSaveAndCalculate} size="lg">
+                    <CheckCircle2 className="mr-2" />
+                    Save &amp; Calculate Score
+                  </Button>
+                </CardFooter>
             </Card>
 
-            <Card className="text-center bg-primary/10 border-primary/20">
-                <CardHeader>
-                    <CardTitle>Your Karma Score</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center gap-4">
-                    <p className={cn(
-                        "text-6xl font-bold font-headline transition-colors duration-300",
-                        totalScore > 0 && "text-green-600",
-                        totalScore < 0 && "text-destructive",
-                        totalScore === 0 && "text-muted-foreground"
-                      )}>
-                      {totalScore > 0 ? `+${totalScore}` : totalScore}
-                    </p>
-                    <Button onClick={handleGetMotivation} disabled={isGettingMotivation || Object.values(selectedActivities).every(v => !v)} size="lg">
-                        {isGettingMotivation ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                        Get Today's Motivation
-                    </Button>
-                    {isGettingMotivation && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
-                    {motivationalQuote && (
-                        <Card className="w-full bg-accent/50 border-accent shadow-inner">
-                            <CardContent className="p-3">
-                                <p className="text-base italic text-accent-foreground">"{motivationalQuote}"</p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </CardContent>
-            </Card>
+            {showScoreCard && (
+              <Card className="text-center bg-primary/10 border-primary/20">
+                  <CardHeader>
+                      <CardTitle>Your Karma Score</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center gap-4">
+                      <p className={cn(
+                          "text-6xl font-bold font-headline transition-colors duration-300",
+                          totalScore > 0 && "text-green-600",
+                          totalScore < 0 && "text-destructive",
+                          totalScore === 0 && "text-muted-foreground"
+                        )}>
+                        {totalScore > 0 ? `+${totalScore}` : totalScore}
+                      </p>
+                      <Button onClick={handleGetMotivation} disabled={isGettingMotivation || Object.values(selectedActivities).every(v => !v)} size="lg">
+                          {isGettingMotivation ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                          Get Today's Motivation
+                      </Button>
+                      {isGettingMotivation && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
+                      {motivationalQuote && (
+                          <Card className="w-full bg-accent/50 border-accent shadow-inner">
+                              <CardContent className="p-3">
+                                  <p className="text-base italic text-accent-foreground">"{motivationalQuote}"</p>
+                              </CardContent>
+                          </Card>
+                      )}
+                  </CardContent>
+              </Card>
+            )}
 
             <StudentQuotes />
         </div>

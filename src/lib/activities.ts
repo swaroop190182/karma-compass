@@ -222,7 +222,6 @@ export const activities: Activity[] = [
 
   // Poor Digital Habits
   { name: 'Phone Addict', score: -6, category: 'Poor Digital Habits', icon: Smartphone, type: 'Bad' },
-  { name: 'Scroll', score: -6, category: 'Poor Digital Habits', icon: Newspaper, type: 'Bad' },
   { name: 'Bad Content', score: -8, category: 'Poor Digital Habits', icon: MonitorPlay, type: 'Bad' },
   { name: 'Game', score: -6, category: 'Poor Digital Habits', icon: Gamepad2, type: 'Bad' },
   { name: 'Ignore Mail', score: -5, category: 'Poor Digital Habits', icon: MailWarning, type: 'Bad' },
