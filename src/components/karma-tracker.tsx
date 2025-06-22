@@ -44,7 +44,7 @@ export function KarmaTracker({ selectedActivities, onActivityToggle }: { selecte
   return (
     <div className="space-y-6">
         <div>
-            <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">Positive Karma Activities</h3>
+            <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">Helpful & Positive Activities</h3>
              <Accordion type="multiple" className="w-full space-y-2">
                 {goodKarmaCategories.map(category => {
                     const categoryActivities = getActivitiesForCategory(category.name);
@@ -74,7 +74,7 @@ export function KarmaTracker({ selectedActivities, onActivityToggle }: { selecte
         </div>
        
         <div>
-            <h3 className="text-xl font-bold text-red-700 dark:text-red-500 mb-2">Negative Karma Activities</h3>
+            <h3 className="text-xl font-bold text-red-700 dark:text-red-500 mb-2">Activities to Reconsider</h3>
              <Accordion type="multiple" className="w-full space-y-2">
                 {badKarmaCategories.map(category => {
                     const categoryActivities = getActivitiesForCategory(category.name);
