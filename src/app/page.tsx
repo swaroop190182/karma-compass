@@ -226,23 +226,6 @@ export default function LandingPage() {
             </div>
         </section>
         
-        {/* Screenshots Carousel */}
-        <section className="py-20 bg-secondary/50">
-             <div className="container mx-auto px-4 text-center">
-                 <h2 className="text-3xl md:text-4xl font-bold mb-8">See Karma Compass in Action</h2>
-                 <div className="bg-white p-4 rounded-xl shadow-2xl max-w-4xl mx-auto">
-                    <Image
-                        src="https://placehold.co/1200x600.png"
-                        alt="Karma Compass app screenshots carousel"
-                        width={1200}
-                        height={600}
-                        className="rounded-lg"
-                        data-ai-hint="app screenshots"
-                    />
-                 </div>
-             </div>
-        </section>
-
         {/* Testimonials Section */}
         <section className="py-20">
             <div className="container mx-auto px-4">
