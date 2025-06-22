@@ -44,7 +44,7 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
-        if (!entry || modifiers.outside) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (!entry || (modifiers && modifiers.outside)) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
         if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
         if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
@@ -59,9 +59,9 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
             className={cn(
                 "flex flex-col h-full w-full p-1.5 text-left relative",
                 getBackgroundColorClass(), 
-                modifiers.outside && "opacity-40",
-                !modifiers.disabled && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
-                modifiers.disabled && !modifiers.outside && "cursor-default"
+                modifiers?.outside && "opacity-40",
+                !modifiers?.disabled && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
+                modifiers?.disabled && !modifiers?.outside && "cursor-default"
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -92,7 +92,7 @@ function CustomDay({ date, modifiers, buttonProps }: DayProps) {
                         )}
                     </div>
                 ) : (
-                    !modifiers.outside && (
+                    !modifiers?.outside && (
                         <div className="flex items-center justify-center w-full h-full -mt-4">
                             <span className="text-[10px] text-muted-foreground/80">No entries</span>
                         </div>
