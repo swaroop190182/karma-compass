@@ -120,7 +120,7 @@ export default function TutorPage() {
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col h-[calc(100vh-80px)]">
              <header className="mb-8">
                 <h1 className="text-3xl sm:text-4xl font-bold text-foreground flex items-center gap-3 bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">
-                    <GraduationCap /> Luma AI Tutor
+                    <GraduationCap /> Luma
                 </h1>
                 <p className="text-muted-foreground">Your personal AI study partner, ready to help you learn.</p>
             </header>
