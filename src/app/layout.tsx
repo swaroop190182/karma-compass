@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Navbar } from '@/components/navbar';
+import { WalletProvider } from '@/providers/wallet-provider';
 
 export const metadata: Metadata = {
   title: 'Karma Compass',
@@ -21,13 +22,15 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased h-full bg-background">
-        <div className="flex flex-col h-full">
-          <Navbar />
-          <main className="flex-grow overflow-y-auto">
-            {children}
-          </main>
-        </div>
-        <Toaster />
+        <WalletProvider>
+            <div className="flex flex-col h-full">
+            <Navbar />
+            <main className="flex-grow overflow-y-auto">
+                {children}
+            </main>
+            </div>
+            <Toaster />
+        </WalletProvider>
       </body>
     </html>
   );

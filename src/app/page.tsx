@@ -20,6 +20,7 @@ import { KarmaTracker } from '@/components/karma-tracker';
 import { StudentQuotes } from '@/components/student-quotes';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
+import { useWallet } from '@/hooks/use-wallet';
 
 const feelings = [
   { name: 'Radiant', icon: Laugh, colorClass: 'text-yellow-400', hoverClass: 'hover:bg-yellow-400/10 hover:border-yellow-400/50', selectedClass: 'bg-yellow-400/20 border-yellow-500 text-yellow-600 dark:text-yellow-300' },
@@ -37,6 +38,7 @@ export default function Home() {
   const [isGettingMotivation, startMotivationTransition] = useTransition();
   const [isAnalyzing, startAnalysisTransition] = useTransition();
   const { toast } = useToast();
+  const { addFunds } = useWallet();
   
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [reflections, setReflections] = useState('');
@@ -171,6 +173,9 @@ export default function Home() {
       }
       return acc;
     }, 0);
+    
+    // Add reward for journaling
+    addFunds(10, "You earned a reward for journaling today!");
 
     setTotalScore(score);
     setMotivationalQuote('');
