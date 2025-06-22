@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Calendar, Target, Moon } from 'lucide-react';
+import { Calendar, Target, Moon, Bot } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -11,6 +11,7 @@ import { SmartSuggestions } from '@/components/planner/smart-suggestions';
 import { WeeklyGoals } from '@/components/planner/weekly-goals';
 import { EveningReflection } from '@/components/planner/evening-reflection';
 import { useToast } from '@/hooks/use-toast';
+import { AiCoach } from '@/components/planner/ai-coach';
 
 import type { PlannerTask, WeeklyGoal } from '@/lib/types';
 
@@ -62,10 +63,11 @@ export default function PlannerPage() {
             </header>
 
             <Tabs defaultValue="plan" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-4 mb-6">
                     <TabsTrigger value="plan"><Calendar className="mr-2"/> Plan Day</TabsTrigger>
                     <TabsTrigger value="goals"><Target className="mr-2"/> Track Goals</TabsTrigger>
                     <TabsTrigger value="reflect"><Moon className="mr-2"/> Evening Review</TabsTrigger>
+                    <TabsTrigger value="coach"><Bot className="mr-2"/> Aura Coach</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="plan" className="space-y-6">
@@ -80,6 +82,10 @@ export default function PlannerPage() {
 
                 <TabsContent value="reflect">
                     <EveningReflection tasks={tasks} />
+                </TabsContent>
+
+                <TabsContent value="coach">
+                    <AiCoach tasks={tasks} />
                 </TabsContent>
             </Tabs>
         </div>
