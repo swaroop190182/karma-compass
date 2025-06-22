@@ -23,7 +23,11 @@ import {
   Smile,
   CheckCircle2,
   Lightbulb,
-  FileText
+  FileText,
+  Check,
+  X,
+  MessageSquare,
+  Award
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +43,7 @@ import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, L
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
 
 const students = [
     { id: '1', name: 'Rohan', avatar: 'https://placehold.co/40x40.png' },
@@ -88,10 +93,22 @@ const aiSuggestions = [
     "Consider increasing the reward for 'Test Prep' as exams are approaching to provide extra motivation."
 ]
 
+const pendingApprovals = [
+    { id: 'a1', studentName: 'Rohan', task: 'Completed "Topping a Test" Achievement', evidence: 'Rohan wrote in his journal: "I got a 95% on my math test! I studied for it all week."', requestedAmount: 100 },
+    { id: 'a2', studentName: 'Priya', task: '7-Day Journaling Streak Bonus', evidence: 'Logged a journal entry for 7 consecutive days.', requestedAmount: 50 },
+    { id: 'a3', studentName: 'Rohan', task: 'Solved "Find the Scientists" Word Search', evidence: 'Completed the puzzle on June 18th.', requestedAmount: 50 },
+];
+
+const notifications = [
+    { id: 'n1', studentName: 'Rohan', message: 'Completed his daily journaling.', date: '2 hours ago', icon: BookOpen },
+    { id: 'n2', studentName: 'Priya', message: 'Reached a 7-day task completion streak!', date: 'Yesterday', icon: TrendingUp },
+    { id: 'n3', studentName: 'Rohan', message: 'Was awarded ₹50 for the weekly challenge.', date: '3 days ago', icon: Award },
+    { id: 'n4', studentName: 'Priya', message: 'Set a new goal: "Read 5 book chapters".', date: '4 days ago', icon: Target },
+];
 
 export default function ParentDashboardPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-muted/20">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
@@ -155,7 +172,7 @@ export default function ParentDashboardPage() {
                     <CardContent>
                         <div className="space-y-4">
                            {students.map(student => (
-                               <div key={student.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                               <div key={student.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                                    <div className="flex items-center gap-4">
                                        <Avatar>
                                            <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="child avatar"/>
@@ -294,7 +311,7 @@ export default function ParentDashboardPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {students.map(student => (
-                            <div key={student.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/50 rounded-lg">
+                            <div key={student.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted rounded-lg">
                                 <div className="flex items-center gap-4 mb-4 sm:mb-0">
                                     <Avatar>
                                         <AvatarImage src={student.avatar} alt={student.name} data-ai-hint="child avatar"/>
@@ -538,7 +555,7 @@ export default function ParentDashboardPage() {
                     <CardContent>
                          <ul className="space-y-2">
                             {completedActivities.map((activity, index) => (
-                                <li key={index} className="flex justify-between items-center text-sm p-2 bg-muted/50 rounded-md">
+                                <li key={index} className="flex justify-between items-center text-sm p-2 bg-muted rounded-md">
                                     <span className="font-medium">{activity.name}</span>
                                     <span className="text-muted-foreground">{activity.points}</span>
                                 </li>
@@ -603,7 +620,7 @@ export default function ParentDashboardPage() {
                                    <p className="text-sm font-medium mb-2">{habit.name}</p>
                                    <div className="flex gap-1.5">
                                        {habit.days.map((done, dayIndex) => (
-                                           <div key={dayIndex} className={cn("w-full h-8 rounded-md flex items-center justify-center", done ? "bg-green-500/20" : "bg-muted/50")}>
+                                           <div key={dayIndex} className={cn("w-full h-8 rounded-md flex items-center justify-center", done ? "bg-green-500/20" : "bg-muted")}>
                                                {done && <CheckCircle2 className="w-4 h-4 text-green-700" />}
                                            </div>
                                        ))}
@@ -628,16 +645,75 @@ export default function ParentDashboardPage() {
                 </Card>
 
             </TabsContent>
-             <TabsContent value="rewards">
+            <TabsContent value="rewards" className="space-y-8">
                 <Card>
-                    <CardHeader><CardTitle>Reward Approvals</CardTitle></CardHeader>
-                    <CardContent><p>Reward approval queue will be here.</p></CardContent>
+                    <CardHeader>
+                        <CardTitle>Reward Approvals Queue</CardTitle>
+                        <CardDescription>Review and approve your student's manually claimed rewards and achievements. Auto-approved rewards are transferred directly.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {pendingApprovals.length > 0 ? (
+                            pendingApprovals.map(approval => (
+                                <div key={approval.id} className="p-4 border rounded-lg space-y-4 bg-card">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                                        <div>
+                                            <h4 className="font-semibold text-lg flex items-center gap-2">
+                                                <Gift className="w-5 h-5 text-primary" /> {approval.task}
+                                            </h4>
+                                            <p className="text-sm text-muted-foreground ml-7">
+                                                <span className="font-medium">{approval.studentName}</span> is requesting <span className="font-bold text-primary">₹{approval.requestedAmount}</span>.
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-2 sm:mt-0 self-end sm:self-start">
+                                            <Button variant="destructive" size="sm"><X className="mr-2 h-4 w-4" /> Deny</Button>
+                                            <Button size="sm"><Check className="mr-2 h-4 w-4" /> Approve</Button>
+                                        </div>
+                                    </div>
+                                    <Separator />
+                                    <div>
+                                        <Label className="font-medium text-xs text-muted-foreground uppercase flex items-center gap-1.5"><FileText /> Evidence / Notes</Label>
+                                        <blockquote className="text-sm p-3 bg-muted rounded-md mt-1 border-l-4 border-primary/50">{approval.evidence}</blockquote>
+                                    </div>
+                                    <div>
+                                        <Label htmlFor={`message-${approval.id}`} className="font-medium text-xs text-muted-foreground uppercase flex items-center gap-1.5"><MessageSquare /> Encouragement Message (Optional)</Label>
+                                        <Textarea id={`message-${approval.id}`} placeholder="Great job on this!" className="mt-1"/>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-10">
+                                <p className="text-muted-foreground">The approval queue is empty.</p>
+                            </div>
+                        )}
+                    </CardContent>
                 </Card>
             </TabsContent>
-             <TabsContent value="notifications">
+            <TabsContent value="notifications" className="space-y-8">
                 <Card>
-                    <CardHeader><CardTitle>Notifications</CardTitle></CardHeader>
-                    <CardContent><p>Notification settings and history will be here.</p></CardContent>
+                    <CardHeader>
+                        <CardTitle>Notifications & Activity Feed</CardTitle>
+                        <CardDescription>Stay updated with your students' milestones and activities.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {notifications.map(notif => {
+                                const Icon = notif.icon;
+                                return (
+                                    <div key={notif.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50">
+                                        <div className="p-2 bg-primary/10 rounded-full mt-1">
+                                            <Icon className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-foreground">
+                                                <span className="font-bold">{notif.studentName}</span> {notif.message}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">{notif.date}</p>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </CardContent>
                 </Card>
             </TabsContent>
         </Tabs>
