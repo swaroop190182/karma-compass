@@ -89,14 +89,14 @@ export default function LandingPage() {
                 </Button>
               </div>
             </div>
-            <div className="relative p-4">
+            <div className="relative p-4 flex justify-center">
                  <Image
-                    src="https://placehold.co/600x400.png"
-                    alt="Karma Compass app screenshot with energetic background of books and stationery"
-                    width={600}
-                    height={400}
+                    src="https://i.postimg.cc/4325wRmf/Chat-GPT-Image-Jun-22-2025-09-07-03-PM.png"
+                    alt="Karma Compass app screenshot"
+                    width={400}
+                    height={600}
                     className="rounded-lg shadow-2xl"
-                    data-ai-hint="student app notebook"
+                    data-ai-hint="app screenshot"
                 />
             </div>
           </div>
@@ -277,3 +277,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
