@@ -121,7 +121,7 @@ export default function ParentDashboardPage() {
         </header>
 
         <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mb-8">
                 <TabsTrigger value="profile"><User className="mr-2"/> Profile</TabsTrigger>
                 <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet</TabsTrigger>
                 <TabsTrigger value="rules"><Settings2 className="mr-2"/> Rules</TabsTrigger>
