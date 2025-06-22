@@ -38,12 +38,17 @@ export function Navbar() {
 
   return (
     <nav className="bg-card border-b sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center p-2 sm:p-4">
+      <div className="container mx-auto flex items-center justify-between p-2 sm:p-4">
+        {/* Left side: Logo & Mobile Nav Trigger */}
         <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2">
                 <span className="text-xl font-bold bg-gradient-to-r from-primary to-yellow-400 text-transparent bg-clip-text">Karma Compass</span>
             </Link>
-            <div className="hidden md:flex items-center gap-2 sm:gap-4">
+        </div>
+
+        {/* Middle: Desktop Nav Links */}
+        <div className="hidden md:flex flex-grow items-center justify-center">
+             <div className="flex items-center gap-4">
                 {navLinks.map(link => (
                     <Link
                     key={link.href}
@@ -62,7 +67,8 @@ export function Navbar() {
             </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        {/* Right side: Wallet */}
+        <div className="flex items-center justify-end flex-shrink-0">
             <div ref={walletRef} className="flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-1 border border-amber-500/50">
                 <Wallet className="h-3.5 w-3.5 text-amber-600" />
                 <span className="font-semibold text-xs text-amber-800 dark:text-amber-300">
