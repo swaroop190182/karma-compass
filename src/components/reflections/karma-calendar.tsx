@@ -83,7 +83,7 @@ function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, 
                 <div className="flex items-center gap-1.5">
                     {entry?.feeling && feelingMap[entry.feeling] && (
                          <Tooltip delayDuration={100}>
-                            <TooltipTrigger>
+                            <TooltipTrigger asChild>
                                 {React.createElement(feelingMap[entry.feeling].icon, {
                                     className: cn('w-4 h-4', feelingMap[entry.feeling].colorClass),
                                 })}
