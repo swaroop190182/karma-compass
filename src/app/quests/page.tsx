@@ -2,13 +2,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Brain, Calendar, Award } from 'lucide-react';
+import { Brain, Calendar, Award, XCircle } from 'lucide-react';
 import { dailyPuzzles, weeklyChallenge, wordSearchPuzzles } from '@/lib/quests';
 import { DailyPuzzleCard } from '@/components/quests/daily-puzzle-card';
 import { WeeklyChallengeCard } from '@/components/quests/weekly-challenge-card';
 import { WordSearchCard } from '@/components/quests/word-search-card';
 
+const ATTEMPTED_DAILY_PUZZLES_KEY = 'attempted-daily-puzzles';
 const SOLVED_DAILY_PUZZLES_KEY = 'solved-daily-puzzles';
+const ATTEMPTED_WEEKLY_CHALLENGE_KEY = 'attempted-weekly-challenge';
 const SOLVED_WEEKLY_CHALLENGE_KEY = 'solved-weekly-challenge';
 const SOLVED_WORD_SEARCH_KEY = 'solved-word-search';
 const LAST_VISIT_DATE_KEY = 'quests-last-visit';
@@ -24,8 +26,12 @@ const getWeekNumber = (d: Date) => {
 }
 
 export default function QuestsPage() {
+    const [attemptedDailyPuzzles, setAttemptedDailyPuzzles] = useState<Set<string>>(new Set());
     const [solvedDailyPuzzles, setSolvedDailyPuzzles] = useState<Set<string>>(new Set());
+    
+    const [isWeeklyChallengeAttempted, setIsWeeklyChallengeAttempted] = useState(false);
     const [isWeeklyChallengeSolved, setIsWeeklyChallengeSolved] = useState(false);
+    
     const [solvedWordSearches, setSolvedWordSearches] = useState<Set<string>>(new Set());
 
     useEffect(() => {
@@ -35,14 +41,17 @@ export default function QuestsPage() {
 
         // --- Daily Puzzles ---
         if (lastVisit !== todayString) {
+            localStorage.removeItem(ATTEMPTED_DAILY_PUZZLES_KEY);
             localStorage.removeItem(SOLVED_DAILY_PUZZLES_KEY);
+            setAttemptedDailyPuzzles(new Set());
             setSolvedDailyPuzzles(new Set());
             localStorage.setItem(LAST_VISIT_DATE_KEY, todayString);
         } else {
+            const attempted = localStorage.getItem(ATTEMPTED_DAILY_PUZZLES_KEY);
+            if (attempted) setAttemptedDailyPuzzles(new Set(JSON.parse(attempted)));
+            
             const solved = localStorage.getItem(SOLVED_DAILY_PUZZLES_KEY);
-            if (solved) {
-                setSolvedDailyPuzzles(new Set(JSON.parse(solved)));
-            }
+            if (solved) setSolvedDailyPuzzles(new Set(JSON.parse(solved)));
         }
         
         // --- Weekly Challenge ---
@@ -50,33 +59,44 @@ export default function QuestsPage() {
         const lastSolvedWeek = parseInt(localStorage.getItem(LAST_WEEK_KEY) || '0', 10);
         
         if (currentWeek !== lastSolvedWeek) {
+             localStorage.removeItem(ATTEMPTED_WEEKLY_CHALLENGE_KEY);
              localStorage.removeItem(SOLVED_WEEKLY_CHALLENGE_KEY);
+             setIsWeeklyChallengeAttempted(false);
              setIsWeeklyChallengeSolved(false);
         } else {
+             const weeklyAttempted = localStorage.getItem(ATTEMPTED_WEEKLY_CHALLENGE_KEY);
+             if (weeklyAttempted === weeklyChallenge.id) setIsWeeklyChallengeAttempted(true);
+
              const weeklySolved = localStorage.getItem(SOLVED_WEEKLY_CHALLENGE_KEY);
-             if (weeklySolved === weeklyChallenge.id) {
-                 setIsWeeklyChallengeSolved(true);
-             }
+             if (weeklySolved === weeklyChallenge.id) setIsWeeklyChallengeSolved(true);
         }
 
         // --- Word Search ---
-        // Word search puzzles don't reset daily/weekly, they are one-time solves.
         const solvedWS = localStorage.getItem(SOLVED_WORD_SEARCH_KEY);
-        if (solvedWS) {
-            setSolvedWordSearches(new Set(JSON.parse(solvedWS)));
-        }
+        if (solvedWS) setSolvedWordSearches(new Set(JSON.parse(solvedWS)));
 
     }, []);
 
-    const onDailyPuzzleSolved = (puzzleId: string) => {
-        const newSolved = new Set(solvedDailyPuzzles).add(puzzleId);
-        setSolvedDailyPuzzles(newSolved);
-        localStorage.setItem(SOLVED_DAILY_PUZZLES_KEY, JSON.stringify(Array.from(newSolved)));
+    const onDailyPuzzleAttempted = (puzzleId: string, wasCorrect: boolean) => {
+        const newAttempted = new Set(attemptedDailyPuzzles).add(puzzleId);
+        setAttemptedDailyPuzzles(newAttempted);
+        localStorage.setItem(ATTEMPTED_DAILY_PUZZLES_KEY, JSON.stringify(Array.from(newAttempted)));
+
+        if (wasCorrect) {
+            const newSolved = new Set(solvedDailyPuzzles).add(puzzleId);
+            setSolvedDailyPuzzles(newSolved);
+            localStorage.setItem(SOLVED_DAILY_PUZZLES_KEY, JSON.stringify(Array.from(newSolved)));
+        }
     };
 
-    const onWeeklyChallengeSolved = () => {
-        setIsWeeklyChallengeSolved(true);
-        localStorage.setItem(SOLVED_WEEKLY_CHALLENGE_KEY, weeklyChallenge.id);
+    const onWeeklyChallengeAttempted = (wasCorrect: boolean) => {
+        setIsWeeklyChallengeAttempted(true);
+        localStorage.setItem(ATTEMPTED_WEEKLY_CHALLENGE_KEY, weeklyChallenge.id);
+        
+        if (wasCorrect) {
+            setIsWeeklyChallengeSolved(true);
+            localStorage.setItem(SOLVED_WEEKLY_CHALLENGE_KEY, weeklyChallenge.id);
+        }
         localStorage.setItem(LAST_WEEK_KEY, getWeekNumber(new Date()).toString());
     };
     
@@ -116,8 +136,9 @@ export default function QuestsPage() {
                     </h2>
                     <WeeklyChallengeCard 
                         challenge={weeklyChallenge} 
+                        isAttempted={isWeeklyChallengeAttempted}
                         isSolved={isWeeklyChallengeSolved} 
-                        onSolved={onWeeklyChallengeSolved} 
+                        onAttempted={onWeeklyChallengeAttempted} 
                     />
                 </section>
 
@@ -125,13 +146,14 @@ export default function QuestsPage() {
                     <h2 className="text-2xl font-semibold flex items-center gap-3 mb-4">
                         <Calendar /> Daily Puzzles
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {dailyPuzzles.map(puzzle => (
                             <DailyPuzzleCard 
                                 key={puzzle.id} 
                                 puzzle={puzzle} 
+                                isAttempted={attemptedDailyPuzzles.has(puzzle.id)}
                                 isSolved={solvedDailyPuzzles.has(puzzle.id)}
-                                onSolved={() => onDailyPuzzleSolved(puzzle.id)}
+                                onAttempted={onDailyPuzzleAttempted}
                             />
                         ))}
                     </div>
