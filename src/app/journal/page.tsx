@@ -90,9 +90,17 @@ export default function JournalPage() {
     setMindDump(currentEntry.mindDump || '');
     setSelectedFeeling(currentEntry.feeling || null);
 
-    setShowScoreCard(false);
-    setTotalScore(0);
-    setMotivationalQuote('');
+    // If a score has been calculated and saved for this date, show it.
+    if (typeof currentEntry.score === 'number') {
+      setTotalScore(currentEntry.score);
+      setShowScoreCard(true);
+    } else {
+      // Otherwise, reset the view.
+      setShowScoreCard(false);
+      setTotalScore(0);
+    }
+    
+    setMotivationalQuote(''); // Always reset the quote.
   }, [date, allEntries, selectedDateString]);
 
   const selectedActivities = useMemo(() => {
@@ -128,8 +136,9 @@ export default function JournalPage() {
   };
   
   const handleFeelingChange = (feelingName: string) => {
-    setSelectedFeeling(feelingName);
-    updateAndSaveEntry('feeling', feelingName);
+    const newFeeling = selectedFeeling === feelingName ? null : feelingName;
+    setSelectedFeeling(newFeeling);
+    updateAndSaveEntry('feeling', newFeeling);
   }
   
   const handleReflectionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -191,7 +200,6 @@ export default function JournalPage() {
                 activityList: allActivityNames
             });
 
-            // Use the most up-to-date selectedActivities from state
             setAllActivities(prevAllActivities => {
                 const currentActivities = prevAllActivities[selectedDateString] || {};
                 const updatedActivitiesFromAI = { ...currentActivities };
@@ -202,7 +210,6 @@ export default function JournalPage() {
                 const updatedAllActivities = { ...prevAllActivities, [selectedDateString]: updatedActivitiesFromAI };
                 localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
                 
-                // UI feedback
                 let toastDescription = "";
                 if (result.identifiedActivities.length > 0) {
                     toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
