@@ -27,6 +27,7 @@ interface CustomDayProps extends DayProps {
 
 
 function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, modifiers, ...props }: CustomDayProps) {
+    const safeModifiers = modifiers || {};
     const dateString = format(date, 'yyyy-MM-dd');
     const entry = allEntries[dateString];
     const activitiesForDay = allActivities[dateString];
@@ -41,7 +42,7 @@ function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, 
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
-        if (!entry || modifiers.outside) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (!entry || safeModifiers.outside) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score === undefined) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
         if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
@@ -50,18 +51,18 @@ function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, 
         return 'bg-red-200/60 dark:bg-red-800/20';
     };
 
-    const isClickable = !!entry && !modifiers.outside;
+    const isClickable = !!entry && !safeModifiers.outside;
 
     return (
         <button
             type="button"
-            onClick={() => isClickable && onDayClick(date, modifiers)}
+            onClick={() => isClickable && onDayClick(date, safeModifiers)}
             className={cn(
                 "flex flex-col h-full w-full p-1.5 text-left relative focus:z-10",
                 getBackgroundColorClass(),
-                modifiers.outside && "opacity-40",
+                safeModifiers.outside && "opacity-40",
                 isClickable && "cursor-pointer hover:ring-2 hover:ring-primary",
-                !isClickable && !modifiers.outside && "cursor-default"
+                !isClickable && !safeModifiers.outside && "cursor-default"
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -92,7 +93,7 @@ function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, 
                         )}
                     </div>
                 ) : (
-                    !modifiers.outside && (
+                    !safeModifiers.outside && (
                         <div className="flex items-center justify-center w-full h-full -mt-4">
                             <span className="text-[10px] text-muted-foreground/80">No entries</span>
                         </div>
