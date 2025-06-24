@@ -90,17 +90,15 @@ export default function JournalPage() {
     setMindDump(currentEntry.mindDump || '');
     setSelectedFeeling(currentEntry.feeling || null);
 
-    // If a score has been calculated and saved for this date, show it.
     if (typeof currentEntry.score === 'number') {
       setTotalScore(currentEntry.score);
       setShowScoreCard(true);
     } else {
-      // Otherwise, reset the view.
       setShowScoreCard(false);
       setTotalScore(0);
     }
     
-    setMotivationalQuote(''); // Always reset the quote.
+    setMotivationalQuote('');
   }, [date, allEntries, selectedDateString]);
 
   const selectedActivities = useMemo(() => {
@@ -108,22 +106,15 @@ export default function JournalPage() {
   }, [allActivities, selectedDateString]);
   
   const updateAndSaveActivities = (newActivitiesForDay: Record<string, boolean>) => {
-    setAllActivities(prevAllActivities => {
-        const updatedAllActivities = { ...prevAllActivities, [selectedDateString]: newActivitiesForDay };
-        localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
-        return updatedAllActivities;
-    });
+    const newAllActivities = { ...allActivities, [selectedDateString]: newActivitiesForDay };
+    setAllActivities(newAllActivities);
+    localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(newAllActivities));
   };
   
-  const updateAndSaveEntry = (field: keyof JournalEntry, value: string | null | number) => {
-     setAllEntries(prevAllEntries => {
-        const updatedAllEntries = {
-          ...prevAllEntries,
-          [selectedDateString]: {
-            ...(prevAllEntries[selectedDateString] || {}),
-            [field]: value,
-          },
-        };
+  const updateAndSaveEntry = (newEntryData: Partial<JournalEntry>) => {
+    setAllEntries(prevAllEntries => {
+        const updatedEntry = { ...(prevAllEntries[selectedDateString] || {}), ...newEntryData };
+        const updatedAllEntries = { ...prevAllEntries, [selectedDateString]: updatedEntry };
         localStorage.setItem(JOURNAL_ENTRIES_KEY, JSON.stringify(updatedAllEntries));
         return updatedAllEntries;
     });
@@ -138,22 +129,22 @@ export default function JournalPage() {
   const handleFeelingChange = (feelingName: string) => {
     const newFeeling = selectedFeeling === feelingName ? null : feelingName;
     setSelectedFeeling(newFeeling);
-    updateAndSaveEntry('feeling', newFeeling);
+    updateAndSaveEntry({ feeling: newFeeling });
   }
   
   const handleReflectionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReflections(e.target.value);
-    updateAndSaveEntry('reflections', e.target.value);
+    updateAndSaveEntry({ reflections: e.target.value });
   }
 
   const handleIntentionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setIntentions(e.target.value);
-    updateAndSaveEntry('intentions', e.target.value);
+    updateAndSaveEntry({ intentions: e.target.value });
   }
 
   const handleMindDumpChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMindDump(e.target.value);
-    updateAndSaveEntry('mindDump', e.target.value);
+    updateAndSaveEntry({ mindDump: e.target.value });
   }
 
   const handleGetMotivation = async () => {
@@ -200,34 +191,29 @@ export default function JournalPage() {
                 activityList: allActivityNames
             });
 
-            setAllActivities(prevAllActivities => {
-                const currentActivities = prevAllActivities[selectedDateString] || {};
-                const updatedActivitiesFromAI = { ...currentActivities };
-                result.identifiedActivities.forEach(name => {
-                    updatedActivitiesFromAI[name] = true;
-                });
-                
-                const updatedAllActivities = { ...prevAllActivities, [selectedDateString]: updatedActivitiesFromAI };
-                localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
-                
-                let toastDescription = "";
-                if (result.identifiedActivities.length > 0) {
-                    toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
-                }
+            const currentActivities = allActivities[selectedDateString] || {};
+            const updatedActivitiesFromAI = { ...currentActivities };
+            result.identifiedActivities.forEach(name => {
+                updatedActivitiesFromAI[name] = true;
+            });
+            
+            updateAndSaveActivities(updatedActivitiesFromAI);
+            
+            let toastDescription = "";
+            if (result.identifiedActivities.length > 0) {
+                toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
+            }
 
-                if (result.plannerTasks.length > 0) {
-                    localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
-                    toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
-                }
-                
-                if(result.identifiedActivities.length > 0) setShowScoreCard(false);
+            if (result.plannerTasks.length > 0) {
+                localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
+                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
+            }
+            
+            if(result.identifiedActivities.length > 0) setShowScoreCard(false);
 
-                toast({
-                    title: "Analysis Complete",
-                    description: toastDescription || "No new activities or tasks found.",
-                });
-
-                return updatedAllActivities;
+            toast({
+                title: "Analysis Complete",
+                description: toastDescription || "No new activities or tasks found.",
             });
 
         } catch (error) {
@@ -263,16 +249,14 @@ export default function JournalPage() {
     
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
-        setRewardedDates(prevRewardedDates => {
-            const newRewardedDates = new Set(prevRewardedDates);
-            newRewardedDates.add(selectedDateString);
-            localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
-            return newRewardedDates;
-        });
+        const newRewardedDates = new Set(rewardedDates);
+        newRewardedDates.add(selectedDateString);
+        setRewardedDates(newRewardedDates);
+        localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
     }
 
     setTotalScore(score);
-    updateAndSaveEntry('score', score);
+    updateAndSaveEntry({ score: score });
     setMotivationalQuote('');
     setShowScoreCard(true);
   };
@@ -280,33 +264,51 @@ export default function JournalPage() {
   return (
     <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="flex flex-wrap justify-between items-center gap-4 mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+        <header className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-y-4 gap-x-8 mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground text-center sm:text-left">
                 Record Your Day
             </h1>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-[280px] justify-start text-left font-normal text-base",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
-                />
-              </PopoverContent>
-            </Popover>
+
+            {showScoreCard && (
+                <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
+                    <div 
+                        className="inline-block animate-coin-spin w-16 h-16 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" 
+                        style={{ transformStyle: 'preserve-3d' }}
+                        title={`Today's Score: ${totalScore}`}
+                    >
+                        <span className="text-2xl font-bold text-yellow-800">
+                            {totalScore > 0 ? `+${totalScore}` : totalScore}
+                        </span>
+                    </div>
+                    <p className="text-sm font-semibold text-muted-foreground mt-1">Today's Score</p>
+                </div>
+            )}
+            
+            <div className="mx-auto sm:mx-0">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[280px] justify-start text-left font-normal text-base",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
         </header>
 
         <div className="space-y-8">
