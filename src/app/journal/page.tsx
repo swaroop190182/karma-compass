@@ -100,21 +100,25 @@ export default function JournalPage() {
   }, [allActivities, selectedDateString]);
   
   const updateAndSaveActivities = (newActivitiesForDay: Record<string, boolean>) => {
-    const updatedAllActivities = { ...allActivities, [selectedDateString]: newActivitiesForDay };
-    setAllActivities(updatedAllActivities);
-    localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
+    setAllActivities(prevAllActivities => {
+        const updatedAllActivities = { ...prevAllActivities, [selectedDateString]: newActivitiesForDay };
+        localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
+        return updatedAllActivities;
+    });
   };
   
   const updateAndSaveEntry = (field: keyof JournalEntry, value: string | null | number) => {
-    const updatedAllEntries = {
-      ...allEntries,
-      [selectedDateString]: {
-        ...(allEntries[selectedDateString] || {}),
-        [field]: value,
-      },
-    };
-    setAllEntries(updatedAllEntries);
-    localStorage.setItem(JOURNAL_ENTRIES_KEY, JSON.stringify(updatedAllEntries));
+     setAllEntries(prevAllEntries => {
+        const updatedAllEntries = {
+          ...prevAllEntries,
+          [selectedDateString]: {
+            ...(prevAllEntries[selectedDateString] || {}),
+            [field]: value,
+          },
+        };
+        localStorage.setItem(JOURNAL_ENTRIES_KEY, JSON.stringify(updatedAllEntries));
+        return updatedAllEntries;
+    });
   };
 
   const handleActivityToggle = (activityName: string) => {
@@ -187,29 +191,36 @@ export default function JournalPage() {
                 activityList: allActivityNames
             });
 
-            const currentActivities = allActivities[selectedDateString] || {};
-            const updatedActivitiesFromAI = { ...currentActivities };
-            result.identifiedActivities.forEach(name => {
-                updatedActivitiesFromAI[name] = true;
-            });
-            
-            updateAndSaveActivities(updatedActivitiesFromAI);
+            // Use the most up-to-date selectedActivities from state
+            setAllActivities(prevAllActivities => {
+                const currentActivities = prevAllActivities[selectedDateString] || {};
+                const updatedActivitiesFromAI = { ...currentActivities };
+                result.identifiedActivities.forEach(name => {
+                    updatedActivitiesFromAI[name] = true;
+                });
+                
+                const updatedAllActivities = { ...prevAllActivities, [selectedDateString]: updatedActivitiesFromAI };
+                localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
+                
+                // UI feedback
+                let toastDescription = "";
+                if (result.identifiedActivities.length > 0) {
+                    toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
+                }
 
-            let toastDescription = "";
-            if (result.identifiedActivities.length > 0) {
-                toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
-            }
+                if (result.plannerTasks.length > 0) {
+                    localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
+                    toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
+                }
+                
+                if(result.identifiedActivities.length > 0) setShowScoreCard(false);
 
-            if (result.plannerTasks.length > 0) {
-                localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
-                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
-            }
-            
-            if(result.identifiedActivities.length > 0) setShowScoreCard(false);
+                toast({
+                    title: "Analysis Complete",
+                    description: toastDescription || "No new activities or tasks found.",
+                });
 
-            toast({
-                title: "Analysis Complete",
-                description: toastDescription || "No new activities or tasks found.",
+                return updatedAllActivities;
             });
 
         } catch (error) {
@@ -245,10 +256,12 @@ export default function JournalPage() {
     
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
-        const newRewardedDates = new Set(rewardedDates);
-        newRewardedDates.add(selectedDateString);
-        setRewardedDates(newRewardedDates);
-        localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
+        setRewardedDates(prevRewardedDates => {
+            const newRewardedDates = new Set(prevRewardedDates);
+            newRewardedDates.add(selectedDateString);
+            localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
+            return newRewardedDates;
+        });
     }
 
     setTotalScore(score);
