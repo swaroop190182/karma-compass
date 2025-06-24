@@ -37,21 +37,21 @@ interface CustomDayProps extends DayProps {
     allEntries: Record<string, DayEntry>;
     allActivities: Record<string, Record<string, boolean>>;
     onDayClick: (day: Date, modifiers: DayModifiers) => void;
+    feelingMap: Record<string, { icon: LucideIcon; colorClass: string }>;
 }
 
 
-function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, modifiers, ...props }: CustomDayProps) {
+function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, modifiers, feelingMap, ...props }: CustomDayProps) {
     const safeModifiers = modifiers || {};
     const dateString = format(date, 'yyyy-MM-dd');
     const entry = allEntries[dateString];
-    const activitiesForDay = allActivities[dateString];
 
     const getActivities = (names: Record<string, boolean> | undefined) => {
         if (!names) return [];
         return Object.keys(names).filter(name => names[name]).map(name => activityMap.get(name)).filter(Boolean) as Activity[];
     };
     
-    const loggedActs = getActivities(activitiesForDay);
+    const loggedActs = getActivities(allActivities[dateString]);
     const iconsToShow = loggedActs.slice(0, 3);
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
@@ -80,14 +80,28 @@ function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, 
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
-                {entry && entry.score !== undefined && (
-                    <span className={cn(
-                        "font-bold text-xs",
-                        entry.score > 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
-                    )}>
-                        {entry.score > 0 ? `+${entry.score}` : entry.score}
-                    </span>
-                )}
+                <div className="flex items-center gap-1.5">
+                    {entry?.feeling && feelingMap[entry.feeling] && (
+                         <Tooltip delayDuration={100}>
+                            <TooltipTrigger>
+                                {React.createElement(feelingMap[entry.feeling].icon, {
+                                    className: cn('w-4 h-4', feelingMap[entry.feeling].colorClass),
+                                })}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{entry.feeling}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    )}
+                    {entry && entry.score !== undefined && (
+                        <span className={cn(
+                            "font-bold text-xs",
+                            entry.score > 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
+                        )}>
+                            {entry.score > 0 ? `+${entry.score}` : entry.score}
+                        </span>
+                    )}
+                </div>
             </div>
             <div className="flex-grow flex items-end w-full">
                 {entry ? (
@@ -214,6 +228,7 @@ export function KarmaCalendar() {
                                     allEntries={allEntries} 
                                     allActivities={allActivities}
                                     onDayClick={handleDayClick} 
+                                    feelingMap={feelingMap}
                                 />
                             )
                         }}
