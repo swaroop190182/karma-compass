@@ -1,11 +1,24 @@
 
+
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DayPicker, type DayProps, type DayModifiers } from 'react-day-picker';
 import { useState, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { ChevronLeft, ChevronRight, BookOpen, ClipboardList } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  ClipboardList,
+  Heart,
+  Smile as SmileIcon,
+  Laugh,
+  Meh,
+  Frown,
+  Angry,
+  type LucideIcon,
+} from 'lucide-react';
 import { buttonVariants, Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,6 +28,7 @@ import { activities, type Activity } from '@/lib/activities';
 import type { DayEntry } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import { useJournal } from '@/hooks/use-journal';
+import React from 'react';
 
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
@@ -111,6 +125,14 @@ export function KarmaCalendar() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     
     const { allEntries, allActivities, isLoading } = useJournal();
+
+    const feelingMap: Record<string, { icon: LucideIcon; colorClass: string }> = {
+        'Radiant': { icon: Laugh, colorClass: 'text-yellow-400' },
+        'Happy': { icon: SmileIcon, colorClass: 'text-green-500' },
+        'Neutral': { icon: Meh, colorClass: 'text-slate-500' },
+        'Sad': { icon: Frown, colorClass: 'text-blue-500' },
+        'Stressed': { icon: Angry, colorClass: 'text-red-500' },
+    };
 
     const handleDayClick = useCallback((day: Date, modifiers: DayModifiers) => {
         if (modifiers.outside) {
@@ -209,6 +231,20 @@ export function KarmaCalendar() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
+                                {selectedDayData.feeling && (
+                                     <div>
+                                        <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                            <Heart className="w-5 h-5 text-pink-500"/>
+                                            Mood
+                                        </h3>
+                                        <div className="flex items-center gap-2 mt-2 pl-1">
+                                            {feelingMap[selectedDayData.feeling] && React.createElement(feelingMap[selectedDayData.feeling].icon, {
+                                                className: cn("w-6 h-6", feelingMap[selectedDayData.feeling].colorClass)
+                                            })}
+                                            <p className="font-semibold text-foreground">{selectedDayData.feeling}</p>
+                                        </div>
+                                    </div>
+                                )}
                                 {selectedDayData.reflections && (
                                     <>
                                         <Separator />
@@ -236,7 +272,7 @@ export function KarmaCalendar() {
                                             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
                                                 {goodActivities.map(activity => (
                                                     <li key={activity.name} className="text-sm text-muted-foreground">
-                                                        {activity.name} <span className="font-semibold text-green-600">(+{activity.score})</span>
+                                                        {activity.name}
                                                     </li>
                                                 ))}
                                             </ul>
@@ -249,7 +285,7 @@ export function KarmaCalendar() {
                                             <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
                                                 {badActivities.map(activity => (
                                                     <li key={activity.name} className="text-sm text-muted-foreground">
-                                                        {activity.name} <span className="font-semibold text-red-600">({activity.score})</span>
+                                                        {activity.name}
                                                     </li>
                                                 ))}
                                             </ul>
