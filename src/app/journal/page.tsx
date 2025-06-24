@@ -20,8 +20,11 @@ import { useToast } from '@/hooks/use-toast';
 import { KarmaTracker } from '@/components/karma-tracker';
 import { StudentQuotes } from '@/components/student-quotes';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 import { useWallet } from '@/hooks/use-wallet';
+
+const JOURNAL_ENTRIES_KEY = 'journal-entries';
+const JOURNAL_ACTIVITIES_KEY = 'journal-activities';
+const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
 const feelings = [
   { name: 'Radiant', icon: Laugh, colorClass: 'text-yellow-400', hoverClass: 'hover:bg-yellow-400/10 hover:border-yellow-400/50', selectedClass: 'bg-yellow-400/20 border-yellow-500 text-yellow-600 dark:text-yellow-300' },
@@ -31,59 +34,114 @@ const feelings = [
   { name: 'Stressed', icon: Angry, colorClass: 'text-red-500', hoverClass: 'hover:bg-red-500/10 hover:border-red-500/50', selectedClass: 'bg-red-500/20 border-red-600 text-red-600 dark:text-red-400' },
 ];
 
-const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
+type JournalEntry = {
+    reflections?: string;
+    intentions?: string;
+    mindDump?: string;
+    feeling?: string | null;
+    score?: number;
+};
 
 export default function JournalPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [dailyActivities, setDailyActivities] = useState<Record<string, Record<string, boolean>>>({});
-  const [totalScore, setTotalScore] = useState(0);
-  const [motivationalQuote, setMotivationalQuote] = useState('');
-  const [isGettingMotivation, startMotivationTransition] = useTransition();
-  const [isAnalyzing, startAnalysisTransition] = useTransition();
-  const { toast } = useToast();
-  const { addFunds } = useWallet();
-  
-  const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
+
+  const [allEntries, setAllEntries] = useState<Record<string, JournalEntry>>({});
+  const [allActivities, setAllActivities] = useState<Record<string, Record<string, boolean>>>({});
+  const [rewardedDates, setRewardedDates] = useState<Set<string>>(new Set());
+
   const [reflections, setReflections] = useState('');
   const [intentions, setIntentions] = useState('');
   const [mindDump, setMindDump] = useState('');
+  const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
+  
+  const [totalScore, setTotalScore] = useState(0);
+  const [motivationalQuote, setMotivationalQuote] = useState('');
   const [showScoreCard, setShowScoreCard] = useState(false);
-  const [rewardedDates, setRewardedDates] = useState<Set<string>>(new Set());
+
+  const [isGettingMotivation, startMotivationTransition] = useTransition();
+  const [isAnalyzing, startAnalysisTransition] = useTransition();
+  
+  const { toast } = useToast();
+  const { addFunds } = useWallet();
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
 
   useEffect(() => {
     try {
+      const storedEntries = localStorage.getItem(JOURNAL_ENTRIES_KEY);
+      if (storedEntries) setAllEntries(JSON.parse(storedEntries));
+
+      const storedActivities = localStorage.getItem(JOURNAL_ACTIVITIES_KEY);
+      if (storedActivities) setAllActivities(JSON.parse(storedActivities));
+      
       const storedDates = localStorage.getItem(JOURNAL_REWARD_DATES_KEY);
-      if (storedDates) {
-        setRewardedDates(new Set(JSON.parse(storedDates)));
-      }
+      if (storedDates) setRewardedDates(new Set(JSON.parse(storedDates)));
     } catch (error) {
-      console.error("Failed to read rewarded dates from localStorage", error);
+      console.error("Failed to read journal data from localStorage", error);
     }
   }, []);
 
-  const selectedActivities = useMemo(() => {
-    return dailyActivities[selectedDateString] || {};
-  }, [dailyActivities, selectedDateString]);
-
   useEffect(() => {
+    if (!selectedDateString) return;
+
+    const currentEntry = allEntries[selectedDateString] || {};
+    setReflections(currentEntry.reflections || '');
+    setIntentions(currentEntry.intentions || '');
+    setMindDump(currentEntry.mindDump || '');
+    setSelectedFeeling(currentEntry.feeling || null);
+
     setShowScoreCard(false);
     setTotalScore(0);
     setMotivationalQuote('');
-  }, [date]);
+  }, [date, allEntries, selectedDateString]);
+
+  const selectedActivities = useMemo(() => {
+    return allActivities[selectedDateString] || {};
+  }, [allActivities, selectedDateString]);
   
-  const handleActivityToggle = (activityName: string) => {
-    const isSelected = !!selectedActivities[activityName];
-    setDailyActivities(prev => ({
-      ...prev,
+  const updateAndSaveActivities = (newActivitiesForDay: Record<string, boolean>) => {
+    const updatedAllActivities = { ...allActivities, [selectedDateString]: newActivitiesForDay };
+    setAllActivities(updatedAllActivities);
+    localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(updatedAllActivities));
+  };
+  
+  const updateAndSaveEntry = (field: keyof JournalEntry, value: string | null | number) => {
+    const updatedAllEntries = {
+      ...allEntries,
       [selectedDateString]: {
-        ...(prev[selectedDateString] || {}),
-        [activityName]: !isSelected,
+        ...(allEntries[selectedDateString] || {}),
+        [field]: value,
       },
-    }));
+    };
+    setAllEntries(updatedAllEntries);
+    localStorage.setItem(JOURNAL_ENTRIES_KEY, JSON.stringify(updatedAllEntries));
+  };
+
+  const handleActivityToggle = (activityName: string) => {
+    const newSelected = { ...selectedActivities, [activityName]: !selectedActivities[activityName] };
+    updateAndSaveActivities(newSelected);
     setShowScoreCard(false);
   };
+  
+  const handleFeelingChange = (feelingName: string) => {
+    setSelectedFeeling(feelingName);
+    updateAndSaveEntry('feeling', feelingName);
+  }
+  
+  const handleReflectionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setReflections(e.target.value);
+    updateAndSaveEntry('reflections', e.target.value);
+  }
+
+  const handleIntentionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setIntentions(e.target.value);
+    updateAndSaveEntry('intentions', e.target.value);
+  }
+
+  const handleMindDumpChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMindDump(e.target.value);
+    updateAndSaveEntry('mindDump', e.target.value);
+  }
 
   const handleGetMotivation = async () => {
     if (Object.values(selectedActivities).every(v => !v)) {
@@ -129,29 +187,25 @@ export default function JournalPage() {
                 activityList: allActivityNames
             });
 
-            // Update activities from reflections
-            const currentActivities = dailyActivities[selectedDateString] || {};
-            const updatedActivities = { ...currentActivities };
+            const currentActivities = allActivities[selectedDateString] || {};
+            const updatedActivitiesFromAI = { ...currentActivities };
             result.identifiedActivities.forEach(name => {
-                updatedActivities[name] = true;
+                updatedActivitiesFromAI[name] = true;
             });
-            setDailyActivities(prev => ({ ...prev, [selectedDateString]: updatedActivities }));
+            
+            updateAndSaveActivities(updatedActivitiesFromAI);
 
             let toastDescription = "";
             if (result.identifiedActivities.length > 0) {
-                toastDescription += `Logged ${result.identifiedActivities.length} activities from your reflections. `;
+                toastDescription += `Logged ${result.identifiedActivities.length} activities. `;
             }
 
-            // Store planner tasks from intentions
             if (result.plannerTasks.length > 0) {
                 localStorage.setItem('newPlannerTasks', JSON.stringify(result.plannerTasks));
-                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner from your intentions.`;
+                toastDescription += `Added ${result.plannerTasks.length} tasks to your planner.`;
             }
             
-            // Hide score card if activities were automatically updated
-            if(result.identifiedActivities.length > 0) {
-                setShowScoreCard(false);
-            }
+            if(result.identifiedActivities.length > 0) setShowScoreCard(false);
 
             toast({
                 title: "Analysis Complete",
@@ -189,20 +243,16 @@ export default function JournalPage() {
       return acc;
     }, 0);
     
-    // Add reward for journaling, but only once per day
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
         const newRewardedDates = new Set(rewardedDates);
         newRewardedDates.add(selectedDateString);
         setRewardedDates(newRewardedDates);
-        try {
-            localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
-        } catch (error) {
-            console.error("Failed to save rewarded dates to localStorage", error);
-        }
+        localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
     }
 
     setTotalScore(score);
+    updateAndSaveEntry('score', score);
     setMotivationalQuote('');
     setShowScoreCard(true);
   };
@@ -251,7 +301,7 @@ export default function JournalPage() {
                             <Button
                                 key={feeling.name}
                                 variant="outline"
-                                onClick={() => setSelectedFeeling(feeling.name)}
+                                onClick={() => handleFeelingChange(feeling.name)}
                                 className={cn(
                                     "flex-1 sm:flex-auto font-semibold transition-all duration-200 ease-in-out transform hover:scale-105",
                                     !isSelected && feeling.hoverClass,
@@ -276,7 +326,7 @@ export default function JournalPage() {
                 <CardContent className="space-y-6">
                     <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
                         <label className="text-sm font-medium block">Reflections &amp; Gratitude</label>
-                        <Textarea placeholder="What went well? What are you grateful for? The AI will log your activities from this." rows={3} value={reflections} onChange={(e) => setReflections(e.target.value)}/>
+                        <Textarea placeholder="What went well? What are you grateful for? The AI will log your activities from this." rows={3} value={reflections} onChange={handleReflectionsChange}/>
                          <div className="flex gap-2 pt-2">
                             <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
                             <Button variant="outline" size="sm"><Mic className="mr-2" /> Record Voice</Button>
@@ -285,7 +335,7 @@ export default function JournalPage() {
 
                     <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
                         <label className="text-sm font-medium block">Intentions for Tomorrow</label>
-                        <Textarea placeholder="What positive actions will you take tomorrow? The AI will create planner tasks from this." rows={3} value={intentions} onChange={(e) => setIntentions(e.target.value)}/>
+                        <Textarea placeholder="What positive actions will you take tomorrow? The AI will create planner tasks from this." rows={3} value={intentions} onChange={handleIntentionsChange}/>
                         <div className="flex gap-2 pt-2">
                             <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
                             <Button variant="outline" size="sm"><Mic className="mr-2" /> Record Voice</Button>
@@ -294,7 +344,7 @@ export default function JournalPage() {
                     
                     <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
                         <label className="text-sm font-medium block">Mind Dump</label>
-                        <Textarea placeholder="Any other thoughts, worries, or ideas? Let them go here." rows={3} value={mindDump} onChange={(e) => setMindDump(e.target.value)}/>
+                        <Textarea placeholder="Any other thoughts, worries, or ideas? Let them go here." rows={3} value={mindDump} onChange={handleMindDumpChange}/>
                     </div>
 
                     <div className="flex justify-end pt-2">

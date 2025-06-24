@@ -26,9 +26,12 @@ export interface WeeklyGoal {
 
 export interface DayEntry {
     date: string;
-    score: number;
+    score?: number;
     loggedActivities: string[];
     reflection?: string;
+    feeling?: string | null;
+    intentions?: string;
+    mindDump?: string;
 }
 
 export interface DailyPuzzle {

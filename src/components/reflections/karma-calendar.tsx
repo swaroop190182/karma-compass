@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DayPicker, type DayProps } from 'react-day-picker';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, BookOpen, ClipboardList } from 'lucide-react';
 import { buttonVariants, Button } from '@/components/ui/button';
@@ -13,27 +13,34 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Separator } from '@/components/ui/separator';
 import { activities, type Activity } from '@/lib/activities';
 import type { DayEntry } from '@/lib/types';
-import { mockData } from '@/lib/mock-data';
+import { Skeleton } from '../ui/skeleton';
 
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
+const JOURNAL_ENTRIES_KEY = 'journal-entries';
+const JOURNAL_ACTIVITIES_KEY = 'journal-activities';
 
-function CustomDay({ date, displayMonth, ...props }: DayProps) {
-    const entry = mockData.find(d => isSameDay(parseISO(d.date), date));
+
+function CustomDay({ date, displayMonth, allEntries = {}, allActivities = {}, ...props }: DayProps & { allEntries: Record<string, DayEntry>, allActivities: Record<string, Record<string, boolean>> }) {
+    const dateString = format(date, 'yyyy-MM-dd');
+    const entry = allEntries[dateString];
+    const activitiesForDay = allActivities[dateString];
+
     const modifiers = props.modifiers || {};
     const buttonProps = props.buttonProps || {};
 
-    const getActivities = (names: string[] | undefined) => {
+    const getActivities = (names: Record<string, boolean> | undefined) => {
         if (!names) return [];
-        return names.map(name => activityMap.get(name)).filter(Boolean) as Activity[];
+        return Object.keys(names).filter(name => names[name]).map(name => activityMap.get(name)).filter(Boolean) as Activity[];
     };
     
-    const loggedActs = getActivities(entry?.loggedActivities);
+    const loggedActs = getActivities(activitiesForDay);
     const iconsToShow = loggedActs.slice(0, 3);
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
         if (!entry || (modifiers && modifiers.outside)) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (entry.score === undefined) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
         if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
         if (entry.score >= 20) return 'bg-yellow-200/60 dark:bg-yellow-800/30';
@@ -54,7 +61,7 @@ function CustomDay({ date, displayMonth, ...props }: DayProps) {
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
-                {entry && (
+                {entry && entry.score !== undefined && (
                     <span className={cn(
                         "font-bold text-xs",
                         entry.score > 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"
@@ -93,17 +100,59 @@ function CustomDay({ date, displayMonth, ...props }: DayProps) {
 }
 
 export function KarmaCalendar() {
-    const defaultMonth = new Date('2025-06-01');
+    const defaultMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const [month, setMonth] = useState<Date>(defaultMonth);
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     
+    const [allEntries, setAllEntries] = useState<Record<string, DayEntry>>({});
+    const [allActivities, setAllActivities] = useState<Record<string, Record<string, boolean>>>({});
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        try {
+            const storedEntries = localStorage.getItem(JOURNAL_ENTRIES_KEY);
+            if (storedEntries) setAllEntries(JSON.parse(storedEntries));
+
+            const storedActivities = localStorage.getItem(JOURNAL_ACTIVITIES_KEY);
+            if (storedActivities) setAllActivities(JSON.parse(storedActivities));
+        } catch (error) {
+            console.error("Failed to read calendar data from localStorage", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     const handleDayClick = (day: Date) => {
-        const entry = mockData.find(d => isSameDay(parseISO(d.date), day));
+        const dateString = format(day, 'yyyy-MM-dd');
+        const entry = allEntries[dateString];
         if (entry) {
-            setSelectedDayData(entry);
+            setSelectedDayData({ ...entry, date: dateString });
             setIsDialogOpen(true);
         }
+    }
+    
+    const selectedDayActivities = useMemo(() => {
+        if (!selectedDayData) return [];
+        const activitiesForDay = allActivities[selectedDayData.date] || {};
+        return Object.keys(activitiesForDay)
+            .filter(key => activitiesForDay[key])
+            .map(name => activityMap.get(name))
+            .filter(Boolean) as Activity[];
+    }, [selectedDayData, allActivities]);
+
+    if (isLoading) {
+        return (
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-[500px] w-full" />
+                </CardContent>
+            </Card>
+        );
     }
 
     return (
@@ -139,7 +188,7 @@ export function KarmaCalendar() {
                         components={{
                             IconLeft: () => <ChevronLeft className="h-5 w-5" />,
                             IconRight: () => <ChevronRight className="h-5 w-5" />,
-                            Day: CustomDay
+                            Day: (props) => <CustomDay {...props} allEntries={allEntries} allActivities={allActivities} />
                         }}
                     />
                 </CardContent>
@@ -155,38 +204,33 @@ export function KarmaCalendar() {
                                 </DialogDescription>
                             </DialogHeader>
                             <Separator />
-                            <div className="space-y-4 py-2">
+                            <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
                                 <div>
                                     <h3 className="flex items-center gap-2 text-lg font-semibold">
                                         <BookOpen className="w-5 h-5" />
                                         Reflection
                                     </h3>
                                     <p className="text-muted-foreground mt-2 text-sm">
-                                        {selectedDayData.reflection || "No reflection logged for this day."}
+                                        {selectedDayData.reflections || "No reflection logged for this day."}
                                     </p>
                                 </div>
                                 <Separator />
                                 <div>
                                     <h3 className="flex items-center gap-2 text-lg font-semibold">
                                         <ClipboardList className="w-5 h-5" />
-                                        Karma Activities (Score: <span className={cn(selectedDayData.score > 0 ? "text-green-600" : "text-red-600")}>{selectedDayData.score > 0 ? `+${selectedDayData.score}` : selectedDayData.score}</span>)
+                                        Karma Activities (Score: <span className={cn(selectedDayData.score && selectedDayData.score > 0 ? "text-green-600" : "text-red-600")}>{selectedDayData.score && selectedDayData.score > 0 ? `+${selectedDayData.score}` : selectedDayData.score || 'N/A'}</span>)
                                     </h3>
                                     <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
-                                        {selectedDayData.loggedActivities.map(name => {
-                                            const activity = activityMap.get(name);
-                                            if (!activity) return null;
-                                            return (
-                                                <li key={name} className={cn("text-sm", activity.type === 'Good' ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400")}>
-                                                    {activity.name}
-                                                </li>
-                                            );
-                                        })}
+                                        {selectedDayActivities.length > 0 ? selectedDayActivities.map(activity => (
+                                            <li key={activity.name} className={cn("text-sm", activity.type === 'Good' ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400")}>
+                                                {activity.name}
+                                            </li>
+                                        )) : <p className="text-sm text-muted-foreground">No activities logged.</p>}
                                     </ul>
                                 </div>
                             </div>
                             <DialogFooter className="sm:justify-between pt-4">
                                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
-                                <Button>Edit/Add Reflection Text</Button>
                             </DialogFooter>
                         </>
                     )}
