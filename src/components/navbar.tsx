@@ -6,18 +6,13 @@ import { usePathname } from 'next/navigation';
 import { Compass, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function Navbar() {
   const pathname = usePathname();
-  const [isClient, setIsClient] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const navLinks = [
     { href: '/journal', label: 'Journal' },
@@ -54,7 +49,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   "text-sm md:text-base font-medium transition-colors whitespace-nowrap",
-                  isClient && pathname === link.href
+                  pathname === link.href
                       ? "text-primary font-semibold"
                       : "text-foreground/70 hover:text-foreground"
                 )}
@@ -86,7 +81,7 @@ export function Navbar() {
                                     onClick={() => setIsOpen(false)}
                                     className={cn(
                                         "text-muted-foreground hover:text-foreground", 
-                                        isClient && pathname === link.href && "text-primary font-bold"
+                                        pathname === link.href && "text-primary font-bold"
                                     )}
                                 >
                                     {link.label}
