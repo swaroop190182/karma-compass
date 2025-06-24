@@ -2,12 +2,12 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DayPicker, type DayProps } from 'react-day-picker';
-import { useState, useMemo } from 'react';
+import { DayPicker, type DayProps, type DayModifiers } from 'react-day-picker';
+import { useState, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, BookOpen, ClipboardList } from 'lucide-react';
 import { buttonVariants, Button } from '@/components/ui/button';
-import { format, isSameDay, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -19,13 +19,17 @@ import { useJournal } from '@/hooks/use-journal';
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
 
-function CustomDay({ date, displayMonth, allEntries = {}, allActivities = {}, ...props }: DayProps & { allEntries: Record<string, DayEntry>, allActivities: Record<string, Record<string, boolean>> }) {
+interface CustomDayProps extends DayProps {
+    allEntries: Record<string, DayEntry>;
+    allActivities: Record<string, Record<string, boolean>>;
+    onDayClick: (day: Date, modifiers: DayModifiers) => void;
+}
+
+
+function CustomDay({ date, displayMonth, allEntries, allActivities, onDayClick, modifiers, ...props }: CustomDayProps) {
     const dateString = format(date, 'yyyy-MM-dd');
     const entry = allEntries[dateString];
     const activitiesForDay = allActivities[dateString];
-
-    const modifiers = props.modifiers || {};
-    const buttonProps = props.buttonProps || {};
 
     const getActivities = (names: Record<string, boolean> | undefined) => {
         if (!names) return [];
@@ -37,7 +41,7 @@ function CustomDay({ date, displayMonth, allEntries = {}, allActivities = {}, ..
     const moreCount = loggedActs.length > 3 ? loggedActs.length - 3 : 0;
     
     const getBackgroundColorClass = () => {
-        if (!entry || (modifiers && modifiers.outside)) return 'bg-stone-50/50 dark:bg-stone-900/10';
+        if (!entry || modifiers.outside) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score === undefined) return 'bg-stone-50/50 dark:bg-stone-900/10';
         if (entry.score >= 40) return 'bg-green-300/60 dark:bg-green-800/40';
         if (entry.score >= 30) return 'bg-green-200/60 dark:bg-green-800/30';
@@ -46,16 +50,18 @@ function CustomDay({ date, displayMonth, allEntries = {}, allActivities = {}, ..
         return 'bg-red-200/60 dark:bg-red-800/20';
     };
 
+    const isClickable = !!entry && !modifiers.outside;
+
     return (
         <button
-            {...buttonProps}
             type="button"
+            onClick={() => isClickable && onDayClick(date, modifiers)}
             className={cn(
-                "flex flex-col h-full w-full p-1.5 text-left relative",
+                "flex flex-col h-full w-full p-1.5 text-left relative focus:z-10",
                 getBackgroundColorClass(),
                 modifiers.outside && "opacity-40",
-                entry && !modifiers.outside && "cursor-pointer hover:ring-2 hover:ring-primary z-10",
-                !entry && !modifiers.outside && "cursor-default"
+                isClickable && "cursor-pointer hover:ring-2 hover:ring-primary",
+                !isClickable && !modifiers.outside && "cursor-default"
             )}>
             <div className="flex justify-between items-start">
                 <span className="text-xs font-medium">{format(date, 'd')}</span>
@@ -105,14 +111,17 @@ export function KarmaCalendar() {
     
     const { allEntries, allActivities, isLoading } = useJournal();
 
-    const handleDayClick = (day: Date) => {
+    const handleDayClick = useCallback((day: Date, modifiers: DayModifiers) => {
+        if (modifiers.outside) {
+            return;
+        }
         const dateString = format(day, 'yyyy-MM-dd');
         const entry = allEntries[dateString];
         if (entry) {
             setSelectedDayData({ ...entry, date: dateString });
             setIsDialogOpen(true);
         }
-    }
+    }, [allEntries]);
     
     const { goodActivities, badActivities } = useMemo(() => {
         if (!selectedDayData?.date) return { goodActivities: [], badActivities: [] };
@@ -155,7 +164,6 @@ export function KarmaCalendar() {
                     <DayPicker
                         month={month}
                         onMonthChange={setMonth}
-                        onDayClick={handleDayClick}
                         showOutsideDays
                         fixedWeeks
                         classNames={{
@@ -170,14 +178,21 @@ export function KarmaCalendar() {
                             head_row: 'flex',
                             head_cell: 'w-[calc(100%/7)] pb-2 text-sm font-semibold text-muted-foreground text-center',
                             row: 'flex w-full',
-                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80',
+                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80 p-0', // Remove padding from cell
                             day_today: 'ring-2 ring-primary ring-offset-2',
                             day_outside: 'text-muted-foreground/50',
                         }}
                         components={{
                             IconLeft: () => <ChevronLeft className="h-5 w-5" />,
                             IconRight: () => <ChevronRight className="h-5 w-5" />,
-                            Day: (props) => <CustomDay {...props} allEntries={allEntries} allActivities={allActivities} />
+                            Day: (props) => (
+                                <CustomDay 
+                                    {...props} 
+                                    allEntries={allEntries} 
+                                    allActivities={allActivities}
+                                    onDayClick={handleDayClick} 
+                                />
+                            )
                         }}
                     />
                 </CardContent>
@@ -240,7 +255,7 @@ export function KarmaCalendar() {
                                         </div>
                                     )}
 
-                                    {goodActivities.length === 0 && badActivities.length === 0 && (
+                                    {(goodActivities.length === 0 && badActivities.length === 0) && (
                                         <p className="text-sm text-muted-foreground mt-4">No activities were logged for this day.</p>
                                     )}
                                 </div>
