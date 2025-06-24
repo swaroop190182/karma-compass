@@ -114,14 +114,21 @@ export function KarmaCalendar() {
         }
     }
     
-    const selectedDayActivities = useMemo(() => {
-        if (!selectedDayData?.date) return [];
+    const { goodActivities, badActivities } = useMemo(() => {
+        if (!selectedDayData?.date) return { goodActivities: [], badActivities: [] };
+        
         const activitiesForDay = allActivities[selectedDayData.date] || {};
-        return Object.keys(activitiesForDay)
+        const loggedActivitiesList = Object.keys(activitiesForDay)
             .filter(key => activitiesForDay[key])
             .map(name => activityMap.get(name))
             .filter(Boolean) as Activity[];
+            
+        const good = loggedActivitiesList.filter(a => a.type === 'Good');
+        const bad = loggedActivitiesList.filter(a => a.type === 'Bad');
+
+        return { goodActivities: good, badActivities: bad };
     }, [selectedDayData, allActivities]);
+
 
     if (isLoading) {
         return (
@@ -185,33 +192,60 @@ export function KarmaCalendar() {
                                     A recap of your activities, goals, and reflections for this day.
                                 </DialogDescription>
                             </DialogHeader>
-                            <Separator />
                             <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
-                                <div>
-                                    <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                        <BookOpen className="w-5 h-5" />
-                                        Reflection
-                                    </h3>
-                                    <p className="text-muted-foreground mt-2 text-sm">
-                                        {selectedDayData.reflections || "No reflection logged for this day."}
-                                    </p>
-                                </div>
+                                {selectedDayData.reflections && (
+                                    <>
+                                        <Separator />
+                                        <div>
+                                            <h3 className="flex items-center gap-2 text-lg font-semibold">
+                                                <BookOpen className="w-5 h-5" />
+                                                Reflection
+                                            </h3>
+                                            <blockquote className="text-muted-foreground mt-2 text-sm italic border-l-2 pl-4">
+                                                {selectedDayData.reflections}
+                                            </blockquote>
+                                        </div>
+                                    </>
+                                )}
                                 <Separator />
                                 <div>
                                     <h3 className="flex items-center gap-2 text-lg font-semibold">
                                         <ClipboardList className="w-5 h-5" />
-                                        Karma Activities (Score: <span className={cn(selectedDayData.score && selectedDayData.score > 0 ? "text-green-600" : "text-red-600")}>{selectedDayData.score && selectedDayData.score > 0 ? `+${selectedDayData.score}` : selectedDayData.score || 'N/A'}</span>)
+                                        Karma Breakdown (Total Score: <span className={cn('font-bold', selectedDayData.score && selectedDayData.score >= 0 ? "text-green-600" : "text-red-600")}>{selectedDayData.score && selectedDayData.score >= 0 ? `+${selectedDayData.score}` : selectedDayData.score ?? 'N/A'}</span>)
                                     </h3>
-                                    <ul className="list-disc list-inside space-y-1 mt-2 pl-2">
-                                        {selectedDayActivities.length > 0 ? selectedDayActivities.map(activity => (
-                                            <li key={activity.name} className={cn("text-sm", activity.type === 'Good' ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400")}>
-                                                {activity.name}
-                                            </li>
-                                        )) : <p className="text-sm text-muted-foreground">No activities logged.</p>}
-                                    </ul>
+                                    
+                                    {goodActivities.length > 0 && (
+                                        <div className="mt-4">
+                                            <h4 className="font-medium text-green-700 dark:text-green-400">Positive Activities</h4>
+                                            <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
+                                                {goodActivities.map(activity => (
+                                                    <li key={activity.name} className="text-sm text-muted-foreground">
+                                                        {activity.name} <span className="font-semibold text-green-600">(+{activity.score})</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    
+                                    {badActivities.length > 0 && (
+                                        <div className="mt-4">
+                                            <h4 className="font-medium text-red-700 dark:text-red-400">Activities to Reconsider</h4>
+                                            <ul className="list-disc list-inside space-y-1 mt-1 pl-2">
+                                                {badActivities.map(activity => (
+                                                    <li key={activity.name} className="text-sm text-muted-foreground">
+                                                        {activity.name} <span className="font-semibold text-red-600">({activity.score})</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {goodActivities.length === 0 && badActivities.length === 0 && (
+                                        <p className="text-sm text-muted-foreground mt-4">No activities were logged for this day.</p>
+                                    )}
                                 </div>
                             </div>
-                            <DialogFooter className="sm:justify-between pt-4">
+                            <DialogFooter className="sm:justify-end pt-4 border-t">
                                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Close</Button>
                             </DialogFooter>
                         </>
