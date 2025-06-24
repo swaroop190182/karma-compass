@@ -272,11 +272,11 @@ export default function JournalPage() {
             {showScoreCard && (
                 <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
                     <div 
-                        className="inline-block animate-coin-spin w-16 h-16 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" 
+                        className="inline-block animate-coin-spin w-16 h-16 rounded-full bg-gradient-radial from-yellow-300 via-amber-400 to-yellow-600 border-4 border-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/50" 
                         style={{ transformStyle: 'preserve-3d' }}
                         title={`Today's Score: ${totalScore}`}
                     >
-                        <span className="text-2xl font-bold text-yellow-800">
+                        <span className="text-2xl font-bold text-amber-900">
                             {totalScore > 0 ? `+${totalScore}` : totalScore}
                         </span>
                     </div>

@@ -10,6 +10,9 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
       fontFamily: {
         body: ['PT Sans', 'sans-serif'],
         headline: ['PT Sans', 'sans-serif'],
