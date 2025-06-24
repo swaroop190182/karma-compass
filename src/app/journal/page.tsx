@@ -21,9 +21,8 @@ import { KarmaTracker } from '@/components/karma-tracker';
 import { StudentQuotes } from '@/components/student-quotes';
 import { Textarea } from '@/components/ui/textarea';
 import { useWallet } from '@/hooks/use-wallet';
+import { useJournal } from '@/hooks/use-journal';
 
-const JOURNAL_ENTRIES_KEY = 'journal-entries';
-const JOURNAL_ACTIVITIES_KEY = 'journal-activities';
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
 const feelings = [
@@ -34,19 +33,10 @@ const feelings = [
   { name: 'Stressed', icon: Angry, colorClass: 'text-red-500', hoverClass: 'hover:bg-red-500/10 hover:border-red-500/50', selectedClass: 'bg-red-500/20 border-red-600 text-red-600 dark:text-red-400' },
 ];
 
-type JournalEntry = {
-    reflections?: string;
-    intentions?: string;
-    mindDump?: string;
-    feeling?: string | null;
-    score?: number;
-};
-
 export default function JournalPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
-
-  const [allEntries, setAllEntries] = useState<Record<string, JournalEntry>>({});
-  const [allActivities, setAllActivities] = useState<Record<string, Record<string, boolean>>>({});
+  
+  const { allEntries, allActivities, updateJournalEntry, updateJournalActivities } = useJournal();
   const [rewardedDates, setRewardedDates] = useState<Set<string>>(new Set());
 
   const [reflections, setReflections] = useState('');
@@ -68,16 +58,10 @@ export default function JournalPage() {
 
   useEffect(() => {
     try {
-      const storedEntries = localStorage.getItem(JOURNAL_ENTRIES_KEY);
-      if (storedEntries) setAllEntries(JSON.parse(storedEntries));
-
-      const storedActivities = localStorage.getItem(JOURNAL_ACTIVITIES_KEY);
-      if (storedActivities) setAllActivities(JSON.parse(storedActivities));
-      
       const storedDates = localStorage.getItem(JOURNAL_REWARD_DATES_KEY);
       if (storedDates) setRewardedDates(new Set(JSON.parse(storedDates)));
     } catch (error) {
-      console.error("Failed to read journal data from localStorage", error);
+      console.error("Failed to read rewarded dates from localStorage", error);
     }
   }, []);
 
@@ -105,46 +89,31 @@ export default function JournalPage() {
     return allActivities[selectedDateString] || {};
   }, [allActivities, selectedDateString]);
   
-  const updateAndSaveActivities = (newActivitiesForDay: Record<string, boolean>) => {
-    const newAllActivities = { ...allActivities, [selectedDateString]: newActivitiesForDay };
-    setAllActivities(newAllActivities);
-    localStorage.setItem(JOURNAL_ACTIVITIES_KEY, JSON.stringify(newAllActivities));
-  };
-  
-  const updateAndSaveEntry = (newEntryData: Partial<JournalEntry>) => {
-    setAllEntries(prevAllEntries => {
-        const updatedEntry = { ...(prevAllEntries[selectedDateString] || {}), ...newEntryData };
-        const updatedAllEntries = { ...prevAllEntries, [selectedDateString]: updatedEntry };
-        localStorage.setItem(JOURNAL_ENTRIES_KEY, JSON.stringify(updatedAllEntries));
-        return updatedAllEntries;
-    });
-  };
-
   const handleActivityToggle = (activityName: string) => {
     const newSelected = { ...selectedActivities, [activityName]: !selectedActivities[activityName] };
-    updateAndSaveActivities(newSelected);
+    updateJournalActivities(selectedDateString, newSelected);
     setShowScoreCard(false);
   };
   
   const handleFeelingChange = (feelingName: string) => {
     const newFeeling = selectedFeeling === feelingName ? null : feelingName;
     setSelectedFeeling(newFeeling);
-    updateAndSaveEntry({ feeling: newFeeling });
+    updateJournalEntry(selectedDateString, { feeling: newFeeling });
   }
   
   const handleReflectionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setReflections(e.target.value);
-    updateAndSaveEntry({ reflections: e.target.value });
+    updateJournalEntry(selectedDateString, { reflections: e.target.value });
   }
 
   const handleIntentionsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setIntentions(e.target.value);
-    updateAndSaveEntry({ intentions: e.target.value });
+    updateJournalEntry(selectedDateString, { intentions: e.target.value });
   }
 
   const handleMindDumpChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMindDump(e.target.value);
-    updateAndSaveEntry({ mindDump: e.target.value });
+    updateJournalEntry(selectedDateString, { mindDump: e.target.value });
   }
 
   const handleGetMotivation = async () => {
@@ -197,7 +166,7 @@ export default function JournalPage() {
                 updatedActivitiesFromAI[name] = true;
             });
             
-            updateAndSaveActivities(updatedActivitiesFromAI);
+            updateJournalActivities(selectedDateString, updatedActivitiesFromAI);
             
             let toastDescription = "";
             if (result.identifiedActivities.length > 0) {
@@ -256,7 +225,7 @@ export default function JournalPage() {
     }
 
     setTotalScore(score);
-    updateAndSaveEntry({ score: score });
+    updateJournalEntry(selectedDateString, { score: score });
     setMotivationalQuote('');
     setShowScoreCard(true);
   };

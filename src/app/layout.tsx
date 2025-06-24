@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Navbar } from '@/components/navbar';
 import { LandingNavbar } from '@/components/landing/landing-navbar';
 import { WalletProvider } from '@/providers/wallet-provider';
+import { JournalProvider } from '@/providers/journal-provider';
 
 // Note: Metadata is not supported in client components.
 // We can move it to a server component if needed.
@@ -42,13 +43,15 @@ export default function RootLayout({
           </div>
         ) : (
           <WalletProvider>
-              <div className="flex flex-col h-full">
-                <Navbar />
-                <main className="flex-grow overflow-y-auto">
-                    {children}
-                </main>
-              </div>
-              <Toaster />
+              <JournalProvider>
+                <div className="flex flex-col h-full">
+                  <Navbar />
+                  <main className="flex-grow overflow-y-auto">
+                      {children}
+                  </main>
+                </div>
+                <Toaster />
+              </JournalProvider>
           </WalletProvider>
         )}
       </body>

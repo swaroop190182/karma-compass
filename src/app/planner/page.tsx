@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Calendar, Target, Moon, Bot } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -13,9 +13,9 @@ import { WeeklyGoals } from '@/components/planner/weekly-goals';
 import { EveningReflection } from '@/components/planner/evening-reflection';
 import { useToast } from '@/hooks/use-toast';
 import { AiCoach } from '@/components/planner/ai-coach';
+import { useJournal } from '@/hooks/use-journal';
 
 import type { PlannerTask, WeeklyGoal, DayEntry } from '@/lib/types';
-import { mockData } from '@/lib/mock-data';
 
 export default function PlannerPage() {
     const [tasks, setTasks] = useState<PlannerTask[]>([]);
@@ -25,10 +25,13 @@ export default function PlannerPage() {
         { id: '3', title: 'Avoid social media during study time (days)', current: 0, target: 5 },
     ]);
     const { toast } = useToast();
+    const { allEntries } = useJournal();
 
-    // Using mockData to simulate a journal history.
-    // In a real app, this would be fetched from a database.
-    const [journalHistory, setJournalHistory] = useState<DayEntry[]>(mockData);
+    const journalHistory: DayEntry[] = useMemo(() => {
+        return Object.values(allEntries)
+            .filter(entry => entry.score !== undefined) // Only include days with a score
+            .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()); // Sort by date descending
+    }, [allEntries]);
 
     useEffect(() => {
         const newTasksRaw = localStorage.getItem('newPlannerTasks');
@@ -69,7 +72,7 @@ export default function PlannerPage() {
             </header>
 
             <Tabs defaultValue="plan" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 mb-6">
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 mb-6 h-auto">
                     <TabsTrigger value="plan"><Calendar className="mr-2"/> Plan Day</TabsTrigger>
                     <TabsTrigger value="goals"><Target className="mr-2"/> Track Goals</TabsTrigger>
                     <TabsTrigger value="reflect"><Moon className="mr-2"/> Evening Review</TabsTrigger>

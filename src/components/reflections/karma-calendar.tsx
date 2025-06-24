@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DayPicker, type DayProps } from 'react-day-picker';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, BookOpen, ClipboardList } from 'lucide-react';
 import { buttonVariants, Button } from '@/components/ui/button';
@@ -14,12 +14,10 @@ import { Separator } from '@/components/ui/separator';
 import { activities, type Activity } from '@/lib/activities';
 import type { DayEntry } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
+import { useJournal } from '@/hooks/use-journal';
 
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
-const JOURNAL_ENTRIES_KEY = 'journal-entries';
-const JOURNAL_ACTIVITIES_KEY = 'journal-activities';
-
 
 function CustomDay({ date, displayMonth, allEntries = {}, allActivities = {}, ...props }: DayProps & { allEntries: Record<string, DayEntry>, allActivities: Record<string, Record<string, boolean>> }) {
     const dateString = format(date, 'yyyy-MM-dd');
@@ -105,23 +103,7 @@ export function KarmaCalendar() {
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     
-    const [allEntries, setAllEntries] = useState<Record<string, DayEntry>>({});
-    const [allActivities, setAllActivities] = useState<Record<string, Record<string, boolean>>>({});
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        try {
-            const storedEntries = localStorage.getItem(JOURNAL_ENTRIES_KEY);
-            if (storedEntries) setAllEntries(JSON.parse(storedEntries));
-
-            const storedActivities = localStorage.getItem(JOURNAL_ACTIVITIES_KEY);
-            if (storedActivities) setAllActivities(JSON.parse(storedActivities));
-        } catch (error) {
-            console.error("Failed to read calendar data from localStorage", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+    const { allEntries, allActivities, isLoading } = useJournal();
 
     const handleDayClick = (day: Date) => {
         const dateString = format(day, 'yyyy-MM-dd');
@@ -133,7 +115,7 @@ export function KarmaCalendar() {
     }
     
     const selectedDayActivities = useMemo(() => {
-        if (!selectedDayData) return [];
+        if (!selectedDayData?.date) return [];
         const activitiesForDay = allActivities[selectedDayData.date] || {};
         return Object.keys(activitiesForDay)
             .filter(key => activitiesForDay[key])
@@ -198,7 +180,7 @@ export function KarmaCalendar() {
                     {selectedDayData && (
                         <>
                             <DialogHeader>
-                                <DialogTitle className="text-2xl font-bold">Daily Summary: {format(parseISO(selectedDayData.date), 'MMMM d, yyyy')}</DialogTitle>
+                                <DialogTitle className="text-2xl font-bold">Daily Summary: {format(parseISO(selectedDayData.date!), 'MMMM d, yyyy')}</DialogTitle>
                                 <DialogDescription>
                                     A recap of your activities, goals, and reflections for this day.
                                 </DialogDescription>
