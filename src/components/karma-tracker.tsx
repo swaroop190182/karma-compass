@@ -10,12 +10,12 @@ import {
   AccordionItem,
 } from '@/components/ui/accordion';
 
-const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { activities: Activity[], selectedActivities: Record<string, boolean>, onActivityToggle: (name: string) => void }) => (
+const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { activities: Activity[], selectedActivities: Record<string, boolean>, onActivityToggle: (activity: Activity) => void }) => (
     <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 pt-4">
         {activities.map((activity) => (
         <button
             key={activity.name}
-            onClick={() => onActivityToggle(activity.name)}
+            onClick={() => onActivityToggle(activity)}
             className={cn(
                 'flex flex-col items-center justify-center p-1.5 gap-1 rounded-lg border-2 transition-all aspect-square shadow-sm',
                 'hover:shadow-md hover:scale-[1.03]',
@@ -33,7 +33,7 @@ const ActivityGrid = ({ activities, selectedActivities, onActivityToggle }: { ac
     </div>
 );
 
-export function KarmaTracker({ selectedActivities, onActivityToggle }: { selectedActivities: Record<string, boolean>, onActivityToggle: (activityName: string) => void }) {
+export function KarmaTracker({ selectedActivities, onActivityToggle }: { selectedActivities: Record<string, boolean>, onActivityToggle: (activity: Activity) => void }) {
   const goodKarmaCategories = activityCategories.filter(c => c.type === 'Good');
   const badKarmaCategories = activityCategories.filter(c => c.type === 'Bad');
 

@@ -5,24 +5,26 @@ import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb, Check, FileCheck2
 } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
 import { analyzeJournalAndIntentions } from '@/ai/flows/analyze-journal-flow';
 import { getHabitTip } from '@/ai/flows/habit-coach-flow';
-import { activities } from '@/lib/activities';
+import { activities, type Activity } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { KarmaTracker } from '@/components/karma-tracker';
 import { StudentQuotes } from '@/components/student-quotes';
 import { Textarea } from '@/components/ui/textarea';
 import { useWallet } from '@/hooks/use-wallet';
 import { useJournal } from '@/hooks/use-journal';
+import { Label } from '@/components/ui/label';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -53,6 +55,9 @@ export default function JournalPage() {
   const [isGettingMotivation, startMotivationTransition] = useTransition();
   const [isAnalyzing, startAnalysisTransition] = useTransition();
   const [isGettingTip, startTipTransition] = useTransition();
+
+  const [proofDialogState, setProofDialogState] = useState<{ isOpen: boolean, activity: Activity | null }>({ isOpen: false, activity: null });
+  const [proofText, setProofText] = useState('');
   
   const { toast } = useToast();
   const { addFunds } = useWallet();
@@ -93,10 +98,24 @@ export default function JournalPage() {
     return allActivities[selectedDateString] || {};
   }, [allActivities, selectedDateString]);
   
-  const handleActivityToggle = (activityName: string) => {
-    const newSelected = { ...selectedActivities, [activityName]: !selectedActivities[activityName] };
-    updateJournalActivities(selectedDateString, newSelected);
-    setShowScoreCard(false);
+  const handleActivityToggle = (activity: Activity) => {
+    // If deselecting, just toggle it off.
+    if (selectedActivities[activity.name]) {
+        const newSelected = { ...selectedActivities, [activity.name]: false };
+        updateJournalActivities(selectedDateString, newSelected);
+        setShowScoreCard(false);
+        return;
+    }
+
+    // If selecting and it requires proof, open dialog.
+    if (activity.requiresProof) {
+        setProofDialogState({ isOpen: true, activity });
+    } else {
+    // If selecting and no proof needed, just toggle.
+        const newSelected = { ...selectedActivities, [activity.name]: true };
+        updateJournalActivities(selectedDateString, newSelected);
+        setShowScoreCard(false);
+    }
   };
   
   const handleFeelingChange = (feelingName: string) => {
@@ -253,6 +272,39 @@ export default function JournalPage() {
             }
         });
     }
+  };
+
+  const handleSubmitProof = () => {
+    if (!proofDialogState.activity) return;
+
+    if (!proofText.trim()) {
+        toast({
+            title: "Proof Required",
+            description: "Please provide a brief description of how you completed the task.",
+            variant: "destructive",
+        });
+        return;
+    }
+    
+    const { activity } = proofDialogState;
+    
+    // Log the activity
+    const newSelected = { ...selectedActivities, [activity.name]: true };
+    updateJournalActivities(selectedDateString, newSelected);
+    
+    // Save the proof
+    const currentEntry = allEntries[selectedDateString];
+    const newProofs = { ...(currentEntry?.proofs || {}), [activity.name]: proofText };
+    updateJournalEntry(selectedDateString, { proofs: newProofs });
+
+    setShowScoreCard(false);
+    setProofDialogState({ isOpen: false, activity: null });
+    setProofText('');
+
+    toast({
+        title: "Activity Logged!",
+        description: `Your proof for "${activity.name}" has been saved.`
+    });
   };
 
   return (
@@ -451,6 +503,42 @@ export default function JournalPage() {
             <StudentQuotes />
         </div>
       </main>
+      
+      <Dialog open={proofDialogState.isOpen} onOpenChange={(isOpen) => setProofDialogState({ isOpen, activity: isOpen ? proofDialogState.activity : null })}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                    <FileCheck2 />
+                    Provide Proof for "{proofDialogState.activity?.name}"
+                </DialogTitle>
+                <DialogDescription>
+                    Adding a small note helps you reflect on your accomplishments and builds accountability.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                    <Label htmlFor="proof-text">Describe how you completed this task</Label>
+                    <Textarea 
+                        id="proof-text"
+                        placeholder="e.g., I finished all the math problems in chapter 5."
+                        value={proofText}
+                        onChange={(e) => setProofText(e.target.value)}
+                        rows={3}
+                    />
+                </div>
+                 <div className="flex gap-2 pt-2">
+                    <Button variant="outline" size="sm" className="w-full"><Upload className="mr-2" /> Upload Photo</Button>
+                    <Button variant="outline" size="sm" className="w-full"><Mic className="mr-2" /> Record Voice</Button>
+                 </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button variant="ghost">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit & Log Activity</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

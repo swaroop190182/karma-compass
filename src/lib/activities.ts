@@ -100,6 +100,7 @@ export interface Activity {
   category: string;
   icon: LucideIcon;
   type: 'Good' | 'Bad';
+  requiresProof?: boolean;
 }
 
 export const activityCategories: { name: string; icon: LucideIcon; type: 'Good' | 'Bad' }[] = [
@@ -123,8 +124,8 @@ export const activities: Activity[] = [
   // --- GOOD KARMA ---
   // Academic & Learning
   { name: 'Classes', score: 9, category: 'Academic & Learning', icon: School, type: 'Good' },
-  { name: 'Homework', score: 8, category: 'Academic & Learning', icon: ClipboardCheck, type: 'Good' },
-  { name: 'Test Prep', score: 8, category: 'Academic & Learning', icon: FileCheckIcon, type: 'Good' },
+  { name: 'Homework', score: 8, category: 'Academic & Learning', icon: ClipboardCheck, type: 'Good', requiresProof: true },
+  { name: 'Test Prep', score: 8, category: 'Academic & Learning', icon: FileCheckIcon, type: 'Good', requiresProof: true },
   { name: 'Take Notes', score: 7, category: 'Academic & Learning', icon: NotebookText, type: 'Good' },
   { name: 'Participate', score: 7, category: 'Academic & Learning', icon: MessageSquareQuote, type: 'Good' },
   { name: 'Self-Study', score: 6, category: 'Academic & Learning', icon: Laptop, type: 'Good' },
@@ -146,14 +147,14 @@ export const activities: Activity[] = [
   { name: 'Gratitude', score: 8, category: 'Well-being & Self-care', icon: Smile, type: 'Good' },
 
   // Social & Emotional Health
-  { name: 'Help Classmate', score: 8, category: 'Social & Emotional Health', icon: HandHelping, type: 'Good' },
+  { name: 'Help Classmate', score: 8, category: 'Social & Emotional Health', icon: HandHelping, type: 'Good', requiresProof: true },
   { name: 'Be Kind', score: 9, category: 'Social & Emotional Health', icon: HeartHandshake, type: 'Good' },
   { name: 'Listen', score: 7, category: 'Social & Emotional Health', icon: Ear, type: 'Good' },
   { name: 'Apologize', score: 8, category: 'Social & Emotional Health', icon: Sticker, type: 'Good' },
   { name: 'Respect Space', score: 7, category: 'Social & Emotional Health', icon: ShieldCheck, type: 'Good' },
   { name: 'No Gossip', score: 6, category: 'Social & Emotional Health', icon: MessageCircle, type: 'Good' },
   { name: 'Family Time', score: 7, category: 'Social & Emotional Health', icon: Users, type: 'Good' },
-  { name: 'Volunteer', score: 9, category: 'Social & Emotional Health', icon: Landmark, type: 'Good' },
+  { name: 'Volunteer', score: 9, category: 'Social & Emotional Health', icon: Landmark, type: 'Good', requiresProof: true },
   { name: 'Be Polite', score: 8, category: 'Social & Emotional Health', icon: UserCheck, type: 'Good' },
   { name: 'Resist Peer Pressure', score: 7, category: 'Social & Emotional Health', icon: UserX, type: 'Good' },
   
@@ -168,7 +169,7 @@ export const activities: Activity[] = [
   // Character & Responsibility
   { name: 'Keep Promise', score: 8, category: 'Character & Responsibility', icon: Medal, type: 'Good' },
   { name: 'Take Action', score: 9, category: 'Character & Responsibility', icon: ThumbsUp, type: 'Good' },
-  { name: 'Do Chores', score: 6, category: 'Character & Responsibility', icon: FileCheckIcon, type: 'Good' },
+  { name: 'Do Chores', score: 6, category: 'Character & Responsibility', icon: FileCheckIcon, type: 'Good', requiresProof: true },
   { name: 'Stand Up', score: 9, category: 'Character & Responsibility', icon: ShieldCheck, type: 'Good' },
   { name: 'Be Honest', score: 10, category: 'Character & Responsibility', icon: Lock, type: 'Good' },
   { name: 'Recycle', score: 6, category: 'Character & Responsibility', icon: Recycle, type: 'Good' },

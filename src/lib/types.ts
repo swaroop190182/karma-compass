@@ -7,6 +7,7 @@ export interface Activity {
   category: string;
   icon: LucideIcon;
   type: 'Good' | 'Bad';
+  requiresProof?: boolean;
 }
 
 export interface PlannerTask {
@@ -32,6 +33,7 @@ export interface DayEntry {
     feeling?: string | null;
     intentions?: string;
     mindDump?: string;
+    proofs?: Record<string, string>;
 }
 
 export interface DailyPuzzle {
