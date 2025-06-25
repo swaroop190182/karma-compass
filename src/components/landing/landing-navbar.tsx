@@ -16,6 +16,7 @@ export function LandingNavbar() {
     { href: '/reflections', label: 'Reflections' },
     { href: '/planner', label: 'Goals' },
     { href: '/quests', label: 'Habits' },
+    { href: '/store', label: 'Store' },
     { href: '/tutor', label: 'Counsellor' },
     { href: '/connect', label: 'Connect' },
   ];

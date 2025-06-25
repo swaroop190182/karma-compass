@@ -11,7 +11,8 @@ import {
   LayoutDashboard,
   Wallet,
   BrainCircuit,
-  Target
+  Target,
+  ShoppingCart
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
@@ -68,11 +69,11 @@ const featuresList = [
     linkText: 'View Dashboard'
   },
   {
-    icon: Wallet,
-    title: 'Pocket Money Wallet & Rewards',
-    description: 'Motivation meets tangible rewards. Completing quests, journaling, and achieving goals adds real money to your digital wallet, pre-loaded by parents, teaching valuable lessons about effort and reward.',
-    link: '#',
-    linkText: 'Check Your Wallet'
+    icon: ShoppingCart,
+    title: 'Pocket Money Wallet & Rewards Store',
+    description: 'Motivation meets tangible rewards. Completing quests and achieving goals adds real money to your digital wallet, which you can use to redeem items from the Karma Store.',
+    link: '/store',
+    linkText: 'Visit the Store'
   },
 ];
 

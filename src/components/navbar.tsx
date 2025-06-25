@@ -22,6 +22,7 @@ export function Navbar() {
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
+    { href: '/store', label: 'Store' },
     { href: '/connect', label: 'Connect' },
     { href: '/tutor', label: 'Counsellor' },
   ];
