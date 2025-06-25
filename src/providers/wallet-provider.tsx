@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { WalletContext } from '@/hooks/use-wallet';
 import { RewardAnimation } from '@/components/reward-animation';
@@ -81,7 +81,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         });
     }, [balance, toast]);
 
-    const value = { balance, addFunds };
+    const value = useMemo(() => ({ balance, addFunds }), [balance, addFunds]);
 
     return (
         <WalletContext.Provider value={value}>

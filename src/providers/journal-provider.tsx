@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode, useMemo } from 'react';
 import { JournalContext } from '@/hooks/use-journal';
 import type { DayEntry } from '@/lib/types';
 
@@ -53,7 +53,7 @@ export function JournalProvider({ children }: { children: ReactNode }) {
     }, []);
 
 
-    const value = { allEntries, allActivities, updateJournalEntry, updateJournalActivities, isLoading };
+    const value = useMemo(() => ({ allEntries, allActivities, updateJournalEntry, updateJournalActivities, isLoading }), [allEntries, allActivities, updateJournalEntry, updateJournalActivities, isLoading]);
 
     return (
         <JournalContext.Provider value={value}>
