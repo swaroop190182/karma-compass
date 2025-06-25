@@ -5,11 +5,12 @@ import { useState, useEffect, useMemo, useTransition } from 'react';
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb
 } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
 import { analyzeJournalAndIntentions } from '@/ai/flows/analyze-journal-flow';
+import { getHabitTip } from '@/ai/flows/habit-coach-flow';
 import { activities } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -46,10 +47,12 @@ export default function JournalPage() {
   
   const [totalScore, setTotalScore] = useState(0);
   const [motivationalQuote, setMotivationalQuote] = useState('');
+  const [habitTip, setHabitTip] = useState('');
   const [showScoreCard, setShowScoreCard] = useState(false);
 
   const [isGettingMotivation, startMotivationTransition] = useTransition();
   const [isAnalyzing, startAnalysisTransition] = useTransition();
+  const [isGettingTip, startTipTransition] = useTransition();
   
   const { toast } = useToast();
   const { addFunds } = useWallet();
@@ -83,6 +86,7 @@ export default function JournalPage() {
     }
     
     setMotivationalQuote('');
+    setHabitTip('');
   }, [date, allEntries, selectedDateString]);
 
   const selectedActivities = useMemo(() => {
@@ -227,7 +231,28 @@ export default function JournalPage() {
     setTotalScore(score);
     updateJournalEntry(selectedDateString, { score: score });
     setMotivationalQuote('');
+    setHabitTip('');
     setShowScoreCard(true);
+
+    const positiveActivities = Object.keys(selectedActivities).filter(activityName => {
+        if (selectedActivities[activityName]) {
+            const activity = activities.find(a => a.name === activityName);
+            return activity?.type === 'Good';
+        }
+        return false;
+    });
+
+    if (positiveActivities.length > 0) {
+        const randomActivity = positiveActivities[Math.floor(Math.random() * positiveActivities.length)];
+        startTipTransition(async () => {
+            try {
+                const result = await getHabitTip({ habitName: randomActivity });
+                setHabitTip(result.tip);
+            } catch (error) {
+                console.error('Failed to get habit tip:', error);
+            }
+        });
+    }
   };
 
   return (
@@ -402,6 +427,24 @@ export default function JournalPage() {
                           </Card>
                       )}
                   </CardContent>
+                  
+                  {(habitTip || isGettingTip) && (
+                    <CardFooter className="flex-col items-center gap-2 pt-4 border-t border-primary/20">
+                        {isGettingTip ? (
+                            <div className="flex items-center justify-center text-muted-foreground text-xs gap-2 pb-4">
+                                <LoaderCircle className="w-3 h-3 animate-spin"/> Aura is thinking of a habit tip...
+                            </div>
+                        ) : habitTip ? (
+                            <>
+                                <div className="flex items-center gap-2 font-semibold text-accent-foreground">
+                                    <Lightbulb className="w-5 h-5 text-yellow-500"/>
+                                    Habit Coach Tip
+                                </div>
+                                <p className="text-sm italic text-muted-foreground">"{habitTip}"</p>
+                            </>
+                        ) : null}
+                    </CardFooter>
+                  )}
               </Card>
             )}
 
