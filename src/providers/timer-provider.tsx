@@ -3,7 +3,6 @@
 
 import { useState, useEffect, type ReactNode, useMemo } from 'react';
 import { TimerContext } from '@/hooks/use-timer';
-import { TimeUpOverlay } from '@/components/time-up-overlay';
 
 const SESSION_END_TIME_KEY = 'karma-session-end-time';
 const SESSION_DATE_KEY = 'karma-session-date';
@@ -11,7 +10,6 @@ const SESSION_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
 export function TimerProvider({ children }: { children: ReactNode }) {
     const [remainingTime, setRemainingTime] = useState(SESSION_DURATION / 1000);
-    const [isSessionActive, setIsSessionActive] = useState(true);
 
     useEffect(() => {
         const todayString = new Date().toDateString();
@@ -38,11 +36,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
             if (timeLeft <= 0) {
                 setRemainingTime(0);
-                setIsSessionActive(false);
                 clearInterval(intervalId);
             } else {
                 setRemainingTime(timeLeft);
-                setIsSessionActive(true);
             }
         }, 1000);
 
@@ -53,7 +49,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
     return (
         <TimerContext.Provider value={value}>
-            {isSessionActive ? children : <TimeUpOverlay />}
+            {children}
         </TimerContext.Provider>
     );
 }
