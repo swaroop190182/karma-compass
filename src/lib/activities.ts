@@ -89,11 +89,11 @@ import {
   Bot,
   Drama,
   Sparkles,
-  Snooze,
+  AlarmClockOff,
   UserMinus,
   DoorClosed,
   MousePointerClick,
-  Surf,
+  Waves,
   HeartOff,
   type LucideIcon,
 } from 'lucide-react';
@@ -205,7 +205,7 @@ export const activities: Activity[] = [
   { name: 'Blamed Others', score: -6, category: 'Academic Neglect', icon: UserRoundX, type: 'Bad' },
 
   // Self-Neglect
-  { name: 'Overslept', score: -5, category: 'Self-Neglect', icon: Snooze, type: 'Bad' },
+  { name: 'Overslept', score: -5, category: 'Self-Neglect', icon: AlarmClockOff, type: 'Bad' },
   { name: 'All Nighter', score: -7, category: 'Self-Neglect', icon: Moon, type: 'Bad' },
   { name: 'Ate Junk Food', score: -4, category: 'Self-Neglect', icon: Pizza, type: 'Bad' },
   { name: 'Skipped Meals', score: -6, category: 'Self-Neglect', icon: Coffee, type: 'Bad' },
@@ -230,7 +230,7 @@ export const activities: Activity[] = [
   { name: 'Mindless Scrolling', score: -8, category: 'Poor Digital Habits', icon: MousePointerClick, type: 'Bad' },
   { name: 'Excessive Gaming', score: -6, category: 'Poor Digital Habits', icon: Gamepad2, type: 'Bad' },
   { name: 'Ignored Digital Tasks', score: -5, category: 'Poor Digital Habits', icon: MailWarning, type: 'Bad' },
-  { name: 'Distracted Online', score: -7, category: 'Poor Digital Habits', icon: Surf, type: 'Bad' },
+  { name: 'Distracted Online', score: -7, category: 'Poor Digital Habits', icon: Waves, type: 'Bad' },
 
   // Responsibility Issues
   { name: 'Was Dishonest', score: -8, category: 'Responsibility Issues', icon: ThumbsDown, type: 'Bad' },
