@@ -4,7 +4,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DayPicker, type DayProps, type DayModifiers } from 'react-day-picker';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import {
   ChevronLeft,
@@ -18,6 +18,8 @@ import {
   Frown,
   Angry,
   type LucideIcon,
+  Lightbulb,
+  LoaderCircle,
 } from 'lucide-react';
 import { buttonVariants, Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
@@ -29,6 +31,7 @@ import type { DayEntry } from '@/lib/types';
 import { Skeleton } from '../ui/skeleton';
 import { useJournal } from '@/hooks/use-journal';
 import React from 'react';
+import { getNegativeHabitTips, type NegativeHabitCoachOutput } from '@/ai/flows/negative-habit-coach-flow';
 
 
 const activityMap = new Map<string, Activity>(activities.map(a => [a.name, a]));
@@ -138,6 +141,9 @@ export function KarmaCalendar() {
     const [selectedDayData, setSelectedDayData] = useState<DayEntry | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     
+    const [negativeHabitTips, setNegativeHabitTips] = useState<NegativeHabitCoachOutput['tips'] | null>(null);
+    const [isGettingTips, startGettingTipsTransition] = useTransition();
+
     const { allEntries, allActivities, isLoading } = useJournal();
 
     const feelingMap: Record<string, { icon: LucideIcon; colorClass: string }> = {
@@ -157,6 +163,7 @@ export function KarmaCalendar() {
         if (entry) {
             setSelectedDayData({ ...entry, date: dateString });
             setIsDialogOpen(true);
+            setNegativeHabitTips(null);
         }
     }, [allEntries]);
     
@@ -174,6 +181,22 @@ export function KarmaCalendar() {
 
         return { goodActivities: good, badActivities: bad };
     }, [selectedDayData, allActivities]);
+    
+    useEffect(() => {
+        if (isDialogOpen && selectedDayData && badActivities.length > 0 && !negativeHabitTips) {
+            startGettingTipsTransition(async () => {
+                try {
+                    const result = await getNegativeHabitTips({
+                        negativeHabits: badActivities.map(a => a.name),
+                        date: selectedDayData.date!,
+                    });
+                    setNegativeHabitTips(result.tips);
+                } catch (error) {
+                    console.error("Failed to fetch negative habit tips:", error);
+                }
+            });
+        }
+    }, [isDialogOpen, selectedDayData, badActivities, negativeHabitTips]);
 
 
     if (isLoading) {
@@ -215,7 +238,7 @@ export function KarmaCalendar() {
                             head_row: 'flex',
                             head_cell: 'w-[calc(100%/7)] pb-2 text-sm font-semibold text-muted-foreground text-center',
                             row: 'flex w-full',
-                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80 p-0', // Remove padding from cell
+                            cell: 'w-[calc(100%/7)] h-28 lg:h-32 text-left align-top relative border border-border/80 p-0',
                             day_today: 'ring-2 ring-primary ring-offset-2',
                             day_outside: 'text-muted-foreground/50',
                         }}
@@ -304,6 +327,28 @@ export function KarmaCalendar() {
                                                     </li>
                                                 ))}
                                             </ul>
+                                            
+                                            <div className="mt-4 p-3 bg-accent/20 border border-accent/30 rounded-lg">
+                                                <h4 className="font-medium text-accent-foreground flex items-center gap-2 mb-2"><Lightbulb className="w-5 h-5 text-yellow-500"/> Tips to Improve</h4>
+                                                {isGettingTips ? (
+                                                    <div className="flex items-center justify-center text-muted-foreground text-sm gap-2">
+                                                        <LoaderCircle className="w-4 h-4 animate-spin"/> Aura is thinking of some tips...
+                                                    </div>
+                                                ) : (
+                                                    negativeHabitTips && negativeHabitTips.length > 0 ? (
+                                                        <ul className="space-y-2">
+                                                            {negativeHabitTips.map((tip, index) => (
+                                                                <li key={index} className="text-sm text-muted-foreground">
+                                                                    <span className="font-semibold text-foreground">{tip.habitName}:</span> {tip.tip}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    ) : !isGettingTips && (
+                                                        <p className="text-sm text-muted-foreground">No tips available right now.</p>
+                                                    )
+                                                )}
+                                            </div>
+
                                         </div>
                                     )}
 

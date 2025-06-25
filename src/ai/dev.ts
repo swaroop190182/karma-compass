@@ -8,3 +8,5 @@ import '@/ai/flows/aura-coach-flow.ts';
 import '@/ai/flows/tutor-flow.ts';
 import '@/ai/flows/moderate-chat-flow.ts';
 import '@/ai/flows/habit-coach-flow.ts';
+import '@/ai/flows/negative-habit-coach-flow.ts';
+
