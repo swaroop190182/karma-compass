@@ -14,7 +14,7 @@ const storeItems = [
     name: 'Smart Reusable Notebook',
     description: 'Digitize your notes. Comes with a special pen and cloth.',
     price: 800,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'smart notebook'
   },
   {
@@ -22,7 +22,7 @@ const storeItems = [
     name: 'Ergonomic Study Pen Pack',
     description: 'A pack of 5 pens designed for comfortable long writing sessions.',
     price: 250,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'study pens'
   },
   {
@@ -30,15 +30,15 @@ const storeItems = [
     name: 'Adjustable Focus Lamp',
     description: 'LED lamp with multiple color temperatures to reduce eye strain.',
     price: 1500,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'desk lamp'
   },
   {
     id: 'item4',
-    name: 'Noise-Cancelling Study Headphones',
+    name: 'Noise-Cancelling Headphones',
     description: 'Block out distractions and focus on what matters.',
     price: 3500,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'headphones'
   },
   {
@@ -46,16 +46,64 @@ const storeItems = [
     name: '"The Thinker" Board Game',
     description: 'A fun strategy board game to play with family and friends.',
     price: 1200,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'board game'
   },
   {
     id: 'item6',
-    name: '1-Month "Science Today" Subscription',
+    name: '1-Month "Science Today" Mag',
     description: 'Get the latest issue of the popular science magazine for students.',
     price: 300,
-    image: 'https://placehold.co/400x300.png',
+    image: 'https://placehold.co/200x150.png',
     dataAiHint: 'science magazine'
+  },
+   {
+    id: 'item7',
+    name: 'Productivity Desk Pad',
+    description: 'A large desk pad with a weekly planner and habit tracker layout.',
+    price: 450,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'desk pad'
+  },
+  {
+    id: 'item8',
+    name: 'Portable Whiteboard Set',
+    description: 'A small, portable whiteboard perfect for quick notes and diagrams.',
+    price: 600,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'whiteboard'
+  },
+  {
+    id: 'item9',
+    name: 'Customizable Laptop Skin',
+    description: 'Personalize your laptop with a cool, protective skin.',
+    price: 500,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'laptop skin'
+  },
+  {
+    id: 'item10',
+    name: 'Fidget Spinner for Focus',
+    description: 'A quiet, high-quality fidget spinner to help with focus.',
+    price: 150,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'fidget spinner'
+  },
+  {
+    id: 'item11',
+    name: 'Insulated Water Bottle',
+    description: 'Keep your drinks cold or hot for hours. Stay hydrated!',
+    price: 900,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'water bottle'
+  },
+  {
+    id: 'item12',
+    name: '"Great Minds" Poster Pack',
+    description: 'A set of 4 motivational posters featuring famous scientists and thinkers.',
+    price: 400,
+    image: 'https://placehold.co/200x150.png',
+    dataAiHint: 'motivational posters'
   },
 ];
 
@@ -94,25 +142,27 @@ export default function StorePage() {
                 </div>
             </header>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {storeItems.map((item) => (
-                    <Card key={item.id} className="flex flex-col">
+                    <Card key={item.id} className="flex flex-col group overflow-hidden">
                         <CardHeader className="p-0">
-                            <Image
+                           <div className="overflow-hidden">
+                             <Image
                                 src={item.image}
                                 alt={item.name}
-                                width={400}
-                                height={300}
-                                className="rounded-t-lg object-cover aspect-[4/3]"
+                                width={200}
+                                height={150}
+                                className="rounded-t-lg object-cover aspect-[4/3] w-full transition-transform duration-300 group-hover:scale-110"
                                 data-ai-hint={item.dataAiHint}
                             />
+                           </div>
                         </CardHeader>
-                        <CardContent className="p-4 flex-grow">
-                            <CardTitle className="text-lg leading-tight">{item.name}</CardTitle>
-                            <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
+                        <CardContent className="p-3 flex-grow">
+                            <CardTitle className="text-base leading-tight truncate">{item.name}</CardTitle>
+                            <CardDescription className="mt-1 text-xs line-clamp-2">{item.description}</CardDescription>
                         </CardContent>
-                        <CardFooter className="flex justify-between items-center p-4 pt-0">
-                            <p className="text-xl font-bold text-primary">₹{item.price}</p>
+                        <CardFooter className="flex justify-between items-center p-3 pt-0">
+                            <p className="text-lg font-bold text-primary">₹{item.price}</p>
                             <Button
                                 size="sm"
                                 onClick={() => handleRedeem(item.name, item.price)}
