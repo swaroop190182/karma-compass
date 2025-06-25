@@ -9,6 +9,7 @@ import { WalletDisplay } from './wallet-display';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { AppUsageTimer } from './app-usage-timer';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -60,8 +61,9 @@ export function Navbar() {
         </div>
         
         {/* Wallet and Mobile Menu on the right */}
-        <div className="flex-1 flex justify-end">
-            <div className="hidden sm:block">
+        <div className="flex-1 flex justify-end items-center gap-4">
+            <div className="hidden sm:flex items-center gap-4">
+                <AppUsageTimer />
                 <WalletDisplay />
             </div>
             <div className="sm:hidden">
@@ -88,7 +90,8 @@ export function Navbar() {
                                 </Link>
                             ))}
                         </nav>
-                        <div className="mt-auto">
+                        <div className="mt-auto space-y-4">
+                            <AppUsageTimer />
                             <WalletDisplay />
                         </div>
                     </SheetContent>

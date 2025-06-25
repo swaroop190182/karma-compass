@@ -9,6 +9,7 @@ import { Navbar } from '@/components/navbar';
 import { LandingNavbar } from '@/components/landing/landing-navbar';
 import { WalletProvider } from '@/providers/wallet-provider';
 import { JournalProvider } from '@/providers/journal-provider';
+import { TimerProvider } from '@/providers/timer-provider';
 
 // Note: Metadata is not supported in client components.
 // We can move it to a server component if needed.
@@ -44,13 +45,15 @@ export default function RootLayout({
         ) : (
           <WalletProvider>
               <JournalProvider>
-                <div className="flex flex-col h-full">
-                  <Navbar />
-                  <main className="flex-grow overflow-y-auto">
-                      {children}
-                  </main>
-                </div>
-                <Toaster />
+                <TimerProvider>
+                  <div className="flex flex-col h-full">
+                    <Navbar />
+                    <main className="flex-grow overflow-y-auto">
+                        {children}
+                    </main>
+                  </div>
+                  <Toaster />
+                </TimerProvider>
               </JournalProvider>
           </WalletProvider>
         )}
