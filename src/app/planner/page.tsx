@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DailyPlanner } from '@/components/planner/daily-planner';
 import { WeeklyGoals } from '@/components/planner/weekly-goals';
@@ -22,6 +22,29 @@ export default function PlannerPage() {
     const { toast } = useToast();
     const { allEntries, allActivities } = useJournal();
 
+    useEffect(() => {
+        const newTasksFromJournal = localStorage.getItem('newPlannerTasks');
+        if (newTasksFromJournal) {
+            try {
+                const parsedTasks: Omit<PlannerTask, 'id' | 'status'>[] = JSON.parse(newTasksFromJournal);
+                const tasksToAdd = parsedTasks.map(task => ({
+                    ...task,
+                    id: crypto.randomUUID(),
+                    status: 'Not Done' as const,
+                }));
+                setTasks(prev => [...prev, ...tasksToAdd]);
+                toast({
+                    title: "Tasks Imported",
+                    description: `Added ${tasksToAdd.length} tasks from your journal intentions.`,
+                });
+            } catch (e) {
+                console.error("Failed to parse new planner tasks", e);
+            } finally {
+                localStorage.removeItem('newPlannerTasks');
+            }
+        }
+    }, [toast]);
+
     const journalHistory = useMemo(() => {
         return Object.values(allEntries)
           .map((entry): DayEntry => ({
@@ -34,7 +57,6 @@ export default function PlannerPage() {
           .slice(0, 14); // Limit to last 14 days
     }, [allEntries, allActivities]);
     
-    // Ensure tasks passed to AI have a consistent structure
     const tasksForAura = tasks.map(t => ({...t, id: t.id}));
 
     const handleAddTaskFromSuggestion = (task: Omit<PlannerTask, 'id' | 'status'>) => {

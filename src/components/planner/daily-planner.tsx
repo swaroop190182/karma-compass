@@ -107,7 +107,7 @@ export function DailyPlanner({ tasks, setTasks }: DailyPlannerProps) {
                             )) : (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-muted-foreground h-24">
-                                        No tasks planned yet. Click "Add Slot" to start!
+                                        No tasks planned yet. Add tasks from suggestions or click "Add Slot" to start!
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -118,4 +118,3 @@ export function DailyPlanner({ tasks, setTasks }: DailyPlannerProps) {
         </Card>
     );
 }
-
