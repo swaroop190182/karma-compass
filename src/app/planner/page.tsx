@@ -7,7 +7,6 @@ import { DailyPlanner } from '@/components/planner/daily-planner';
 import { WeeklyGoals } from '@/components/planner/weekly-goals';
 import { EveningReflection } from '@/components/planner/evening-reflection';
 import { AiCoach } from '@/components/planner/ai-coach';
-import { MoodCheckIn } from '@/components/planner/mood-check-in';
 import { SmartSuggestions } from '@/components/planner/smart-suggestions';
 import type { PlannerTask, WeeklyGoal, DayEntry } from '@/lib/types';
 import { useJournal } from '@/hooks/use-journal';
@@ -79,8 +78,6 @@ export default function PlannerPage() {
             </header>
 
             <div className="space-y-8">
-                <MoodCheckIn />
-                
                 <Tabs defaultValue="daily-planner" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
                         <TabsTrigger value="daily-planner">Daily Planner</TabsTrigger>
