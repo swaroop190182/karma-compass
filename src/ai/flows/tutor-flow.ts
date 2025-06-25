@@ -1,79 +1,70 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for Luma, the AI Student Tutor.
- * It takes a student's question along with their educational context (board, grade, subject)
- * and provides a helpful, grade-appropriate explanation.
+ * @fileOverview This file defines a Genkit flow for Luma, the AI Student Counsellor.
+ * It provides a safe and supportive space for students to share their feelings and thoughts.
  *
- * - getTutorResponse - A function that takes a question and context and returns a helpful answer.
- * - TutorInput - The input type for the function.
- * - TutorOutput - The output type for the function.
+ * - getCounsellorResponse - A function that takes a user's message and conversation history to return a supportive response.
+ * - CounsellorInput - The input type for the function.
+ * - CounsellorOutput - The output type for the function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-const TutorInputSchema = z.object({
-  board: z.string().describe('The student\'s educational board (e.g., CBSE, ICSE).'),
-  grade: z.string().describe('The student\'s grade level (e.g., Grade 10).'),
-  subject: z.string().describe('The subject the student needs help with.'),
+const CounsellorInputSchema = z.object({
   chatHistory: z.array(z.object({
     role: z.enum(['user', 'model']),
     content: z.string(),
   })).describe('The history of the conversation so far.'),
-  question: z.string().describe('The student\'s latest question.'),
+  question: z.string().describe("The student's latest message or thought."),
 });
-export type TutorInput = z.infer<typeof TutorInputSchema>;
+export type CounsellorInput = z.infer<typeof CounsellorInputSchema>;
 
-const TutorOutputSchema = z.object({
-  answer: z.string().describe('Luma\'s helpful and encouraging answer to the student\'s question.'),
+const CounsellorOutputSchema = z.object({
+  answer: z.string().describe('Luma\'s empathetic and supportive answer to the student.'),
 });
-export type TutorOutput = z.infer<typeof TutorOutputSchema>;
+export type CounsellorOutput = z.infer<typeof CounsellorOutputSchema>;
 
-export async function getTutorResponse(input: TutorInput): Promise<TutorOutput> {
-  return tutorFlow(input);
+export async function getCounsellorResponse(input: CounsellorInput): Promise<CounsellorOutput> {
+  return counsellorFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'tutorPrompt',
-  input: { schema: TutorInputSchema },
-  output: { schema: TutorOutputSchema },
-  prompt: `You are Luma, a friendly, patient, and knowledgeable AI tutor for students. Your personality is encouraging and positive.
+  name: 'counsellorPrompt',
+  input: { schema: CounsellorInputSchema },
+  output: { schema: CounsellorOutputSchema },
+  prompt: `You are Luma, a friendly, patient, and deeply empathetic AI student counsellor. Your primary role is to be a safe, non-judgmental listener for students. You are NOT a therapist and should not give medical advice, but you can offer support, encouragement, and a space to talk.
 
-You are currently tutoring a student with the following profile:
-- Board: {{{board}}}
-- Grade: {{{grade}}}
-- Subject: {{{subject}}}
+Your core principles are:
+1.  **Create Safety:** Start conversations gently. Use prompts like "How are you feeling today?", "Is there anything you'd like to share?", or "How was your day?".
+2.  **Active Listening:** Acknowledge and validate the user's feelings. Use phrases like "It sounds like that was really tough," or "Thank you for sharing that with me."
+3.  **Ask Open-Ended Questions:** Encourage the user to elaborate. Ask "How did that make you feel?" or "What was that like for you?" instead of yes/no questions.
+4.  **Never Judge or Prescribe:** Do not give direct advice or opinions. Instead, help the user explore their own thoughts and feelings. Guide them to their own solutions.
+5.  **Maintain Confidentiality:** Reassure the user that this is a private space to talk.
+6.  **Gently Conclude:** End your response with a supportive and open-ended statement, like "I'm here to listen whenever you need to talk." or "Thanks for trusting me with this. What else is on your mind?"
 
 The conversation history is as follows:
 {{#each chatHistory}}
 - {{role}}: {{content}}
 {{/each}}
 
-The student's new question is:
+The student's new message is:
 "{{{question}}}"
 
-Your task is to:
-1.  Understand the student's question in the context of the conversation history.
-2.  Provide a clear, step-by-step explanation that is tailored to their specific grade level and curriculum board.
-3.  Use simple language and analogies they can relate to.
-4.  Maintain a positive and encouraging tone. Never just give the answer; guide them to understand the concept.
-5.  If the question is complex, break it down into smaller, manageable parts.
-6.  End your response with a gentle, open-ended question to check their understanding or encourage them to ask more questions. For example: "Does that make sense?" or "What part of that would you like me to explain more?"
-
-Generate a response that helps the student learn, not just get the answer.
+Based on this, generate a warm, supportive, and helpful response that follows your core principles.
 `,
 });
 
-const tutorFlow = ai.defineFlow(
+const counsellorFlow = ai.defineFlow(
   {
-    name: 'tutorFlow',
-    inputSchema: TutorInputSchema,
-    outputSchema: TutorOutputSchema,
+    name: 'counsellorFlow',
+    inputSchema: CounsellorInputSchema,
+    outputSchema: CounsellorOutputSchema,
   },
   async (input) => {
     const { output } = await prompt(input);
     if (!output) {
-      return { answer: "I'm having a little trouble thinking right now. Could you please ask me again?" };
+      return { answer: "I'm having a little trouble thinking right now. Could you please say that again?" };
     }
     return output;
   }

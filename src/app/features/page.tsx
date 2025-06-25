@@ -47,11 +47,11 @@ const featuresList = [
     linkText: 'Chat with Aura'
   },
   {
-    icon: GraduationCap,
-    title: 'Luma - AI Tutor',
-    description: 'Stuck on a homework problem? Luma is your on-demand AI study partner. Get helpful, step-by-step explanations tailored to your specific grade, board, and subject, available 24/7.',
+    icon: Bot,
+    title: 'Luma - AI Counsellor',
+    description: 'Feeling overwhelmed or just need to talk? Luma is your confidential and non-judgmental AI counsellor, available 24/7 to listen and support you with whatever is on your mind.',
     link: '/tutor',
-    linkText: 'Start Learning'
+    linkText: 'Talk to Luma'
   },
   {
     icon: Puzzle,
