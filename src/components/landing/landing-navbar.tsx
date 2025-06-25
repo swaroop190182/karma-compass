@@ -1,11 +1,11 @@
-
 "use client";
 
 import Link from 'next/link';
-import { Compass, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import Image from 'next/image';
 
 export function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,14 +26,16 @@ export function LandingNavbar() {
         <div className="container flex h-16 items-center">
             {/* Logo on the left */}
             <div className="flex-1 flex justify-start">
-                <Link href="/" className="flex items-center gap-2">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        <Compass className="h-6 w-6 text-primary" />
-                    </div>
-                     <div className="flex flex-col leading-tight font-bold tracking-wider uppercase">
-                        <span className="text-sm">KARMA</span>
-                        <span className="text-xs">COMPASS</span>
-                    </div>
+                <Link href="/">
+                    <Image
+                        src="https://i.postimg.cc/wj6407JT/Chat-GPT-Image-Jun-25-2025-10-35-54-PM.png"
+                        alt="Karma Compass Logo"
+                        width={140}
+                        height={40}
+                        className="h-10 w-auto"
+                        data-ai-hint="logo"
+                        priority
+                    />
                 </Link>
             </div>
 
@@ -61,14 +63,15 @@ export function LandingNavbar() {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="right">
-                             <Link href="/" className="flex items-center gap-2 mb-8">
-                                <div className="p-2 bg-primary/10 rounded-lg">
-                                    <Compass className="h-6 w-6 text-primary" />
-                                </div>
-                                <div className="flex flex-col leading-tight font-bold tracking-wider uppercase">
-                                    <span className="text-sm">KARMA</span>
-                                    <span className="text-xs">COMPASS</span>
-                                </div>
+                             <Link href="/" onClick={() => setIsOpen(false)}>
+                                <Image
+                                    src="https://i.postimg.cc/wj6407JT/Chat-GPT-Image-Jun-25-2025-10-35-54-PM.png"
+                                    alt="Karma Compass Logo"
+                                    width={140}
+                                    height={40}
+                                    className="h-10 w-auto mb-8"
+                                    data-ai-hint="logo"
+                                />
                             </Link>
                             <nav className="grid gap-6 text-lg font-medium">
                                 {navLinks.map((link) => (

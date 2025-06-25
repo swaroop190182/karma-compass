@@ -1,15 +1,15 @@
-
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppUsageTimer } from './app-usage-timer';
+import Image from 'next/image';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -29,17 +29,19 @@ export function Navbar() {
 
   return (
     <nav className="bg-card border-b sticky top-0 z-50">
-      <div className="container mx-auto flex items-center p-3">
+      <div className="container mx-auto flex items-center p-3 h-16">
         {/* Logo on the left */}
         <div className="flex-1 flex justify-start">
-            <Link href="/" className="flex items-center gap-2">
-                <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Compass className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex flex-col leading-tight font-bold tracking-wider uppercase text-foreground">
-                    <span className="text-base">KARMA</span>
-                    <span className="text-xs">COMPASS</span>
-                </div>
+            <Link href="/">
+                <Image
+                    src="https://i.postimg.cc/wj6407JT/Chat-GPT-Image-Jun-25-2025-10-35-54-PM.png"
+                    alt="Karma Compass Logo"
+                    width={140}
+                    height={40}
+                    className="h-10 w-auto"
+                    data-ai-hint="logo"
+                    priority
+                />
             </Link>
         </div>
 
