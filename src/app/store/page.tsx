@@ -14,7 +14,7 @@ const storeItems = [
     name: 'Smart Reusable Notebook',
     description: 'Digitize your notes. Comes with a special pen and cloth.',
     price: 800,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'smart notebook'
   },
   {
@@ -22,7 +22,7 @@ const storeItems = [
     name: 'Ergonomic Study Pen Pack',
     description: 'A pack of 5 pens designed for comfortable long writing sessions.',
     price: 250,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'study pens'
   },
   {
@@ -30,7 +30,7 @@ const storeItems = [
     name: 'Adjustable Focus Lamp',
     description: 'LED lamp with multiple color temperatures to reduce eye strain.',
     price: 1500,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'desk lamp'
   },
   {
@@ -38,7 +38,7 @@ const storeItems = [
     name: 'Noise-Cancelling Study Headphones',
     description: 'Block out distractions and focus on what matters.',
     price: 3500,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'headphones'
   },
   {
@@ -46,7 +46,7 @@ const storeItems = [
     name: '"The Thinker" Board Game',
     description: 'A fun strategy board game to play with family and friends.',
     price: 1200,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'board game'
   },
   {
@@ -54,7 +54,7 @@ const storeItems = [
     name: '1-Month "Science Today" Subscription',
     description: 'Get the latest issue of the popular science magazine for students.',
     price: 300,
-    image: 'https://placehold.co/600x400.png',
+    image: 'https://placehold.co/400x300.png',
     dataAiHint: 'science magazine'
   },
 ];
@@ -94,26 +94,27 @@ export default function StorePage() {
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {storeItems.map((item) => (
                     <Card key={item.id} className="flex flex-col">
                         <CardHeader className="p-0">
                             <Image
                                 src={item.image}
                                 alt={item.name}
-                                width={600}
-                                height={400}
-                                className="rounded-t-lg object-cover"
+                                width={400}
+                                height={300}
+                                className="rounded-t-lg object-cover aspect-[4/3]"
                                 data-ai-hint={item.dataAiHint}
                             />
                         </CardHeader>
-                        <CardContent className="pt-6 flex-grow">
-                            <CardTitle>{item.name}</CardTitle>
-                            <CardDescription className="mt-2">{item.description}</CardDescription>
+                        <CardContent className="p-4 flex-grow">
+                            <CardTitle className="text-lg leading-tight">{item.name}</CardTitle>
+                            <CardDescription className="mt-1 text-xs">{item.description}</CardDescription>
                         </CardContent>
-                        <CardFooter className="flex justify-between items-center">
-                            <p className="text-2xl font-bold text-primary">₹{item.price}</p>
+                        <CardFooter className="flex justify-between items-center p-4 pt-0">
+                            <p className="text-xl font-bold text-primary">₹{item.price}</p>
                             <Button
+                                size="sm"
                                 onClick={() => handleRedeem(item.name, item.price)}
                                 disabled={balance < item.price}
                             >
