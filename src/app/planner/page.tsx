@@ -1,38 +1,24 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import { Calendar, Target, Moon, Bot } from 'lucide-react';
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { MoodCheckIn } from '@/components/planner/mood-check-in';
-import { DailyPlanner } from '@/components/planner/daily-planner';
-import { SmartSuggestions } from '@/components/planner/smart-suggestions';
-import { WeeklyGoals } from '@/components/planner/weekly-goals';
-import { EveningReflection } from '@/components/planner/evening-reflection';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { PlannerSidebar } from '@/components/planner/planner-sidebar';
+import { PlannerView } from '@/components/planner/planner-view';
+import { TaskDialog } from '@/components/planner/task-dialog';
+import type { PlannerTask } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { AiCoach } from '@/components/planner/ai-coach';
-import { useJournal } from '@/hooks/use-journal';
-
-import type { PlannerTask, WeeklyGoal, DayEntry } from '@/lib/types';
+import { format, addDays, subDays } from 'date-fns';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 
 export default function PlannerPage() {
     const [tasks, setTasks] = useState<PlannerTask[]>([]);
-    const [goals, setGoals] = useState<WeeklyGoal[]>([
-        { id: '1', title: 'Revise 3 chapters of Science', current: 1, target: 3 },
-        { id: '2', title: 'Complete 5 math practice sets', current: 2, target: 5 },
-        { id: '3', title: 'Avoid social media during study time (days)', current: 0, target: 5 },
-    ]);
+    const [date, setDate] = useState<Date>(new Date());
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<PlannerTask | null>(null);
     const { toast } = useToast();
-    const { allEntries } = useJournal();
 
-    const journalHistory: DayEntry[] = useMemo(() => {
-        return Object.values(allEntries)
-            .filter(entry => entry.score !== undefined) // Only include days with a score
-            .sort((a, b) => new Date(b.date!).getTime() - new Date(a.date!).getTime()); // Sort by date descending
-    }, [allEntries]);
-
+    // Load tasks from localStorage or AI suggestions
     useEffect(() => {
         const newTasksRaw = localStorage.getItem('newPlannerTasks');
         if (newTasksRaw) {
@@ -58,45 +44,57 @@ export default function PlannerPage() {
         }
     }, [toast]);
 
-    const addTask = (task: Omit<PlannerTask, 'id' | 'status'>) => {
-        setTasks(prev => [...prev, { ...task, id: crypto.randomUUID(), status: 'Not Done' }]);
+    const handleSaveTask = (task: PlannerTask) => {
+        const isEditing = tasks.some(t => t.id === task.id);
+        if (isEditing) {
+            setTasks(tasks.map(t => t.id === task.id ? task : t));
+        } else {
+            setTasks([...tasks, task]);
+        }
+        setIsDialogOpen(false);
+        setSelectedTask(null);
+    };
+    
+    const handleAddNewTask = () => {
+        setSelectedTask(null);
+        setIsDialogOpen(true);
+    };
+
+    const handleSelectTask = (task: PlannerTask) => {
+        setSelectedTask(task);
+        setIsDialogOpen(true);
+    };
+    
+    const handleDeleteTask = (taskId: string) => {
+        setTasks(tasks.filter(t => t.id !== taskId));
+        setIsDialogOpen(false);
+        setSelectedTask(null);
     };
 
     return (
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-             <header className="mb-8">
-                <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                    Daily Planner
-                </h1>
-                <p className="text-muted-foreground">Organize your day for success and well-being.</p>
-            </header>
-
-            <Tabs defaultValue="plan" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 mb-6 h-auto">
-                    <TabsTrigger value="plan"><Calendar className="mr-2"/> Plan Day</TabsTrigger>
-                    <TabsTrigger value="goals"><Target className="mr-2"/> Track Goals</TabsTrigger>
-                    <TabsTrigger value="reflect"><Moon className="mr-2"/> Evening Review</TabsTrigger>
-                    <TabsTrigger value="coach"><Bot className="mr-2"/> Aura Coach</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="plan" className="space-y-6">
-                   <MoodCheckIn />
-                   <DailyPlanner tasks={tasks} setTasks={setTasks} />
-                   <SmartSuggestions onAddTask={addTask}/>
-                </TabsContent>
-                
-                <TabsContent value="goals">
-                    <WeeklyGoals goals={goals} setGoals={setGoals} />
-                </TabsContent>
-
-                <TabsContent value="reflect">
-                    <EveningReflection tasks={tasks} />
-                </TabsContent>
-
-                <TabsContent value="coach">
-                    <AiCoach tasks={tasks} journalHistory={journalHistory} />
-                </TabsContent>
-            </Tabs>
+        <div className="flex h-[calc(100vh-80px)] text-foreground bg-background">
+            <PlannerSidebar date={date} setDate={setDate} />
+            <main className="flex-1 flex flex-col overflow-hidden">
+                <header className="flex items-center justify-between p-4 border-b">
+                    <div className="flex items-center gap-4">
+                        <Button variant="outline" onClick={() => setDate(new Date())}>Today</Button>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" onClick={() => setDate(d => subDays(d, 1))}><ChevronLeft className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => setDate(d => addDays(d, 1))}><ChevronRight className="h-4 w-4" /></Button>
+                        </div>
+                        <h2 className="text-xl font-semibold">{format(date, "MMMM yyyy")}</h2>
+                    </div>
+                    <Button onClick={handleAddNewTask}><Plus className="mr-2 h-4 w-4" /> Add Task</Button>
+                </header>
+                <PlannerView tasks={tasks} onSelectTask={handleSelectTask} />
+            </main>
+            <TaskDialog 
+                isOpen={isDialogOpen} 
+                setIsOpen={setIsDialogOpen}
+                task={selectedTask}
+                onSave={handleSaveTask}
+                onDelete={handleDeleteTask}
+            />
         </div>
     );
 }
