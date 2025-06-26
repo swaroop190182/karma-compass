@@ -368,14 +368,15 @@ export default function JournalPage() {
   return (
     <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="flex flex-col items-center gap-6 mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground text-center">
-                Record Your Day
-            </h1>
-
-            {showScoreCard && (
-                <KarmaCompass score={totalScore} eqScore={eqScore} />
-            )}
+        <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 mb-8">
+            <div className="flex items-center gap-4">
+                {showScoreCard && (
+                    <KarmaCompass score={totalScore} eqScore={eqScore} />
+                )}
+                <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                    Record Your Day
+                </h1>
+            </div>
             
             <div>
               <Popover>
@@ -407,36 +408,36 @@ export default function JournalPage() {
               </Popover>
             </div>
         </header>
+        
+        <Card className="mb-8">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-3"><SmileIcon /> How are you feeling today?</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-4">
+                {feelings.map(feeling => {
+                    const isSelected = selectedFeeling === feeling.name;
+                    return (
+                        <Button
+                            key={feeling.name}
+                            variant="outline"
+                            onClick={() => handleFeelingChange(feeling.name)}
+                            className={cn(
+                                "flex-1 sm:flex-auto font-semibold transition-all duration-200 ease-in-out transform hover:scale-105",
+                                !isSelected && feeling.hoverClass,
+                                isSelected ? feeling.selectedClass : 'text-foreground'
+                            )}
+                        >
+                            <feeling.icon
+                                className={cn("mr-2 h-5 w-5 transition-colors", !isSelected && feeling.colorClass)}
+                            />
+                            {feeling.name}
+                        </Button>
+                    )
+                })}
+            </CardContent>
+        </Card>
 
         <div className="space-y-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-3"><SmileIcon /> How are you feeling today?</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-4">
-                    {feelings.map(feeling => {
-                        const isSelected = selectedFeeling === feeling.name;
-                        return (
-                            <Button
-                                key={feeling.name}
-                                variant="outline"
-                                onClick={() => handleFeelingChange(feeling.name)}
-                                className={cn(
-                                    "flex-1 sm:flex-auto font-semibold transition-all duration-200 ease-in-out transform hover:scale-105",
-                                    !isSelected && feeling.hoverClass,
-                                    isSelected ? feeling.selectedClass : 'text-foreground'
-                                )}
-                            >
-                                <feeling.icon
-                                    className={cn("mr-2 h-5 w-5 transition-colors", !isSelected && feeling.colorClass)}
-                                />
-                                {feeling.name}
-                            </Button>
-                        )
-                    })}
-                </CardContent>
-            </Card>
-
             <Card>
                 <CardHeader>
                      <CardTitle className="flex items-center gap-3"><FilePenLine /> Daily Journal &amp; Intentions</CardTitle>
