@@ -14,7 +14,15 @@ import { z } from 'genkit';
 const PlannerTaskSchema = z.object({
     time: z.string().describe('A suggested time slot for the task, e.g., "9:00 - 10:00 AM".'),
     task: z.string().describe('A concise description of the task.'),
-    priority: z.enum(['High', 'Medium', 'Low']).describe('The suggested priority for the task.'),
+    priority: z.preprocess((val) => {
+        if (typeof val === 'string') {
+            const lower = val.toLowerCase();
+            if (lower === 'high') return 'High';
+            if (lower === 'medium') return 'Medium';
+            if (lower === 'low') return 'Low';
+        }
+        return val;
+    }, z.enum(['High', 'Medium', 'Low']).describe('The suggested priority for the task.')),
 });
 
 const AnalyzeJournalInputSchema = z.object({
