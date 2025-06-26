@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -19,7 +18,7 @@ const getRotation = (score: number) => {
 
     const clampedScore = Math.max(scoreMin, Math.min(scoreMax, score));
     const scoreRatio = (clampedScore - scoreMin) / (scoreMax - scoreMin);
-    const rotation = angleMin + scoreRatio * (angleMax - anin);
+    const rotation = angleMin + scoreRatio * (angleMax - angleMin);
 
     return rotation;
 };
