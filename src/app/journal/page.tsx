@@ -274,23 +274,28 @@ export default function JournalPage() {
     }, 0);
     
     // EQ Calculation
-    let calculatedEq = 50; // Baseline of 50
-    if (selectedFeeling) {
-      const feelingScores: { [key: string]: number } = { 'Radiant': 20, 'Happy': 10, 'Neutral': 0, 'Sad': -10, 'Stressed': -15 };
-      calculatedEq += feelingScores[selectedFeeling] || 0;
-    }
-
+    const feelingScores: { [key: string]: number } = { 'Radiant': 20, 'Happy': 10, 'Neutral': 0, 'Sad': -10, 'Stressed': -15 };
     const eqActivityScores: Record<string, number> = {
       'Help Classmate': 5, 'Be Kind': 5, 'Listen': 3, 'Apologize': 4, 'Family Time': 5, 'Volunteer': 7, 'Be Polite': 3, 'Resist Peer Pressure': 5,
       'Meditate': 3, 'Journal': 4, 'Gratitude': 5,
       'Bullied Someone': -10, 'Gossiped': -5, 'Ignored Someone': -7, 'Was Argumentative': -5, 'Was Rude': -6, 'Lacked Empathy': -8, 'Mocked Others': -7,
     };
-    Object.keys(selectedActivities).forEach(activityName => {
-        if(selectedActivities[activityName] && eqActivityScores[activityName]) {
-            calculatedEq += eqActivityScores[activityName];
+    
+    const feelingScore = selectedFeeling ? (feelingScores[selectedFeeling] || 0) : 0;
+
+    const activityEqScore = Object.keys(selectedActivities).reduce((acc, activityName) => {
+        if (selectedActivities[activityName]) {
+            const eqValue = eqActivityScores[activityName];
+            if (typeof eqValue === 'number') {
+                return acc + eqValue;
+            }
         }
-    });
+        return acc;
+    }, 0);
+
+    let calculatedEq = 50 + feelingScore + activityEqScore;
     calculatedEq = Math.max(0, Math.min(100, Math.round(calculatedEq)));
+
     setEqScore(calculatedEq);
 
     if (!rewardedDates.has(selectedDateString)) {
