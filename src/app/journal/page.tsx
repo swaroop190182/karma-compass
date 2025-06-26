@@ -64,6 +64,18 @@ export default function JournalPage() {
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
 
+  const loggedDates = useMemo(() => {
+    return Object.keys(allEntries)
+      .filter(dateString => {
+        const entry = allEntries[dateString];
+        const acts = allActivities[dateString];
+        const hasActivities = acts && Object.values(acts).some(v => v);
+        const hasText = entry && (entry.reflections || entry.intentions || entry.mindDump);
+        return hasActivities || hasText;
+      })
+      .map(dateString => new Date(dateString + 'T00:00:00'));
+  }, [allEntries, allActivities]);
+
   useEffect(() => {
     try {
       const storedDates = localStorage.getItem(JOURNAL_REWARD_DATES_KEY);
@@ -351,6 +363,10 @@ export default function JournalPage() {
                     onSelect={setDate}
                     initialFocus
                     disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
+                    modifiers={{ logged: loggedDates }}
+                    modifiersClassNames={{
+                        logged: 'bg-primary/20',
+                    }}
                   />
                 </PopoverContent>
               </Popover>
