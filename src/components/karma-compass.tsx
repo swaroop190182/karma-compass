@@ -19,7 +19,7 @@ const getRotation = (score: number) => {
 
     const clampedScore = Math.max(scoreMin, Math.min(scoreMax, score));
     const scoreRatio = (clampedScore - scoreMin) / (scoreMax - scoreMin);
-    const rotation = angleMin + scoreRatio * (angleMax - angleMin);
+    const rotation = angleMin + scoreRatio * (angleMax - anin);
 
     return rotation;
 };
@@ -57,7 +57,7 @@ export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
 
 
     return (
-        <div className="relative w-40 h-40 sm:w-44 sm:h-44" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
+        <div className="relative w-32 h-32 sm:w-36 sm:h-36" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
                 <defs>
                     <radialGradient id="compass-bg" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">

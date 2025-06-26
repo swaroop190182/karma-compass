@@ -368,14 +368,15 @@ export default function JournalPage() {
   return (
     <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4 mb-8">
-            <div className="flex items-center gap-4">
-                {showScoreCard && (
-                    <KarmaCompass score={totalScore} eqScore={eqScore} />
-                )}
-                <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                    Record Your Day
-                </h1>
+        <header className="flex items-center justify-between gap-4 mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                Record Your Day
+            </h1>
+            
+            <div className="flex-1 flex justify-center">
+              {showScoreCard && (
+                  <KarmaCompass score={totalScore} eqScore={eqScore} />
+              )}
             </div>
             
             <div>
@@ -384,7 +385,7 @@ export default function JournalPage() {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-[280px] justify-start text-left font-normal text-base",
+                      "w-auto sm:w-[280px] justify-start text-left font-normal text-base",
                       !date && "text-muted-foreground"
                     )}
                   >
