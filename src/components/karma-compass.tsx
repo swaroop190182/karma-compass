@@ -57,12 +57,12 @@ export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
 
 
     return (
-        <div className="relative w-48 h-48 sm:w-56 sm:h-56" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
+        <div className="relative w-40 h-40 sm:w-44 sm:h-44" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
                 <defs>
                     <radialGradient id="compass-bg" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
                         <stop offset="0%" stopColor="hsl(var(--card))" />
-                        <stop offset="100%" stopColor="hsl(var(--secondary))" />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" />
                     </radialGradient>
                 </defs>
                  {/* Outer circle */}
@@ -120,8 +120,8 @@ export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
 
                 {/* Needle */}
                 <g style={{ transform: `rotate(${rotation}deg)`, transformOrigin: '100px 100px', transition: 'transform 0.5s ease-out' }}>
-                    <polygon points="100,25 95,100 105,100" fill="hsl(var(--destructive))" />
-                    <circle cx="100" cy="100" r="5" fill="hsl(var(--destructive))" stroke="hsl(var(--background))" strokeWidth="2" />
+                    <polygon points="100,25 95,100 105,100" fill="hsl(var(--accent))" />
+                    <circle cx="100" cy="100" r="5" fill="hsl(var(--accent))" stroke="hsl(var(--background))" strokeWidth="2" />
                 </g>
             </svg>
         </div>
