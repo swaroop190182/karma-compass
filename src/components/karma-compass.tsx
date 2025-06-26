@@ -61,8 +61,8 @@ export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
                 <defs>
                     <radialGradient id="compass-bg" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                        <stop offset="0%" stop-color="hsl(var(--card))" />
-                        <stop offset="100%" stop-color="hsl(var(--secondary))" />
+                        <stop offset="0%" stopColor="hsl(var(--card))" />
+                        <stop offset="100%" stopColor="hsl(var(--secondary))" />
                     </radialGradient>
                 </defs>
                  {/* Outer circle */}
