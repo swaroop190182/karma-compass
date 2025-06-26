@@ -368,18 +368,16 @@ export default function JournalPage() {
   return (
     <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-y-4 gap-x-8 mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground text-center sm:text-left">
+        <header className="flex flex-col items-center gap-6 mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground text-center">
                 Record Your Day
             </h1>
 
             {showScoreCard && (
-                 <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
-                    <KarmaCompass score={totalScore} eqScore={eqScore} />
-                 </div>
+                <KarmaCompass score={totalScore} eqScore={eqScore} />
             )}
             
-            <div className="mx-auto sm:mx-0">
+            <div>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
