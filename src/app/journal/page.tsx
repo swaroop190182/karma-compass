@@ -26,6 +26,7 @@ import { useWallet } from '@/hooks/use-wallet';
 import { useJournal } from '@/hooks/use-journal';
 import { Label } from '@/components/ui/label';
 import { ReactionAnimation, type AnimationType } from '@/components/reaction-animation';
+import { KarmaCompass } from '@/components/karma-compass';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -350,18 +351,9 @@ export default function JournalPage() {
             </h1>
 
             {showScoreCard && (
-                <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
-                    <div 
-                        className="inline-block animate-coin-spin w-16 h-16 rounded-full bg-gradient-radial from-yellow-300 via-amber-400 to-yellow-600 border-4 border-amber-700 flex items-center justify-center shadow-lg shadow-amber-500/50" 
-                        style={{ transformStyle: 'preserve-3d' }}
-                        title={`Today's Score: ${totalScore}`}
-                    >
-                        <span className="text-2xl font-bold text-amber-900">
-                            {totalScore > 0 ? `+${totalScore}` : totalScore}
-                        </span>
-                    </div>
-                    <p className="text-sm font-semibold text-muted-foreground mt-1">Today's Score</p>
-                </div>
+                 <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
+                    <KarmaCompass score={totalScore} />
+                 </div>
             )}
             
             <div className="mx-auto sm:mx-0">
