@@ -50,6 +50,7 @@ export default function JournalPage() {
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   
   const [totalScore, setTotalScore] = useState(0);
+  const [eqScore, setEqScore] = useState(0);
   const [motivationalQuote, setMotivationalQuote] = useState('');
   const [habitTip, setHabitTip] = useState('');
   const [showScoreCard, setShowScoreCard] = useState(false);
@@ -101,10 +102,12 @@ export default function JournalPage() {
 
     if (typeof currentEntry.score === 'number') {
       setTotalScore(currentEntry.score);
+      setEqScore(currentEntry.eqScore || 0);
       setShowScoreCard(true);
     } else {
       setShowScoreCard(false);
       setTotalScore(0);
+      setEqScore(0);
     }
     
     setMotivationalQuote('');
@@ -270,6 +273,26 @@ export default function JournalPage() {
       return acc;
     }, 0);
     
+    // EQ Calculation
+    let calculatedEq = 50; // Baseline of 50
+    if (selectedFeeling) {
+      const feelingScores: { [key: string]: number } = { 'Radiant': 20, 'Happy': 10, 'Neutral': 0, 'Sad': -10, 'Stressed': -15 };
+      calculatedEq += feelingScores[selectedFeeling] || 0;
+    }
+
+    const eqActivityScores: Record<string, number> = {
+      'Help Classmate': 5, 'Be Kind': 5, 'Listen': 3, 'Apologize': 4, 'Family Time': 5, 'Volunteer': 7, 'Be Polite': 3, 'Resist Peer Pressure': 5,
+      'Meditate': 3, 'Journal': 4, 'Gratitude': 5,
+      'Bullied Someone': -10, 'Gossiped': -5, 'Ignored Someone': -7, 'Was Argumentative': -5, 'Was Rude': -6, 'Lacked Empathy': -8, 'Mocked Others': -7,
+    };
+    Object.keys(selectedActivities).forEach(activityName => {
+        if(selectedActivities[activityName] && eqActivityScores[activityName]) {
+            calculatedEq += eqActivityScores[activityName];
+        }
+    });
+    calculatedEq = Math.max(0, Math.min(100, Math.round(calculatedEq)));
+    setEqScore(calculatedEq);
+
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
         const newRewardedDates = new Set(rewardedDates);
@@ -279,7 +302,7 @@ export default function JournalPage() {
     }
 
     setTotalScore(score);
-    updateJournalEntry(selectedDateString, { score: score });
+    updateJournalEntry(selectedDateString, { score: score, eqScore: calculatedEq });
     setMotivationalQuote('');
     setHabitTip('');
     setShowScoreCard(true);
@@ -352,7 +375,7 @@ export default function JournalPage() {
 
             {showScoreCard && (
                  <div className="flex flex-col items-center order-last sm:order-none sm:mx-auto">
-                    <KarmaCompass score={totalScore} />
+                    <KarmaCompass score={totalScore} eqScore={eqScore} />
                  </div>
             )}
             

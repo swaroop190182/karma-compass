@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 
 interface KarmaCompassProps {
     score: number;
+    eqScore: number;
 }
 
 const getRotation = (score: number) => {
@@ -23,8 +24,9 @@ const getRotation = (score: number) => {
     return rotation;
 };
 
-export function KarmaCompass({ score }: KarmaCompassProps) {
+export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
     const [displayScore, setDisplayScore] = useState(0);
+    const [displayEqScore, setDisplayEqScore] = useState(0);
     const [rotation, setRotation] = useState(getRotation(0));
 
     useEffect(() => {
@@ -34,25 +36,28 @@ export function KarmaCompass({ score }: KarmaCompassProps) {
         const duration = 500;
         const startTime = performance.now();
         const startScore = displayScore;
+        const startEqScore = displayEqScore;
         
         const animate = (currentTime: number) => {
             const elapsedTime = currentTime - startTime;
             if (elapsedTime < duration) {
                 const progress = elapsedTime / duration;
                 setDisplayScore(Math.round(startScore + (score - startScore) * progress));
+                setDisplayEqScore(Math.round(startEqScore + (eqScore - startEqScore) * progress));
                 requestAnimationFrame(animate);
             } else {
                 setDisplayScore(score);
+                setDisplayEqScore(eqScore);
             }
         };
 
         requestAnimationFrame(animate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [score]);
+    }, [score, eqScore]);
 
 
     return (
-        <div className="relative w-40 h-40 sm:w-48 sm:h-48" aria-label={`Karma Compass showing a score of ${score}`}>
+        <div className="relative w-48 h-48 sm:w-56 sm:h-56" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
                  {/* Outer circle */}
                  <circle cx="100" cy="100" r="95" fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth="2" />
@@ -77,21 +82,34 @@ export function KarmaCompass({ score }: KarmaCompassProps) {
                     />
                 ))}
 
-                {/* Inner score display */}
-                <circle cx="100" cy="100" r="40" fill="hsl(var(--background))" />
+                {/* Karma Score Display (Left) */}
                 <text
-                    x="100"
+                    x="70"
                     y="105"
                     textAnchor="middle"
                     fontSize="28"
                     fontWeight="bold"
                     fill="hsl(var(--foreground))"
-                    className="transition-opacity duration-300"
-                    key={displayScore} // Trigger re-render animation on score change
                 >
                     {displayScore > 0 ? `+${displayScore}` : displayScore}
                 </text>
-                <text x="100" y="125" textAnchor="middle" fontSize="10" fill="hsl(var(--muted-foreground))">Score</text>
+                <text x="70" y="125" textAnchor="middle" fontSize="10" fill="hsl(var(--muted-foreground))">Karma</text>
+
+                {/* Vertical Separator */}
+                <line x1="100" y1="75" x2="100" y2="125" stroke="hsl(var(--border))" />
+
+                {/* EQ Score Display (Right) */}
+                <text
+                    x="130"
+                    y="105"
+                    textAnchor="middle"
+                    fontSize="28"
+                    fontWeight="bold"
+                    fill="hsl(var(--foreground))"
+                >
+                    {displayEqScore}
+                </text>
+                <text x="130" y="125" textAnchor="middle" fontSize="10" fill="hsl(var(--muted-foreground))">EQ</text>
 
 
                 {/* Needle */}

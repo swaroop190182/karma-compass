@@ -28,6 +28,7 @@ export interface WeeklyGoal {
 export interface DayEntry {
     date: string;
     score?: number;
+    eqScore?: number;
     loggedActivities: string[];
     reflection?: string;
     feeling?: string | null;
