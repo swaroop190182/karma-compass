@@ -59,8 +59,14 @@ export function KarmaCompass({ score, eqScore }: KarmaCompassProps) {
     return (
         <div className="relative w-48 h-48 sm:w-56 sm:h-56" aria-label={`Karma Compass showing a score of ${score} and EQ of ${eqScore}`}>
             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
+                <defs>
+                    <radialGradient id="compass-bg" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                        <stop offset="0%" stop-color="hsl(var(--card))" />
+                        <stop offset="100%" stop-color="hsl(var(--secondary))" />
+                    </radialGradient>
+                </defs>
                  {/* Outer circle */}
-                 <circle cx="100" cy="100" r="95" fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth="2" />
+                 <circle cx="100" cy="100" r="95" fill="url(#compass-bg)" stroke="hsl(var(--border))" strokeWidth="2" />
                  
                  {/* Labels */}
                  <text x="40" y="165" textAnchor="middle" fontSize="10" fontWeight="bold" fill="hsl(var(--muted-foreground))" className="uppercase">Negative</text>
