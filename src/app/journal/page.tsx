@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo, useTransition } from 'react';
+import { useState, useEffect, useMemo, useTransition, type MouseEvent } from 'react';
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useWallet } from '@/hooks/use-wallet';
 import { useJournal } from '@/hooks/use-journal';
 import { Label } from '@/components/ui/label';
+import { ReactionAnimation, type AnimationType } from '@/components/reaction-animation';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -61,6 +62,9 @@ export default function JournalPage() {
   
   const { toast } = useToast();
   const { addFunds } = useWallet();
+
+  type AnimationState = { id: number; x: number; y: number; type: AnimationType; };
+  const [animations, setAnimations] = useState<AnimationState[]>([]);
 
   const selectedDateString = date ? format(date, 'yyyy-MM-dd') : '';
 
@@ -110,13 +114,27 @@ export default function JournalPage() {
     return allActivities[selectedDateString] || {};
   }, [allActivities, selectedDateString]);
   
-  const handleActivityToggle = (activity: Activity) => {
+  const handleActivityToggle = (activity: Activity, event: MouseEvent<HTMLButtonElement>) => {
     // If deselecting, just toggle it off.
     if (selectedActivities[activity.name]) {
         const newSelected = { ...selectedActivities, [activity.name]: false };
         updateJournalActivities(selectedDateString, newSelected);
         setShowScoreCard(false);
         return;
+    }
+
+    // Trigger animation only on selection
+    if (activity.animation) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      setAnimations(prev => [
+        ...prev,
+        {
+          id: Date.now() + Math.random(), // Add random to avoid key collision on rapid clicks
+          x: rect.left + rect.width / 2,
+          y: rect.top,
+          type: activity.animation,
+        },
+      ]);
     }
 
     // If selecting and it requires proof, open dialog.
@@ -317,6 +335,10 @@ export default function JournalPage() {
         title: "Activity Logged!",
         description: `Your proof for "${activity.name}" has been saved.`
     });
+  };
+
+  const handleAnimationEnd = (id: number) => {
+    setAnimations(prev => prev.filter(anim => anim.id !== id));
   };
 
   return (
@@ -555,6 +577,15 @@ export default function JournalPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+      {animations.map(anim => (
+        <ReactionAnimation
+          key={anim.id}
+          x={anim.x}
+          y={anim.y}
+          type={anim.type}
+          onEnd={() => handleAnimationEnd(anim.id)}
+        />
+      ))}
     </div>
   );
 }

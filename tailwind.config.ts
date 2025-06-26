@@ -114,6 +114,11 @@ export default {
           '0%': { transform: 'rotateY(0deg)' },
           '100%': { transform: 'rotateY(360deg)' },
         },
+        'reaction-pop-up': {
+          '0%': { transform: 'translate(-50%, 0) scale(0.5)', opacity: '0' },
+          '50%': { transform: 'translate(-50%, -80px) scale(1.2)', opacity: '1' },
+          '100%': { transform: 'translate(-50%, -120px) scale(1)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -122,6 +127,7 @@ export default {
         'shake': 'shake 0.4s ease-in-out',
         'fly-to-wallet': 'fly-to-wallet 1.5s ease-in-out forwards',
         'coin-spin': 'coin-spin 2s linear infinite',
+        'reaction-pop-up': 'reaction-pop-up 1s ease-out forwards',
       },
     },
   },
