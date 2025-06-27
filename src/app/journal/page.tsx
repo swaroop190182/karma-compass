@@ -283,19 +283,6 @@ export default function JournalPage() {
   };
 
   const handleStartReview = () => {
-    const positiveActivitiesLogged = Object.values(selectedActivities).some(isSelected => {
-        if (!isSelected) return false;
-        const activity = activities.find(a => a.name === Object.keys(selectedActivities).find(key => selectedActivities[key] === isSelected));
-        // A bit complex because of object key finding, let's simplify by iterating over keys
-        for (const activityName in selectedActivities) {
-            if (selectedActivities[activityName]) {
-                const act = activities.find(a => a.name === activityName);
-                if (act && act.type === 'Good') return true;
-            }
-        }
-        return false;
-    });
-
     const hasPositiveActivities = Object.keys(selectedActivities).some(name => {
         const activity = activities.find(a => a.name === name);
         return selectedActivities[name] && activity?.type === 'Good';
@@ -460,12 +447,6 @@ export default function JournalPage() {
         ]);
     }
   };
-
-  const positiveActivitiesForReview = useMemo(() => {
-      return Object.keys(activitiesForReview)
-          .map(name => activities.find(a => a.name === name))
-          .filter((a): a is Activity => !!a && a.type === 'Good' && activitiesForReview[a.name]);
-  }, [activitiesForReview]);
   
   const hasNegativeInReview = useMemo(() => {
     return Object.keys(activitiesForReview).some(name => {
@@ -708,17 +689,6 @@ export default function JournalPage() {
             </DialogHeader>
             <div className="max-h-[60vh] overflow-y-auto pr-4">
                 <div className="space-y-4 py-2">
-                    <div>
-                        <h4 className="font-semibold text-green-600">Your Wins Today</h4>
-                        {positiveActivitiesForReview.length > 0 ? (
-                            <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
-                                {positiveActivitiesForReview.map(act => <li key={act.name}>{act.name}</li>)}
-                            </ul>
-                        ) : (
-                            <p className="text-sm text-muted-foreground mt-2">No positive activities logged yet.</p>
-                        )}
-                    </div>
-                    <Separator />
                     <div>
                         <h4 className="font-semibold text-foreground flex items-center gap-2">
                             <AlertCircle className="text-yellow-500" /> Any Challenges?
