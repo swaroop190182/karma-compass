@@ -82,6 +82,24 @@ export default function JournalPage() {
       .map(dateString => new Date(dateString + 'T00:00:00'));
   }, [allEntries, allActivities]);
 
+  const averageScores = useMemo(() => {
+    const entriesWithScores = Object.values(allEntries).filter(
+      (entry) => typeof entry.score === 'number' && typeof entry.eqScore === 'number'
+    );
+
+    if (entriesWithScores.length === 0) {
+      return { averageKarma: 0, averageEq: 50 }; // Default EQ to neutral
+    }
+
+    const totalKarma = entriesWithScores.reduce((sum, entry) => sum + (entry.score ?? 0), 0);
+    const totalEq = entriesWithScores.reduce((sum, entry) => sum + (entry.eqScore ?? 0), 0);
+
+    return {
+      averageKarma: Math.round(totalKarma / entriesWithScores.length),
+      averageEq: Math.round(totalEq / entriesWithScores.length),
+    };
+  }, [allEntries]);
+
   useEffect(() => {
     try {
       const storedDates = localStorage.getItem(JOURNAL_REWARD_DATES_KEY);
@@ -296,8 +314,11 @@ export default function JournalPage() {
     let calculatedEq = 50 + feelingScore + activityEqScore;
     calculatedEq = Math.max(0, Math.min(100, Math.round(calculatedEq)));
 
-    const finalEqScore = isNaN(calculatedEq) ? 0 : calculatedEq;
+    const finalEqScore = isNaN(calculatedEq) ? 50 : calculatedEq; // Default to 50 if NaN
     setEqScore(finalEqScore);
+    
+    setTotalScore(score);
+    updateJournalEntry(selectedDateString, { score: score, eqScore: finalEqScore });
 
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
@@ -307,8 +328,6 @@ export default function JournalPage() {
         localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
     }
 
-    setTotalScore(score);
-    updateJournalEntry(selectedDateString, { score: score, eqScore: finalEqScore });
     setMotivationalQuote('');
     setHabitTip('');
     setShowScoreCard(true);
@@ -380,9 +399,7 @@ export default function JournalPage() {
             </h1>
             
             <div className="flex-1 flex justify-center">
-              {showScoreCard && (
-                  <KarmaCompass score={totalScore} eqScore={eqScore} />
-              )}
+               <KarmaCompass score={averageScores.averageKarma} eqScore={averageScores.averageEq} />
             </div>
             
             <div>
@@ -514,7 +531,7 @@ export default function JournalPage() {
             {showScoreCard && (
               <Card className="text-center bg-primary/10 border-primary/20">
                   <CardHeader>
-                      <CardTitle>Your Karma Score</CardTitle>
+                      <CardTitle>Your Karma Score for {date ? format(date, "PPP") : ''}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col items-center gap-4">
                       <p className={cn(
@@ -527,7 +544,7 @@ export default function JournalPage() {
                       </p>
                       <Button onClick={handleGetMotivation} disabled={isGettingMotivation || Object.values(selectedActivities).every(v => !v)} size="lg">
                           {isGettingMotivation ? <LoaderCircle className="animate-spin mr-2" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                          Get Today's Motivation
+                          Get Motivation for This Day
                       </Button>
                       {isGettingMotivation && <p className="text-sm text-muted-foreground animate-pulse">Thinking of a good quote...</p>}
                       {motivationalQuote && (
