@@ -105,30 +105,42 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* What Is Karma Compass? */}
+        {/* Karma Compass Feature Section */}
         <section className="py-20 bg-secondary/50">
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold">What Is Karma Compass?</h2>
-                     <p className="text-lg text-muted-foreground">
-                        A smart daily journal for students that:
-                    </p>
-                    <ul className="space-y-3 text-muted-foreground list-disc list-inside">
-                        <li>Encourages self-reflection</li>
-                        <li>Rewards healthy habits and learning</li>
-                        <li>Tracks emotions and productivity</li>
-                        <li>Builds discipline through AI support</li>
-                    </ul>
-                </div>
                 <div>
                      <Image
                         src="https://i.postimg.cc/C5NFsLJ5/SKJ.png"
-                        alt="Karma Compass reflections dashboard screenshot"
+                        alt="Karma Compass showing a Karma Score of +35 and an EQ score of 88"
                         width={500}
                         height={300}
                         className="rounded-lg shadow-xl mx-auto"
-                        data-ai-hint="app reflections"
+                        data-ai-hint="compass dashboard"
                     />
+                </div>
+                <div className="space-y-4">
+                    <h2 className="text-3xl md:text-4xl font-bold">The Karma Compass</h2>
+                     <p className="text-lg text-muted-foreground">
+                        Your personal guide to daily growth.
+                    </p>
+                    <ul className="space-y-3 text-muted-foreground list-disc list-inside">
+                        <li>Visualize your daily Karma Score with an intuitive compass needle.</li>
+                        <li>Track your Emotional Quotient (EQ) based on your reflections and actions.</li>
+                        <li>Receive instant, animated feedback on your progress.</li>
+                        <li>Turn self-improvement into a fun and rewarding visual experience.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        {/* What Is Karma Compass? */}
+        <section className="py-20">
+             <div className="container mx-auto px-4">
+                 <div className="text-center max-w-3xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-bold">What Is Karma Compass?</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        Karma Compass is an all-in-one smart journal designed to help students build self-awareness and discipline. It goes beyond simple tracking by integrating daily reflections, gamified habit-building, and AI-powered coaching to encourage holistic growth.
+                    </p>
                 </div>
             </div>
         </section>
