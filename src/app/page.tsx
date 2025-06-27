@@ -73,16 +73,12 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="flex items-center justify-center md:justify-start text-center md:text-left">
-                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center">
-                    <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Earn</span>
-                    <div className="inline-block animate-coin-spin w-10 h-10 md:w-12 md:h-12 mx-2 rounded-full bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center shadow-lg" style={{ transformStyle: 'preserve-3d' }}>
-                        <span className="text-2xl md:text-3xl font-bold text-yellow-800">$</span>
-                    </div>
-                    <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">As You Learn</span>
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                    <span className="bg-gradient-to-r from-primary to-green-500 text-transparent bg-clip-text">Habits made rewarding</span>
                   </h1>
               </div>
               <p className="text-lg text-muted-foreground">
-                A gamified journaling and goal-setting app for students to reflect, grow, and get rewarded.
+                Every small step counts—and pays. Karma Compass turns your focus, discipline, and self-care into points and pocket cash.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild size="lg">
