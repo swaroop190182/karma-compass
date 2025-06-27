@@ -152,12 +152,15 @@ function toast({ ...props }: Toast) {
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
+  const duration = props.variant === 'destructive' ? 6000 : 3000;
+
   dispatch({
     type: "ADD_TOAST",
     toast: {
       ...props,
       id,
       open: true,
+      duration: props.duration ?? duration,
       onOpenChange: (open) => {
         if (!open) dismiss()
       },
