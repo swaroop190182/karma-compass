@@ -30,6 +30,7 @@ import { KarmaCompass } from '@/components/karma-compass';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { getNegativeHabitTips } from '@/ai/flows/negative-habit-coach-flow';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -436,6 +437,29 @@ export default function JournalPage() {
   const handleAnimationEnd = (id: number) => {
     setAnimations(prev => prev.filter(anim => anim.id !== id));
   };
+  
+  const handleNegativeActivityToggleInDialog = (activity: Activity, event: MouseEvent<HTMLButtonElement>) => {
+    const isSelected = !!activitiesForReview[activity.name];
+
+    setActivitiesForReview(prev => ({
+        ...prev,
+        [activity.name]: !isSelected,
+    }));
+
+    // Trigger animation only on selection
+    if (!isSelected && activity.animation) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        setAnimations(prev => [
+            ...prev,
+            {
+                id: Date.now() + Math.random(),
+                x: rect.left + rect.width / 2,
+                y: rect.top,
+                type: activity.animation,
+            },
+        ]);
+    }
+  };
 
   const positiveActivitiesForReview = useMemo(() => {
       return Object.keys(activitiesForReview)
@@ -675,60 +699,63 @@ export default function JournalPage() {
       </Dialog>
 
       <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
             <DialogHeader>
                 <DialogTitle>Final Daily Review</DialogTitle>
                 <DialogDescription>
                     Before you save, take a moment to reflect on any challenges. Honesty is key to growth.
                 </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-2">
-                <div>
-                    <h4 className="font-semibold text-green-600">Your Wins Today</h4>
-                    {positiveActivitiesForReview.length > 0 ? (
-                        <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
-                            {positiveActivitiesForReview.map(act => <li key={act.name}>{act.name}</li>)}
-                        </ul>
-                    ) : (
-                        <p className="text-sm text-muted-foreground mt-2">No positive activities logged yet.</p>
-                    )}
-                </div>
-                <Separator />
-                <div>
-                    <h4 className="font-semibold text-foreground flex items-center gap-2">
-                        <AlertCircle className="text-yellow-500" /> Any Challenges?
-                    </h4>
-                    <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2"><Lock className="w-3 h-3" /> Your reflections on challenges are always private to you.</p>
-                    <div className="space-y-3">
-                        {commonNegativeActivities.map(activity => (
-                             <div key={activity.name} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted/50">
-                                <Checkbox
-                                    id={`review-${activity.name}`}
-                                    checked={!!activitiesForReview[activity.name]}
-                                    onCheckedChange={checked => {
-                                        setActivitiesForReview(prev => ({
-                                            ...prev,
-                                            [activity.name]: !!checked,
-                                        }));
-                                    }}
-                                />
-                                <Label htmlFor={`review-${activity.name}`} className="flex items-center gap-2 font-normal cursor-pointer">
-                                    <activity.icon className="w-4 h-4 text-muted-foreground"/>
-                                    {activity.name}
-                                </Label>
-                            </div>
-                        ))}
+            <div className="max-h-[60vh] overflow-y-auto pr-4">
+                <div className="space-y-4 py-2">
+                    <div>
+                        <h4 className="font-semibold text-green-600">Your Wins Today</h4>
+                        {positiveActivitiesForReview.length > 0 ? (
+                            <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
+                                {positiveActivitiesForReview.map(act => <li key={act.name}>{act.name}</li>)}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-muted-foreground mt-2">No positive activities logged yet.</p>
+                        )}
                     </div>
+                    <Separator />
+                    <div>
+                        <h4 className="font-semibold text-foreground flex items-center gap-2">
+                            <AlertCircle className="text-yellow-500" /> Any Challenges?
+                        </h4>
+                        <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2"><Lock className="w-3 h-3" /> Your reflections on challenges are always private to you.</p>
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 pt-2">
+                            {commonNegativeActivities.map(activity => {
+                                const isSelected = !!activitiesForReview[activity.name];
+                                return (
+                                    <button
+                                        key={activity.name}
+                                        onClick={(e) => handleNegativeActivityToggleInDialog(activity, e)}
+                                        className={cn(
+                                            'flex flex-col items-center justify-center p-1.5 gap-1 rounded-lg border-2 transition-all aspect-square shadow-sm text-center',
+                                            'hover:shadow-md hover:scale-[1.03]',
+                                            isSelected
+                                            ? 'bg-muted border-foreground/50 shadow-lg scale-105 animate-shake'
+                                            : 'bg-card border-input hover:border-destructive/50'
+                                        )}
+                                    >
+                                        <activity.icon className="w-5 h-5 shrink-0" />
+                                        <span className="text-[10px] font-semibold leading-tight">{activity.name}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    <Alert variant={hasNegativeInReview ? 'default' : 'destructive'} className={cn(hasNegativeInReview && 'bg-green-500/10 border-green-500/20')}>
+                        <Lightbulb className="h-4 w-4" />
+                        <AlertTitle>{hasNegativeInReview ? "Bonus Unlocked!" : "Unlock Your Bonus!"}</AlertTitle>
+                        <AlertDescription>
+                            {hasNegativeInReview
+                              ? "Great! You've reflected on both wins and challenges. You'll get a bonus reward!"
+                              : "Log at least one challenge to unlock your full journaling bonus. Growth comes from reflecting on the tough stuff too!"}
+                        </AlertDescription>
+                    </Alert>
                 </div>
-                <Alert variant={hasNegativeInReview ? 'default' : 'destructive'} className={cn(hasNegativeInReview && 'bg-green-500/10 border-green-500/20')}>
-                    <Lightbulb className="h-4 w-4" />
-                    <AlertTitle>{hasNegativeInReview ? "Bonus Unlocked!" : "Unlock Your Bonus!"}</AlertTitle>
-                    <AlertDescription>
-                        {hasNegativeInReview
-                          ? "Great! You've reflected on both wins and challenges. You'll get a bonus reward!"
-                          : "Log at least one challenge to unlock your full journaling bonus. Growth comes from reflecting on the tough stuff too!"}
-                    </AlertDescription>
-                </Alert>
             </div>
             <DialogFooter className="sm:justify-between items-center pt-4 border-t">
                  <p className="text-sm text-muted-foreground text-left hidden sm:block">Your final score will be calculated.</p>
