@@ -5,13 +5,13 @@ import { useState, useEffect, useMemo, useTransition, type MouseEvent } from 're
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb, Check, FileCheck2
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb, Check, FileCheck2, AlertCircle
 } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
 import { analyzeJournalAndIntentions } from '@/ai/flows/analyze-journal-flow';
 import { getHabitTip } from '@/ai/flows/habit-coach-flow';
-import { activities, type Activity } from '@/lib/activities';
+import { activities, type Activity, badKarmaActivities } from '@/lib/activities';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -27,6 +27,8 @@ import { useJournal } from '@/hooks/use-journal';
 import { Label } from '@/components/ui/label';
 import { ReactionAnimation, type AnimationType } from '@/components/reaction-animation';
 import { KarmaCompass } from '@/components/karma-compass';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -37,6 +39,10 @@ const feelings = [
   { name: 'Sad', icon: Frown, colorClass: 'text-blue-500', hoverClass: 'hover:bg-blue-500/10 hover:border-blue-500/50', selectedClass: 'bg-blue-500/20 border-blue-600 text-blue-600 dark:text-blue-400' },
   { name: 'Stressed', icon: Angry, colorClass: 'text-red-500', hoverClass: 'hover:bg-red-500/10 hover:border-red-500/50', selectedClass: 'bg-red-500/20 border-red-600 text-red-600 dark:text-red-400' },
 ];
+
+const commonNegativeActivities = badKarmaActivities.filter(a =>
+    ['Procrastinated', 'Felt Stressed', 'Ate Junk Food', 'Excessive Screen Time', 'Lost Focus in Class'].includes(a.name)
+);
 
 export default function JournalPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -62,6 +68,9 @@ export default function JournalPage() {
   const [proofDialogState, setProofDialogState] = useState<{ isOpen: boolean, activity: Activity | null }>({ isOpen: false, activity: null });
   const [proofText, setProofText] = useState('');
   
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [activitiesForReview, setActivitiesForReview] = useState<Record<string, boolean>>({});
+
   const { toast } = useToast();
   const { addFunds } = useWallet();
 
@@ -271,20 +280,26 @@ export default function JournalPage() {
     });
   };
 
-  const handleSaveAndCalculate = () => {
+  const handleStartReview = () => {
     const activitiesLogged = Object.values(selectedActivities).some(v => v);
 
     if (!activitiesLogged) {
       toast({
         title: "No Activities Logged",
-        description: "Please log at least one activity before saving.",
+        description: "Please log at least one positive activity before saving.",
         variant: "destructive",
       });
       return;
     }
+    setActivitiesForReview({ ...selectedActivities });
+    setIsReviewOpen(true);
+  };
 
-    const score = Object.keys(selectedActivities).reduce((acc, activityName) => {
-      if (selectedActivities[activityName]) {
+  const handleFinalizeDay = () => {
+    updateJournalActivities(selectedDateString, activitiesForReview);
+
+    const score = Object.keys(activitiesForReview).reduce((acc, activityName) => {
+      if (activitiesForReview[activityName]) {
         const activity = activities.find(a => a.name === activityName);
         return acc + (activity ? activity.score : 0);
       }
@@ -301,8 +316,8 @@ export default function JournalPage() {
     
     const feelingScore = selectedFeeling ? (feelingScores[selectedFeeling] || 0) : 0;
 
-    const activityEqScore = Object.keys(selectedActivities).reduce((acc, activityName) => {
-        if (selectedActivities[activityName]) {
+    const activityEqScore = Object.keys(activitiesForReview).reduce((acc, activityName) => {
+        if (activitiesForReview[activityName]) {
             const eqValue = eqActivityScores[activityName];
             if (typeof eqValue === 'number') {
                 return acc + eqValue;
@@ -314,7 +329,7 @@ export default function JournalPage() {
     let calculatedEq = 50 + feelingScore + activityEqScore;
     calculatedEq = Math.max(0, Math.min(100, Math.round(calculatedEq)));
 
-    const finalEqScore = isNaN(calculatedEq) ? 50 : calculatedEq; // Default to 50 if NaN
+    const finalEqScore = isNaN(calculatedEq) ? 50 : calculatedEq;
     setEqScore(finalEqScore);
     
     setTotalScore(score);
@@ -332,8 +347,8 @@ export default function JournalPage() {
     setHabitTip('');
     setShowScoreCard(true);
 
-    const positiveActivities = Object.keys(selectedActivities).filter(activityName => {
-        if (selectedActivities[activityName]) {
+    const positiveActivities = Object.keys(activitiesForReview).filter(activityName => {
+        if (activitiesForReview[activityName]) {
             const activity = activities.find(a => a.name === activityName);
             return activity?.type === 'Good';
         }
@@ -351,6 +366,8 @@ export default function JournalPage() {
             }
         });
     }
+    
+    setIsReviewOpen(false);
   };
 
   const handleSubmitProof = () => {
@@ -389,6 +406,12 @@ export default function JournalPage() {
   const handleAnimationEnd = (id: number) => {
     setAnimations(prev => prev.filter(anim => anim.id !== id));
   };
+
+  const positiveActivitiesForReview = useMemo(() => {
+      return Object.keys(activitiesForReview)
+          .map(name => activities.find(a => a.name === name))
+          .filter((a): a is Activity => !!a && a.type === 'Good' && activitiesForReview[a.name]);
+  }, [activitiesForReview]);
 
   return (
     <div className="min-h-screen text-foreground font-body">
@@ -521,9 +544,9 @@ export default function JournalPage() {
                     <KarmaTracker selectedActivities={selectedActivities} onActivityToggle={handleActivityToggle} />
                 </CardContent>
                 <CardFooter className="justify-end pt-4">
-                  <Button onClick={handleSaveAndCalculate} size="lg">
+                  <Button onClick={handleStartReview} size="lg">
                     <CheckCircle2 className="mr-2" />
-                    Save &amp; Calculate Score
+                    Review & Save Day
                   </Button>
                 </CardFooter>
             </Card>
@@ -612,6 +635,60 @@ export default function JournalPage() {
                     <Button variant="ghost">Cancel</Button>
                 </DialogClose>
                 <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit & Log Activity</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Final Daily Review</DialogTitle>
+                <DialogDescription>
+                    Before you save, take a moment to reflect on any challenges. Honesty is key to growth.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+                <div>
+                    <h4 className="font-semibold text-green-600">Your Wins Today</h4>
+                    {positiveActivitiesForReview.length > 0 ? (
+                        <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
+                            {positiveActivitiesForReview.map(act => <li key={act.name}>{act.name}</li>)}
+                        </ul>
+                    ) : (
+                        <p className="text-sm text-muted-foreground mt-2">No positive activities logged yet.</p>
+                    )}
+                </div>
+                <Separator />
+                <div>
+                    <h4 className="font-semibold text-foreground flex items-center gap-2">
+                        <AlertCircle className="text-yellow-500" /> Any Challenges?
+                    </h4>
+                    <p className="text-xs text-muted-foreground mb-3">It's okay to have tough days. Logging them helps you grow.</p>
+                    <div className="space-y-3">
+                        {commonNegativeActivities.map(activity => (
+                             <div key={activity.name} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted/50">
+                                <Checkbox
+                                    id={`review-${activity.name}`}
+                                    checked={!!activitiesForReview[activity.name]}
+                                    onCheckedChange={checked => {
+                                        setActivitiesForReview(prev => ({
+                                            ...prev,
+                                            [activity.name]: !!checked,
+                                        }));
+                                    }}
+                                />
+                                <Label htmlFor={`review-${activity.name}`} className="flex items-center gap-2 font-normal cursor-pointer">
+                                    <activity.icon className="w-4 h-4 text-muted-foreground"/>
+                                    {activity.name}
+                                </Label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+            <DialogFooter>
+                <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
+                <Button onClick={handleFinalizeDay}>Confirm & Calculate Score</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
