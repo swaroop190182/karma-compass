@@ -282,11 +282,26 @@ export default function JournalPage() {
   };
 
   const handleStartReview = () => {
-    const activitiesLogged = Object.values(selectedActivities).some(v => v);
-    const positiveActivitiesLogged = Object.values(selectedActivities).some((isSelected, index) => isSelected && activities[index]?.type === 'Good');
+    const positiveActivitiesLogged = Object.values(selectedActivities).some(isSelected => {
+        if (!isSelected) return false;
+        const activity = activities.find(a => a.name === Object.keys(selectedActivities).find(key => selectedActivities[key] === isSelected));
+        // A bit complex because of object key finding, let's simplify by iterating over keys
+        for (const activityName in selectedActivities) {
+            if (selectedActivities[activityName]) {
+                const act = activities.find(a => a.name === activityName);
+                if (act && act.type === 'Good') return true;
+            }
+        }
+        return false;
+    });
+
+    const hasPositiveActivities = Object.keys(selectedActivities).some(name => {
+        const activity = activities.find(a => a.name === name);
+        return selectedActivities[name] && activity?.type === 'Good';
+    });
 
 
-    if (!positiveActivitiesLogged) {
+    if (!hasPositiveActivities) {
       toast({
         title: "No Positive Activities Logged",
         description: "Please log at least one positive activity before saving your day.",
@@ -309,7 +324,6 @@ export default function JournalPage() {
       return acc;
     }, 0);
     
-    // EQ Calculation
     const feelingScores: { [key: string]: number } = { 'Radiant': 20, 'Happy': 10, 'Neutral': 0, 'Sad': -10, 'Stressed': -15 };
     const eqActivityScores: Record<string, number> = {
       'Help Classmate': 5, 'Be Kind': 5, 'Listen': 3, 'Apologize': 4, 'Family Time': 5, 'Volunteer': 7, 'Be Polite': 3, 'Resist Peer Pressure': 5,
@@ -338,7 +352,6 @@ export default function JournalPage() {
     setTotalScore(score);
     updateJournalEntry(selectedDateString, { score: score, eqScore: finalEqScore });
 
-    // Dual-logging reward system
     if (!rewardedDates.has(selectedDateString)) {
         const allReviewedActivities = Object.keys(activitiesForReview)
             .filter(name => activitiesForReview[name])
@@ -403,11 +416,9 @@ export default function JournalPage() {
     
     const { activity } = proofDialogState;
     
-    // Log the activity
     const newSelected = { ...selectedActivities, [activity.name]: true };
     updateJournalActivities(selectedDateString, newSelected);
     
-    // Save the proof
     const currentEntry = allEntries[selectedDateString];
     const newProofs = { ...(currentEntry?.proofs || {}), [activity.name]: proofText };
     updateJournalEntry(selectedDateString, { proofs: newProofs });
@@ -719,11 +730,14 @@ export default function JournalPage() {
                     </AlertDescription>
                 </Alert>
             </div>
-            <DialogFooter>
-                <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
-                <Button onClick={handleFinalizeDay}>
-                    {hasNegativeInReview ? "Confirm & Get Bonus" : "Confirm & Save Day"}
-                </Button>
+            <DialogFooter className="sm:justify-between items-center pt-4 border-t">
+                 <p className="text-sm text-muted-foreground text-left hidden sm:block">Your final score will be calculated.</p>
+                <div className="flex gap-2">
+                    <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
+                    <Button onClick={handleFinalizeDay}>
+                        {hasNegativeInReview ? "Save & Get Bonus" : "Save & Finalize"}
+                    </Button>
+                </div>
             </DialogFooter>
         </DialogContent>
       </Dialog>
