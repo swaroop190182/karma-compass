@@ -296,7 +296,7 @@ export default function JournalPage() {
     let calculatedEq = 50 + feelingScore + activityEqScore;
     calculatedEq = Math.max(0, Math.min(100, Math.round(calculatedEq)));
 
-    setEqScore(calculatedEq);
+    setEqScore(isNaN(calculatedEq) ? 0 : calculatedEq);
 
     if (!rewardedDates.has(selectedDateString)) {
         addFunds(10, "You earned a reward for journaling today!");
@@ -307,7 +307,7 @@ export default function JournalPage() {
     }
 
     setTotalScore(score);
-    updateJournalEntry(selectedDateString, { score: score, eqScore: calculatedEq });
+    updateJournalEntry(selectedDateString, { score: score, eqScore: isNaN(calculatedEq) ? 0 : calculatedEq });
     setMotivationalQuote('');
     setHabitTip('');
     setShowScoreCard(true);
