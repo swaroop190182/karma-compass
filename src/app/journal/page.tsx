@@ -278,30 +278,12 @@ export default function JournalPage() {
     });
   };
 
-  const handleStartReview = () => {
-    const hasPositiveActivities = Object.keys(selectedActivities).some(name => {
-        const activity = activities.find(a => a.name === name);
-        return selectedActivities[name] && activity?.type === 'Good';
-    });
+  const handleFinalizeDay = (activitiesOverride?: Record<string, boolean>) => {
+    const activitiesToFinalize = activitiesOverride || activitiesForReview;
+    updateJournalActivities(selectedDateString, activitiesToFinalize);
 
-
-    if (!hasPositiveActivities) {
-      toast({
-        title: "No Positive Activities Logged",
-        description: "Please log at least one positive activity before saving your day.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setActivitiesForReview({ ...selectedActivities });
-    setIsReviewOpen(true);
-  };
-
-  const handleFinalizeDay = () => {
-    updateJournalActivities(selectedDateString, activitiesForReview);
-
-    const score = Object.keys(activitiesForReview).reduce((acc, activityName) => {
-      if (activitiesForReview[activityName]) {
+    const score = Object.keys(activitiesToFinalize).reduce((acc, activityName) => {
+      if (activitiesToFinalize[activityName]) {
         const activity = activities.find(a => a.name === activityName);
         return acc + (activity ? activity.score : 0);
       }
@@ -317,8 +299,8 @@ export default function JournalPage() {
     
     const feelingScore = selectedFeeling ? (feelingScores[selectedFeeling] || 0) : 0;
 
-    const activityEqScore = Object.keys(activitiesForReview).reduce((acc, activityName) => {
-        if (activitiesForReview[activityName]) {
+    const activityEqScore = Object.keys(activitiesToFinalize).reduce((acc, activityName) => {
+        if (activitiesToFinalize[activityName]) {
             const eqValue = eqActivityScores[activityName];
             if (typeof eqValue === 'number') {
                 return acc + eqValue;
@@ -337,8 +319,8 @@ export default function JournalPage() {
     updateJournalEntry(selectedDateString, { score: score, eqScore: finalEqScore });
 
     if (!rewardedDates.has(selectedDateString)) {
-        const allReviewedActivities = Object.keys(activitiesForReview)
-            .filter(name => activitiesForReview[name])
+        const allReviewedActivities = Object.keys(activitiesToFinalize)
+            .filter(name => activitiesToFinalize[name])
             .map(name => activities.find(a => a.name === name))
             .filter((a): a is Activity => !!a);
         
@@ -363,8 +345,8 @@ export default function JournalPage() {
     setHabitTip('');
     setShowScoreCard(true);
 
-    const positiveActivities = Object.keys(activitiesForReview).filter(activityName => {
-        if (activitiesForReview[activityName]) {
+    const positiveActivities = Object.keys(activitiesToFinalize).filter(activityName => {
+        if (activitiesToFinalize[activityName]) {
             const activity = activities.find(a => a.name === activityName);
             return activity?.type === 'Good';
         }
@@ -385,7 +367,38 @@ export default function JournalPage() {
     
     setIsReviewOpen(false);
   };
+  
+  const handleStartReview = () => {
+    const hasPositiveActivities = Object.keys(selectedActivities).some(name => {
+        const activity = activities.find(a => a.name === name);
+        return selectedActivities[name] && activity?.type === 'Good';
+    });
 
+    if (!hasPositiveActivities) {
+      toast({
+        title: "No Positive Activities Logged",
+        description: "Please log at least one positive activity before saving your day.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const selectedNegativeCount = Object.keys(selectedActivities).filter(name => {
+        if (selectedActivities[name]) {
+            const activity = activities.find(a => a.name === name);
+            return activity?.type === 'Bad';
+        }
+        return false;
+    }).length;
+
+    if (selectedNegativeCount < 2) {
+        setActivitiesForReview({ ...selectedActivities });
+        setIsReviewOpen(true);
+    } else {
+        handleFinalizeDay({ ...selectedActivities });
+    }
+  };
+  
   const handleSubmitProof = () => {
     if (!proofDialogState.activity) return;
 
@@ -670,7 +683,7 @@ export default function JournalPage() {
                 <DialogClose asChild>
                     <Button variant="ghost">Cancel</Button>
                 </DialogClose>
-                <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit & Log Activity</Button>
+                <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit &amp; Log Activity</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -727,8 +740,8 @@ export default function JournalPage() {
                  <p className="text-sm text-muted-foreground text-left hidden sm:block">Your final score will be calculated.</p>
                 <div className="flex gap-2">
                     <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
-                    <Button onClick={handleFinalizeDay}>
-                        {hasNegativeInReview ? "Save & Get Bonus" : "Save & Finalize"}
+                    <Button onClick={() => handleFinalizeDay()}>
+                        {hasNegativeInReview ? "Save &amp; Get Bonus" : "Save &amp; Finalize"}
                     </Button>
                 </div>
             </DialogFooter>
