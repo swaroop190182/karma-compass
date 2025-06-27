@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useTransition, type MouseEvent } from 're
 import { format } from 'date-fns';
 import {
   Sparkles, LoaderCircle, Calendar as CalendarIcon, FilePenLine, Bot, Upload,
-  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb, Check, FileCheck2, AlertCircle
+  BrainCircuit, HeartPulse, Dumbbell, Smile as SmileIcon, Laugh, Meh, Frown, Angry, Mic, CheckCircle2, Lightbulb, Check, FileCheck2, AlertCircle, Lock
 } from 'lucide-react';
 
 import { motivationalMessage } from '@/ai/flows/motivational-message';
@@ -29,6 +29,7 @@ import { ReactionAnimation, type AnimationType } from '@/components/reaction-ani
 import { KarmaCompass } from '@/components/karma-compass';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const JOURNAL_REWARD_DATES_KEY = 'journal-reward-dates';
 
@@ -282,11 +283,13 @@ export default function JournalPage() {
 
   const handleStartReview = () => {
     const activitiesLogged = Object.values(selectedActivities).some(v => v);
+    const positiveActivitiesLogged = Object.values(selectedActivities).some((isSelected, index) => isSelected && activities[index]?.type === 'Good');
 
-    if (!activitiesLogged) {
+
+    if (!positiveActivitiesLogged) {
       toast({
-        title: "No Activities Logged",
-        description: "Please log at least one positive activity before saving.",
+        title: "No Positive Activities Logged",
+        description: "Please log at least one positive activity before saving your day.",
         variant: "destructive",
       });
       return;
@@ -335,12 +338,28 @@ export default function JournalPage() {
     setTotalScore(score);
     updateJournalEntry(selectedDateString, { score: score, eqScore: finalEqScore });
 
+    // Dual-logging reward system
     if (!rewardedDates.has(selectedDateString)) {
-        addFunds(10, "You earned a reward for journaling today!");
-        const newRewardedDates = new Set(rewardedDates);
-        newRewardedDates.add(selectedDateString);
-        setRewardedDates(newRewardedDates);
-        localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
+        const allReviewedActivities = Object.keys(activitiesForReview)
+            .filter(name => activitiesForReview[name])
+            .map(name => activities.find(a => a.name === name))
+            .filter((a): a is Activity => !!a);
+        
+        const hasPositive = allReviewedActivities.some(a => a.type === 'Good');
+        const hasNegative = allReviewedActivities.some(a => a.type === 'Bad');
+
+        if (hasPositive && hasNegative) {
+            addFunds(15, "Great job on a balanced reflection! You earned a bonus.");
+        } else if (hasPositive) {
+            addFunds(5, "You earned a reward for journaling. Add a challenge next time for a bonus!");
+        }
+
+        if (hasPositive) {
+            const newRewardedDates = new Set(rewardedDates);
+            newRewardedDates.add(selectedDateString);
+            setRewardedDates(newRewardedDates);
+            localStorage.setItem(JOURNAL_REWARD_DATES_KEY, JSON.stringify(Array.from(newRewardedDates)));
+        }
     }
 
     setMotivationalQuote('');
@@ -412,48 +431,53 @@ export default function JournalPage() {
           .map(name => activities.find(a => a.name === name))
           .filter((a): a is Activity => !!a && a.type === 'Good' && activitiesForReview[a.name]);
   }, [activitiesForReview]);
+  
+  const hasNegativeInReview = useMemo(() => {
+    return Object.keys(activitiesForReview).some(name => {
+        const activity = activities.find(a => a.name === name);
+        return activity?.type === 'Bad' && activitiesForReview[name];
+    });
+  }, [activitiesForReview]);
 
   return (
     <div className="min-h-screen text-foreground font-body">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="flex items-center justify-between gap-4 mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                Record Your Day
-            </h1>
-            
-            <div className="flex-1 flex justify-center">
-               <KarmaCompass score={averageScores.averageKarma} eqScore={averageScores.averageEq} />
-            </div>
-            
-            <div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-auto sm:w-[280px] justify-start text-left font-normal text-base",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                    disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
-                    modifiers={{ logged: loggedDates }}
-                    modifiersClassNames={{
-                        logged: 'bg-primary/20',
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground flex-shrink-0">
+              Record Your Day
+          </h1>
+          <div className="flex-1 flex justify-center">
+            <KarmaCompass score={averageScores.averageKarma} eqScore={averageScores.averageEq} />
+          </div>
+          <div className="flex-shrink-0">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-auto sm:w-[280px] justify-start text-left font-normal text-base",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  disabled={(d) => d > new Date() || d < new Date("2000-01-01")}
+                  modifiers={{ logged: loggedDates }}
+                  modifiersClassNames={{
+                      logged: 'bg-primary/20',
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </header>
         
         <Card className="mb-8">
@@ -663,7 +687,7 @@ export default function JournalPage() {
                     <h4 className="font-semibold text-foreground flex items-center gap-2">
                         <AlertCircle className="text-yellow-500" /> Any Challenges?
                     </h4>
-                    <p className="text-xs text-muted-foreground mb-3">It's okay to have tough days. Logging them helps you grow.</p>
+                    <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2"><Lock className="w-3 h-3" /> Your reflections on challenges are always private to you.</p>
                     <div className="space-y-3">
                         {commonNegativeActivities.map(activity => (
                              <div key={activity.name} className="flex items-center space-x-3 p-2 rounded-md hover:bg-muted/50">
@@ -685,10 +709,21 @@ export default function JournalPage() {
                         ))}
                     </div>
                 </div>
+                <Alert variant={hasNegativeInReview ? 'default' : 'destructive'} className={cn(hasNegativeInReview && 'bg-green-500/10 border-green-500/20')}>
+                    <Lightbulb className="h-4 w-4" />
+                    <AlertTitle>{hasNegativeInReview ? "Bonus Unlocked!" : "Unlock Your Bonus!"}</AlertTitle>
+                    <AlertDescription>
+                        {hasNegativeInReview
+                          ? "Great! You've reflected on both wins and challenges. You'll get a bonus reward!"
+                          : "Log at least one challenge to unlock your full journaling bonus. Growth comes from reflecting on the tough stuff too!"}
+                    </AlertDescription>
+                </Alert>
             </div>
             <DialogFooter>
                 <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
-                <Button onClick={handleFinalizeDay}>Confirm & Calculate Score</Button>
+                <Button onClick={handleFinalizeDay}>
+                    {hasNegativeInReview ? "Confirm & Get Bonus" : "Confirm & Save Day"}
+                </Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
