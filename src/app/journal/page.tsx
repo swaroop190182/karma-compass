@@ -278,8 +278,8 @@ export default function JournalPage() {
     });
   };
 
-  const handleFinalizeDay = (activitiesOverride?: Record<string, boolean>) => {
-    const activitiesToFinalize = activitiesOverride || activitiesForReview;
+  const handleFinalizeDay = () => {
+    const activitiesToFinalize = { ...activitiesForReview };
     updateJournalActivities(selectedDateString, activitiesToFinalize);
 
     const score = Object.keys(activitiesToFinalize).reduce((acc, activityName) => {
@@ -395,7 +395,8 @@ export default function JournalPage() {
         setActivitiesForReview({ ...selectedActivities });
         setIsReviewOpen(true);
     } else {
-        handleFinalizeDay({ ...selectedActivities });
+        setActivitiesForReview({ ...selectedActivities });
+        handleFinalizeDay();
     }
   };
   
@@ -536,12 +537,12 @@ export default function JournalPage() {
         <div className="space-y-8">
             <Card>
                 <CardHeader>
-                     <CardTitle className="flex items-center gap-3"><FilePenLine /> Daily Journal &amp; Intentions</CardTitle>
+                     <CardTitle className="flex items-center gap-3"><FilePenLine /> Daily Journal & Intentions</CardTitle>
                      <CardDescription>Reflect on your day, set intentions, and clear your mind. Your entries are private.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2 p-4 border rounded-lg bg-muted/20">
-                        <label className="text-sm font-medium block">Reflections &amp; Gratitude</label>
+                        <label className="text-sm font-medium block">Reflections & Gratitude</label>
                         <Textarea placeholder="What went well? What are you grateful for? The AI will log your activities from this." rows={3} value={reflections} onChange={handleReflectionsChange}/>
                          <div className="flex gap-2 pt-2">
                             <Button variant="outline" size="sm"><Upload className="mr-2" /> Upload Photo</Button>
@@ -566,7 +567,7 @@ export default function JournalPage() {
                     <div className="flex justify-end pt-2">
                         <Button onClick={handleAnalyzeJournal} disabled={isAnalyzing}>
                             {isAnalyzing ? <LoaderCircle className="animate-spin mr-2" /> : <Bot className="mr-2" />}
-                            Analyze Journal &amp; Create Plan
+                            Analyze Journal & Create Plan
                         </Button>
                     </div>
                 </CardContent>
@@ -683,7 +684,7 @@ export default function JournalPage() {
                 <DialogClose asChild>
                     <Button variant="ghost">Cancel</Button>
                 </DialogClose>
-                <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit &amp; Log Activity</Button>
+                <Button onClick={handleSubmitProof}><Check className="mr-2"/> Submit & Log Activity</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -740,8 +741,8 @@ export default function JournalPage() {
                  <p className="text-sm text-muted-foreground text-left hidden sm:block">Your final score will be calculated.</p>
                 <div className="flex gap-2">
                     <Button variant="ghost" onClick={() => setIsReviewOpen(false)}>Cancel</Button>
-                    <Button onClick={() => handleFinalizeDay()}>
-                        {hasNegativeInReview ? "Save &amp; Get Bonus" : "Save &amp; Finalize"}
+                    <Button onClick={handleFinalizeDay}>
+                        {hasNegativeInReview ? "Save & Get Bonus" : "Save & Finalize"}
                     </Button>
                 </div>
             </DialogFooter>
@@ -759,5 +760,7 @@ export default function JournalPage() {
     </div>
   );
 }
+
+    
 
     
