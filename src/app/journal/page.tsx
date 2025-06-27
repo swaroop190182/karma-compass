@@ -42,10 +42,6 @@ const feelings = [
   { name: 'Stressed', icon: Angry, colorClass: 'text-red-500', hoverClass: 'hover:bg-red-500/10 hover:border-red-500/50', selectedClass: 'bg-red-500/20 border-red-600 text-red-600 dark:text-red-400' },
 ];
 
-const commonNegativeActivities = badKarmaActivities.filter(a =>
-    ['Procrastinated', 'Felt Stressed', 'Ate Junk Food', 'Excessive Screen Time', 'Lost Focus in Class'].includes(a.name)
-);
-
 export default function JournalPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   
@@ -694,22 +690,22 @@ export default function JournalPage() {
                             <AlertCircle className="text-yellow-500" /> Any Challenges?
                         </h4>
                         <p className="text-xs text-muted-foreground mb-3 flex items-center gap-2"><Lock className="w-3 h-3" /> Your reflections on challenges are always private to you.</p>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 pt-2">
-                            {commonNegativeActivities.map(activity => {
+                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 pt-2">
+                            {badKarmaActivities.map(activity => {
                                 const isSelected = !!activitiesForReview[activity.name];
                                 return (
                                     <button
                                         key={activity.name}
                                         onClick={(e) => handleNegativeActivityToggleInDialog(activity, e)}
                                         className={cn(
-                                            'flex flex-col items-center justify-center p-1.5 gap-1 rounded-lg border-2 transition-all aspect-square shadow-sm text-center',
+                                            'flex flex-col items-center justify-center p-1 gap-1 rounded-lg border-2 transition-all aspect-square shadow-sm text-center',
                                             'hover:shadow-md hover:scale-[1.03]',
                                             isSelected
                                             ? 'bg-muted border-foreground/50 shadow-lg scale-105 animate-shake'
                                             : 'bg-card border-input hover:border-destructive/50'
                                         )}
                                     >
-                                        <activity.icon className="w-5 h-5 shrink-0" />
+                                        <activity.icon className="w-4 h-4 shrink-0" />
                                         <span className="text-[10px] font-semibold leading-tight">{activity.name}</span>
                                     </button>
                                 );
@@ -750,3 +746,5 @@ export default function JournalPage() {
     </div>
   );
 }
+
+    
