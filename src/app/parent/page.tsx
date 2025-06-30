@@ -27,9 +27,13 @@ import {
   Check,
   X,
   MessageSquare,
-  Award
+  Award,
+  GraduationCap,
+  Edit3,
+  Save,
+  CheckCircle
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from '@/components/ui/label';
@@ -44,6 +48,11 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { boards, grades, subjectsByBoardAndGrade, type Board, type Grade, type Subject } from '@/lib/education';
+import { useToast } from '@/hooks/use-toast';
+
 
 const students = [
     { id: '1', name: 'Rohan', avatar: 'https://placehold.co/40x40.png' },
@@ -108,6 +117,98 @@ const notifications = [
 ];
 
 export default function ParentDashboardPage() {
+  const { toast } = useToast();
+
+  // State for student profiles
+  const [selectedStudentId, setSelectedStudentId] = useState(students[0].id);
+  
+  // This would be more complex in a real app, fetched from a DB and saved back.
+  const [studentProfiles, setStudentProfiles] = useState({
+      '1': {
+          board: 'CBSE' as Board,
+          grade: 'Grade 9' as Grade,
+          subjects: [] as Subject[],
+          favoriteSubjects: new Set(['Science']),
+          challengingSubjects: new Set(['Mathematics']),
+          personalGoal: 'I want to get better at solving math problems and be more consistent with my study schedule.'
+      },
+      '2': {
+          board: 'ICSE' as Board,
+          grade: 'Grade 10' as Grade,
+          subjects: [] as Subject[],
+          favoriteSubjects: new Set(['History & Civics']),
+          challengingSubjects: new Set(['Physics']),
+          personalGoal: 'I want to score above 90% in my board exams.'
+      }
+  });
+
+  const currentProfile = studentProfiles[selectedStudentId as keyof typeof studentProfiles];
+
+  useEffect(() => {
+    Object.keys(studentProfiles).forEach(id => {
+      const profile = studentProfiles[id as keyof typeof studentProfiles];
+      if (profile.board && profile.grade) {
+          const newSubjects = subjectsByBoardAndGrade[profile.board][profile.grade] || [];
+          setStudentProfiles(prev => ({
+              ...prev,
+              [id]: { ...prev[id as keyof typeof prev], subjects: newSubjects }
+          }));
+      }
+    });
+  }, []); // Run once on mount to initialize subjects
+
+  useEffect(() => {
+      if (currentProfile && currentProfile.board && currentProfile.grade) {
+          const newSubjects = subjectsByBoardAndGrade[currentProfile.board][currentProfile.grade] || [];
+          handleProfileChange('subjects', newSubjects);
+      }
+  }, [currentProfile?.board, currentProfile?.grade]);
+
+  const handleProfileChange = (field: string, value: any) => {
+    setStudentProfiles(prev => ({
+        ...prev,
+        [selectedStudentId]: { ...prev[selectedStudentId as keyof typeof prev], [field]: value }
+    }));
+  };
+
+  const handleSubjectToggle = (subjectName: string, list: 'favorite' | 'challenging') => {
+      const newProfile = { ...currentProfile };
+
+      if (list === 'favorite') {
+          const newFavorites = new Set(newProfile.favoriteSubjects);
+          if (newFavorites.has(subjectName)) {
+              newFavorites.delete(subjectName);
+          } else {
+              newFavorites.add(subjectName);
+              const newChallenging = new Set(newProfile.challengingSubjects);
+              if(newChallenging.has(subjectName)) newChallenging.delete(subjectName);
+              newProfile.challengingSubjects = newChallenging;
+          }
+          newProfile.favoriteSubjects = newFavorites;
+      } else {
+          const newChallenging = new Set(newProfile.challengingSubjects);
+          if (newChallenging.has(subjectName)) {
+              newChallenging.delete(subjectName);
+          } else {
+              newChallenging.add(subjectName);
+              const newFavorites = new Set(newProfile.favoriteSubjects);
+              if(newFavorites.has(subjectName)) newFavorites.delete(subjectName);
+              newProfile.favoriteSubjects = newFavorites;
+          }
+          newProfile.challengingSubjects = newChallenging;
+      }
+
+      setStudentProfiles(prev => ({ ...prev, [selectedStudentId]: newProfile }));
+  };
+
+  const handleSaveProfile = () => {
+    const studentName = students.find(s => s.id === selectedStudentId)?.name || 'student';
+    toast({
+        title: `${studentName}'s Profile Saved!`,
+        description: "Their information has been successfully updated.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-muted/20">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
@@ -121,8 +222,9 @@ export default function ParentDashboardPage() {
         </header>
 
         <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
-                <TabsTrigger value="profile"><User className="mr-2"/> Profile</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-6">
+                <TabsTrigger value="profile"><User className="mr-2"/> Parent Account</TabsTrigger>
+                <TabsTrigger value="student-profile"><GraduationCap className="mr-2"/> Student Profile</TabsTrigger>
                 <TabsTrigger value="wallet"><Wallet className="mr-2"/> Wallet</TabsTrigger>
                 <TabsTrigger value="rules"><Settings2 className="mr-2"/> Rules</TabsTrigger>
                 <TabsTrigger value="progress"><LayoutDashboard className="mr-2"/> Progress</TabsTrigger>
@@ -244,7 +346,114 @@ export default function ParentDashboardPage() {
                 <div className="flex justify-end">
                     <Button size="lg">Save All Changes</Button>
                 </div>
+            </TabsContent>
+            
+            <TabsContent value="student-profile" className="space-y-8">
+                <Card>
+                    <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle>Manage Student Profile</CardTitle>
+                            <CardDescription>Set educational details to personalize their AI tutor experience.</CardDescription>
+                        </div>
+                        <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Select Student" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {students.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                        {currentProfile && (
+                            <>
+                                 <Card className="bg-muted/30">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-lg"><GraduationCap /> Educational Details</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="board">Board of Education</Label>
+                                            <Select value={currentProfile.board} onValueChange={(value: Board) => handleProfileChange('board', value)}>
+                                                <SelectTrigger id="board"><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    {boards.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="grade">Grade / Class</Label>
+                                            <Select value={currentProfile.grade} onValueChange={(value: Grade) => handleProfileChange('grade', value)}>
+                                                <SelectTrigger id="grade"><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    {grades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
+                                <Card className="bg-muted/30">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-lg"><BookOpen /> Subject Preferences</CardTitle>
+                                        <CardDescription>Help Aura know where they shine and where they need more help.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Label className="font-semibold">Student's Subjects</Label>
+                                        <p className="text-xs text-muted-foreground mb-3">Click to mark as favorite (green) or challenging (yellow).</p>
+                                        <div className="flex flex-wrap gap-3">
+                                            {currentProfile.subjects.map(subject => {
+                                                const isFavorite = currentProfile.favoriteSubjects.has(subject.name);
+                                                const isChallenging = currentProfile.challengingSubjects.has(subject.name);
+                                                return (
+                                                    <button 
+                                                        key={subject.name} 
+                                                        onClick={() => {
+                                                            if (!isFavorite && !isChallenging) handleSubjectToggle(subject.name, 'favorite');
+                                                            else if (isFavorite) handleSubjectToggle(subject.name, 'challenging');
+                                                            else if (isChallenging) handleSubjectToggle(subject.name, 'challenging');
+                                                        }}
+                                                    >
+                                                        <Badge
+                                                            variant="outline"
+                                                            className={cn("text-base py-2 px-4 cursor-pointer border-2 transition-all hover:border-primary",
+                                                                isFavorite && "bg-green-500/20 border-green-500",
+                                                                isChallenging && "bg-yellow-500/20 border-yellow-500"
+                                                            )}
+                                                        >
+                                                            {isFavorite && <CheckCircle className="mr-2 text-green-700"/>}
+                                                            {isChallenging && <Edit3 className="mr-2 text-yellow-700"/>}
+                                                            <subject.icon className="mr-2" />
+                                                            {subject.name}
+                                                        </Badge>
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="bg-muted/30">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2 text-lg"><Target /> Personal Goal</CardTitle>
+                                        <CardDescription>What's one big thing they want to achieve? Aura will help.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Textarea
+                                            placeholder="e.g., To feel more confident speaking in class..."
+                                            value={currentProfile.personalGoal}
+                                            onChange={e => handleProfileChange('personalGoal', e.target.value)}
+                                            rows={4}
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
+                    </CardContent>
+                    <CardFooter className="justify-end">
+                        <Button onClick={handleSaveProfile} size="lg"><Save className="mr-2"/> Save Profile</Button>
+                    </CardFooter>
+                </Card>
             </TabsContent>
 
             <TabsContent value="wallet" className="space-y-8">
@@ -744,5 +953,3 @@ export default function ParentDashboardPage() {
     </div>
   );
 }
-
-    
