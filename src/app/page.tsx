@@ -82,7 +82,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button asChild size="lg">
-                    <Link href="/journal">📝 Try the Demo</Link>
+                    <Link href="/login">📝 Get Started</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                     <Link href="/parent">👨‍👩‍👧 For Parents</Link>

@@ -14,7 +14,7 @@ export function LandingNavbar() {
   const navLinks = [
     { href: '/features', label: 'Features' },
     { href: '/parent', label: 'For Parents' },
-    { href: '/journal', label: 'Try The Demo' },
+    { href: '/login', label: 'Get Started' },
   ];
 
   return (
