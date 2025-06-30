@@ -55,9 +55,9 @@ export default function LoginPage() {
         login({ email: signupEmail });
         toast({
             title: 'Sign Up Successful!',
-            description: `Welcome, ${signupName}!`,
+            description: `Welcome, ${signupName}! Please set up your profile.`,
         });
-        router.push('/journal');
+        router.push('/profile');
     }
 
     return (

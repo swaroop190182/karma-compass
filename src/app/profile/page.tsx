@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { User, BookOpen, Target, GraduationCap, Edit3, Save, Camera, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ export default function ProfilePage() {
     const [challengingSubjects, setChallengingSubjects] = useState<Set<string>>(new Set(['Mathematics']));
     const [personalGoal, setPersonalGoal] = useState('I want to get better at solving math problems and be more consistent with my study schedule.');
     const { toast } = useToast();
+    const router = useRouter();
 
     useEffect(() => {
         if (selectedBoard && selectedGrade) {
@@ -64,8 +66,9 @@ export default function ProfilePage() {
         // In a real app, this would save to a database.
         toast({
             title: "Profile Saved!",
-            description: "Your information has been successfully updated.",
+            description: "Your information has been successfully updated. Redirecting to your journal...",
         });
+        router.push('/journal');
     };
 
     return (
