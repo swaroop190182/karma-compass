@@ -18,7 +18,7 @@ export function Navbar() {
   const navLinks = [
     { href: '/journal', label: 'Journal' },
     { href: '/features', label: 'Features' },
-    { href: '/parent', label: 'Parents' },
+    { href: '/profile', label: 'Profile' },
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
