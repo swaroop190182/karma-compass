@@ -2,8 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Menu } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WalletDisplay } from './wallet-display';
 import { useState } from 'react';
@@ -11,10 +11,21 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { AppUsageTimer } from './app-usage-timer';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogout = () => {
+    logout();
+    toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+    router.push('/login');
+  };
 
   const navLinks = [
     { href: '/journal', label: 'Journal' },
@@ -64,10 +75,13 @@ export function Navbar() {
         </div>
         
         {/* Wallet and Mobile Menu on the right */}
-        <div className="flex-1 flex justify-end items-center gap-4">
+        <div className="flex-1 flex justify-end items-center gap-2">
             <div className="hidden sm:flex items-center gap-4">
                 <AppUsageTimer />
                 <WalletDisplay />
+                 <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
+                    <LogOut className="h-5 w-5" />
+                </Button>
             </div>
             <div className="sm:hidden">
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -96,6 +110,9 @@ export function Navbar() {
                         <div className="mt-auto space-y-4">
                             <AppUsageTimer />
                             <WalletDisplay />
+                            <Button variant="outline" className="w-full" onClick={handleLogout}>
+                                <LogOut className="mr-2" /> Log Out
+                            </Button>
                         </div>
                     </SheetContent>
                 </Sheet>

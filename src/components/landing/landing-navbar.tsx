@@ -13,19 +13,15 @@ export function LandingNavbar() {
 
   const navLinks = [
     { href: '/features', label: 'Features' },
-    { href: '/journal', label: 'Record' },
-    { href: '/reflections', label: 'Reflections' },
-    { href: '/planner', label: 'Goals' },
-    { href: '/quests', label: 'Habits' },
-    { href: '/store', label: 'Store' },
-    { href: '/connect', label: 'Connect' },
+    { href: '/parent', label: 'For Parents' },
+    { href: '/journal', label: 'Try The Demo' },
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center">
             {/* Logo on the left */}
-            <div className="flex-1 flex justify-start">
+            <div className="flex items-center">
                 <Link href="/">
                     <Image
                         src="https://i.postimg.cc/wj6407JT/Chat-GPT-Image-Jun-25-2025-10-35-54-PM.png"
@@ -40,7 +36,7 @@ export function LandingNavbar() {
             </div>
 
             {/* Centered Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center justify-center gap-8 text-sm">
+            <nav className="hidden md:flex flex-1 items-center justify-center gap-8 text-sm">
                 {navLinks.map((link) => (
                     <Link
                         key={link.href}
@@ -53,7 +49,12 @@ export function LandingNavbar() {
             </nav>
 
             {/* Right Aligner for Desktop, Mobile Menu for Mobile */}
-            <div className="flex-1 flex justify-end">
+            <div className="flex justify-end md:w-auto">
+                <div className="hidden md:block">
+                    <Button asChild>
+                        <Link href="/login">Login</Link>
+                    </Button>
+                </div>
                 <div className="md:hidden">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
@@ -84,6 +85,9 @@ export function LandingNavbar() {
                                         {link.label}
                                     </Link>
                                 ))}
+                                <Button asChild>
+                                  <Link href="/login" onClick={() => setIsOpen(false)}>Login</Link>
+                                </Button>
                             </nav>
                         </SheetContent>
                     </Sheet>
