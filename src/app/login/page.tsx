@@ -87,7 +87,22 @@ export default function LoginPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="password">Password</Label>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="password">Password</Label>
+                                         <Button 
+                                            type="button" 
+                                            variant="link" 
+                                            className="text-xs h-auto p-0 font-normal text-muted-foreground hover:text-foreground"
+                                            onClick={() => {
+                                                toast({
+                                                    title: "No Worries!",
+                                                    description: "This is just a demo. You can use any password to log in.",
+                                                });
+                                            }}
+                                        >
+                                            Forgot password?
+                                        </Button>
+                                    </div>
                                     <Input
                                         id="password"
                                         type="password"
