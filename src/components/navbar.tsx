@@ -19,6 +19,7 @@ export function Navbar() {
     { href: '/journal', label: 'Journal' },
     { href: '/features', label: 'Features' },
     { href: '/profile', label: 'Profile' },
+    { href: '/parent', label: 'Parents' },
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
