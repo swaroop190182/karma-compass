@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -17,7 +18,6 @@ export function LandingNavbar() {
     { href: '/planner', label: 'Goals' },
     { href: '/quests', label: 'Habits' },
     { href: '/store', label: 'Store' },
-    { href: '/tutor', label: 'Counsellor' },
     { href: '/connect', label: 'Connect' },
   ];
 

@@ -48,13 +48,6 @@ const featuresList = [
     linkText: 'Chat with Aura'
   },
   {
-    icon: Bot,
-    title: 'Luma - AI Counsellor',
-    description: 'Feeling overwhelmed or just need to talk? Luma is your confidential and non-judgmental AI counsellor, available 24/7 to listen and support you with whatever is on your mind.',
-    link: '/tutor',
-    linkText: 'Talk to Luma'
-  },
-  {
     icon: Puzzle,
     title: 'Quests & Brain Puzzles',
     description: 'Challenge your mind with daily quizzes, weekly riddles, and fun word search puzzles. Sharpen your knowledge across various subjects and earn wallet rewards for every puzzle you solve.',

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -18,14 +19,12 @@ export function Navbar() {
   const navLinks = [
     { href: '/journal', label: 'Journal' },
     { href: '/features', label: 'Features' },
-    { href: '/profile', label: 'Profile' },
     { href: '/parent', label: 'Parents' },
     { href: '/planner', label: 'Planner' },
     { href: '/reflections', label: 'Reflections' },
     { href: '/quests', label: 'Quests' },
     { href: '/store', label: 'Store' },
     { href: '/connect', label: 'Connect' },
-    { href: '/tutor', label: 'Counsellor' },
   ];
 
   return (
